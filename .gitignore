@@ -2,3 +2,5 @@
 .DS_Store
 /application/cache
 *node_modules
+*.mp4
+*.mov
