@@ -41,10 +41,6 @@ class CB_Model extends CI_Model
 	 */
 	public $search_field_equal = array();
 
-	/**
-	 * 모든 어드민에서 range 검색이 가능하도록 수정
-	 */
-	public $allow_search_field_range = array();
 
 	/* --------------------------------------------------------------
 	 * GENERIC METHODS
