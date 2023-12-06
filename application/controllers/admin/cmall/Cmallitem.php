@@ -51,6 +51,8 @@ class Cmallitem extends CB_Controller
 	 */
 	public function index()
 	{
+		$where = array();
+
 		// 이벤트 라이브러리를 로딩합니다
 		$eventname = 'event_admin_cmall_cmallitem_index';
 		$this->load->event($eventname);
@@ -85,6 +87,9 @@ class Cmallitem extends CB_Controller
 		$per_page = admin_listnum();
 		$offset = ($page - 1) * $per_page;
 
+		//삭제 플래그 y 제외
+		$where[] = "cit_del_flag='n'";
+		
 		/**
 		 * 게시판 목록에 필요한 정보를 가져옵니다.
 		 */
@@ -92,7 +97,7 @@ class Cmallitem extends CB_Controller
 		$this->{$this->modelname}->search_field_equal = array('cit_id', 'cit_price'); // 검색중 like 가 아닌 = 검색을 하는 필드
 		$this->{$this->modelname}->allow_order_field = array('cit_id', 'cit_key', 'cit_order', 'cit_name', 'cit_datetime', 'cit_updated_datetime', 'cit_hit', 'cit_sell_count', 'cit_price'); // 정렬이 가능한 필드
 		$result = $this->{$this->modelname}
-			->get_admin_list($per_page, $offset, '', '', $findex, $forder, $sfield, $skeyword);
+			->get_admin_list($per_page, $offset, implode('',$where), '', $findex, $forder, $sfield, $skeyword);
 
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		if (element('list', $result)) {
@@ -1004,7 +1009,7 @@ class Cmallitem extends CB_Controller
 			foreach ($this->input->post('chk') as $val) {
 				if ($val) {
 					$this->{$this->modelname}->delete($val);
-					$this->Cmall_item_meta_model->deletemeta($val);
+					$this->Cmall_item_meta_model->deletemeta($val); 
 				}
 			}
 		}

@@ -30,7 +30,7 @@ class Cmall_item_model extends CB_Model
 		parent::__construct();
 	}
 
-
+	
 	public function get_latest($config)
 	{
 		$where['cit_status'] = 1;
@@ -64,7 +64,7 @@ class Cmall_item_model extends CB_Model
 	 */
 	public function get_item_list($limit = '', $offset = '', $where = '', $category_id = 0, $orderby = '', $sfield = '', $skeyword = '', $sop = 'OR')
 	{
-
+		
 		if ( ! in_array(strtolower($orderby), $this->allow_order)) {
 			$orderby = 'cit_order asc';
 		}
@@ -201,6 +201,26 @@ class Cmall_item_model extends CB_Model
 		$this->db->where($this->primary_key, $primary_value);
 		$this->db->set('cit_hit', 'cit_hit+1', false);
 		$result = $this->db->update($this->_table);
+		return $result;
+	}
+
+	/**
+	 * overwrite
+	 */
+	public function delete($primary_value = '')
+	{
+
+		if ($primary_value) {
+			$updatedata = array(
+				'cit_del_flag' => 'y',
+				'cit_del_dt' => cdate('Y-m-d H:i:s'),
+			);
+			$this->db->where($this->primary_key, $primary_value);
+			$this->db->set($updatedata);
+		}
+
+		$result = $this->db->update($this->_table);
+
 		return $result;
 	}
 }
