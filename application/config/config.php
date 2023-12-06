@@ -699,3 +699,11 @@ $config['proxy_ips'] = '';
  */
 $config['ciboard_website'] = 'http://www.ciboard.co.kr/';
 $config['ciboard_check_latest_version'] = 'http://api.ciboard.co.kr/version/check/';
+
+
+/**
+상품 유형별 카테고리 설정
+**/
+$cofing['custom']['category']['item'] = 6; //아이템몰
+$cofing['custom']['category']['basic'] = 1; //공용몰
+$cofing['custom']['category']['company'] = 2; //자사몰
