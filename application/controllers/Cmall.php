@@ -644,7 +644,21 @@ class Cmall extends CB_Controller
 				$result[$key]['detail'] = $this->Cmall_cart_model
 					->get_cart_detail($mem_id, element('cit_id', $val));
 			}
+
+			//결제 방법에 따라 장바구니 나누기
+			$tmp_result = array();
+			foreach ($result as $key => $val) {
+				if($val['cit_money_type']=='f'){
+					$tmp_result['f'][] = $val;
+				}else{
+					$tmp_result['c'][] = $val;
+				}
+			}
+
+			$result = $tmp_result;
 		}
+
+
 		$view['view']['data'] = $result;
 		$view['view']['list_delete_url'] = site_url('cmallact/cart_delete/?' . $param->output());
 
