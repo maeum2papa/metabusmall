@@ -147,29 +147,29 @@
 			<div class="swiper-wrapper">
 				<div class="swiper-slide">
 					<div class="slide_flex_box">
-						<div class="slide_img">asdfasdfasdfasdfasdfasdfasdfasdf</div>
-						<div class="slide_img">fdsafdsafdsafdsafdsafdsafdsafdsa</div>
+						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
+						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
 					</div>
 				</div>
 
 				<div class="swiper-slide">
 					<div class="slide_flex_box">
-						<div class="slide_img">ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ</div>
-						<div class="slide_img">ㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴ</div>
+						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
+						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
 					</div>
 				</div>
 
 				<div class="swiper-slide">
 					<div class="slide_flex_box">
-						<div class="slide_img">ㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷ</div>
-						<div class="slide_img">ㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹ</div>
+						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
+						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
 					</div>
 				</div>
 
 				<div class="swiper-slide">
 					<div class="slide_flex_box">
-						<div class="slide_img">ㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱ</div>
-						<div class="slide_img">ㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅㅅ</div>
+						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
+						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
 					</div>
 				</div>
 			</div>
@@ -195,6 +195,13 @@
 					<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 						<div class="cont_img">
 							<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
+
+							<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+							<div class="soldout_mask">
+								<span>SOLD OUT</span>
+							</div>
+							<?php } ?>
+								
 						</div>
 						<div class="cont_info">
 							<div class="cont_info_title">
@@ -252,6 +259,13 @@
 						<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 							<div class="cont_img">
 								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
+								
+								<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+								<div class="soldout_mask">
+									<span>SOLD OUT</span>
+								</div>
+								<?php } ?>
+								
 							</div>
 							<div class="cont_info">
 								<div class="cont_info_title">
@@ -307,6 +321,13 @@
 						<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 							<div class="cont_img">
 								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
+
+								<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+								<div class="soldout_mask">
+									<span>SOLD OUT</span>
+								</div>
+								<?php } ?>
+								
 							</div>
 							<div class="cont_info">
 								<div class="cont_info_title">
@@ -385,7 +406,7 @@
 
 	const mySwiper = new Swiper('.cmall_index_slide', {
 		speed: 500,
-		effect: 'fade',
+		// effect: 'fade',
 		loop: true,
 		pagination: {
 			el: '.swiper-pagination',
