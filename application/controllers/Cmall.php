@@ -183,6 +183,13 @@ class Cmall extends CB_Controller
 		$where = array();
 		$where['cit_status'] = 1;
 		$where['cit_del_flag'] = 'n';
+
+		//자사몰 필터링
+		$cconfig['custom'] = config_item('custom');
+		if($cconfig['custom']['category']['company'] == $category_id){
+			$where['company_idx'] = $this->member->item('company_idx');
+		}
+
 		$result = $this->Cmall_item_model
 			->get_item_list($per_page, $offset, $where, $category_id, $findex, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
