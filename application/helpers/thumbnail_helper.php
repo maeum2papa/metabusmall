@@ -55,7 +55,7 @@ if ( ! function_exists('thumbnail')) {
 			$source_file .= $type . '/';
 		}
 		$source_file .= $filename;
-
+		
 		if (is_file($source_file) === false) { // 원본 파일이 없다면
 			return;
 		}
@@ -68,7 +68,7 @@ if ( ! function_exists('thumbnail')) {
 		if ($size[2] < 1 OR $size[2] > 3) { // gif, jpg, png 에 대해서만 적용
 			return;
 		}
-
+		
 		$uploadDir = config_item('uploads_dir') . '/cache/';
 		if (is_dir($uploadDir) === false) {
 			@mkdir($uploadDir, 0755);
@@ -114,7 +114,7 @@ if ( ! function_exists('thumbnail')) {
 		if ( ! (is_dir($target_path) && is_writable($target_path))) {
 			return '';
 		}
-
+		
 		// Animated GIF는 썸네일 생성하지 않음
 		if ($size[2] === 1) {
 			if (is_animated_gif ($source_file) && $create_animate_thumb === false) {

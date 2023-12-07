@@ -66,9 +66,9 @@ class CB_Controller extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
-
+		 
 		if (config_item('chk_installed')) {
-			$database = $this->load->database('', true);
+			$database = $this->load->database('', true); 
 			if (empty($database->conn_id)) {
 				redirect('install');
 			}

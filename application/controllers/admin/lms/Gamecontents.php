@@ -57,17 +57,22 @@ class Gamecontents extends CB_Controller
 
 		$view = array();
 		$view['view'] = array();
-
+		
+		//게임템플릿 종류
+		//template 윤진봉
+		$q = "select * from cb_asset_template where  tp_type = 'g' order by tp_sno desc";
+		$r = $this->db->query($q);
+		$view['view']['template'] = $r->result_array(); 
+		
 		/**
 		 * 페이지에 숫자가 아닌 문자가 입력되거나 1보다 작은 숫자가 입력되면 에러 페이지를 보여줍니다.
 		 */
 		$param =& $this->querystring;
 		$page = (((int) $this->input->get('page')) > 0) ? ((int) $this->input->get('page')) : 1;
 		$view['view']['sort'] = array(
-			'item_sno' => $param->sort('item_sno', 'asc'),
-			'item_kr' => $param->sort('item_kr', 'asc'),
-			'item_type' => $param->sort('item_type', 'asc'),
-			'item_regDt' => $param->sort('item_regDt', 'desc'),
+			'g_sno' => $param->sort('g_sno', 'asc'),
+			'tp_sno' => $param->sort('tp_sno', 'asc'),
+			'g_time' => $param->sort('g_time', 'asc'),
 		);
 		$findex = $this->input->get('findex') ? $this->input->get('findex') : $this->{$this->modelname}->primary_key;
 		$forder = $this->input->get('forder', null, 'desc');
@@ -80,16 +85,16 @@ class Gamecontents extends CB_Controller
 		/**
 		 * 게시판 목록에 필요한 정보를 가져옵니다.
 		 */
-		$this->{$this->modelname}->allow_search_field = array('item_kr', 'cate_kr', 'item_regDt'); // 검색이 가능한 필드
+		$this->{$this->modelname}->allow_search_field = array('g_nm', 'g_method'); // 검색이 가능한 필드
 		// $this->{$this->modelname}->search_field_equal = array('seum_departmentNm'); // 검색중 like 가 아닌 = 검색을 하는 필드
-		$this->{$this->modelname}->allow_order_field = array('item_sno', 'item_kr', 'item_type', 'item_regDt'); // 정렬이 가능한 필드
+		$this->{$this->modelname}->allow_order_field = array('g_sno', 'tp_sno', 'g_time'); // 정렬이 가능한 필드
 		
 		
 		//템플릿 종류 검색 추가
 		$where = array();
 		
-		if ($_GET['item_type']) {	
-			$where['item_type'] = $view['view']['item_type'] = $_GET['item_type'];
+		if ($_GET['tp_sno']) {	
+			$where['tp_sno'] = $view['view']['tp_sno'] = $_GET['tp_sno'];
 		}
 		
 		
@@ -124,7 +129,7 @@ class Gamecontents extends CB_Controller
 		/**
 		 * 쓰기 주소, 삭제 주소등 필요한 주소를 구합니다
 		 */
-		$search_option = array('item_kr' => '아이템명', 'cate_kr' => '카테고리명');
+		$search_option = array('g_nm' => '게임명', 'g_method' => '게임방법');
 		$view['view']['skeyword'] = ($sfield && array_key_exists($sfield, $search_option)) ? ltrim($skeyword) : '';
 		$view['view']['search_option'] = search_option($search_option, $sfield);
 		$view['view']['listall_url'] = admin_url($this->pagedir);

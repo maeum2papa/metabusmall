@@ -84,8 +84,8 @@ $query_builder = TRUE;
 $db['default'] = array(
 	//'dsn'	=> 'mysql:host=localhost;dbname=yourdatabasenamehere',
 	'hostname' => '127.0.0.1',
-	'username' => 'root',
-	'password' => 'teammeta01!@%^838',
+	'username' => 'collaborland',
+	'password' => 'teammeta1234!!',
 	'database' => 'collaborland',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => 'cb_',
