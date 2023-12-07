@@ -637,6 +637,7 @@ class Cmall extends CB_Controller
 		 */
 		$where = array();
 		$where['cmall_cart.mem_id'] = $mem_id;
+		$where['cmall_item.cit_del_flag'] = 'n';
 		$result = $this->Cmall_cart_model->get_cart_list($where, $findex, $forder);
 		if ($result) {
 			foreach ($result as $key => $val) {
