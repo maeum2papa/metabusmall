@@ -163,8 +163,8 @@ class Cmall extends CB_Controller
 			$alertmessage,
 			''
 		);
-
-		$findex = ($this->input->get('findex') && in_array($this->input->get('findex'), $allow_order_field)) ? $this->input->get('findex') : 'cit_order asc';
+		
+		$findex = ($this->input->get('findex')) ? $this->input->get('findex') : 'cit_order asc';
 		$sfield = $this->input->get('sfield', null, '');
 		if ($sfield === 'cit_both') {
 			$sfield = array('cit_name', 'cit_content');
@@ -182,6 +182,7 @@ class Cmall extends CB_Controller
 		 */
 		$where = array();
 		$where['cit_status'] = 1;
+		$where['cit_del_flag'] = 'n';
 		$result = $this->Cmall_item_model
 			->get_item_list($per_page, $offset, $where, $category_id, $findex, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;

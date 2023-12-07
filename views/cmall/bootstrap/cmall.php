@@ -146,31 +146,23 @@
 		<div class="cmall_index_slide swiper mySwiper">
 			<div class="swiper-wrapper">
 				<div class="swiper-slide">
-					<div class="slide_flex_box">
-						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-					</div>
+					<div class="slide_img"><?=banner('shop_slide_banner')?></div>
 				</div>
 
 				<div class="swiper-slide">
-					<div class="slide_flex_box">
-						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-					</div>
+					<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
 				</div>
 
 				<div class="swiper-slide">
-					<div class="slide_flex_box">
-						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-					</div>
+					<div class="slide_img"><?=banner('shop_slide_banner')?></div>
 				</div>
 
 				<div class="swiper-slide">
-					<div class="slide_flex_box">
-						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-					</div>
+					<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
+				</div>
+
+				<div class="swiper-slide">
+					<div class="slide_img"><?=banner('shop_slide_banner')?></div>
 				</div>
 			</div>
 			<div class="swiper-button-next"></div>
@@ -407,6 +399,7 @@
 	const mySwiper = new Swiper('.cmall_index_slide', {
 		speed: 500,
 		// effect: 'fade',
+		slidesPerView : 2,
 		loop: true,
 		pagination: {
 			el: '.swiper-pagination',

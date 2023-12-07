@@ -40,7 +40,7 @@
 					<div class="searchbox_wrap">
 						<!-- asmo sh 231205 디자인 상 div.searchbox list 위로 올리고 버튼 추가하여 공지사항 게시판 검색버튼과 동일하게 디자인 -->
 						<div class="searchbox">
-							<form class="navbar-form navbar-right pull-right" action="<?php echo current_url(); ?>" onSubmit="return itemSearch(this);">
+							<form class="navbar-form navbar-right pull-right navbar-form-item-list" action="<?php echo current_url(); ?>" >
 								<input type="hidden" name="findex" value="<?php echo html_escape($this->input->get('findex')); ?>" />
 								<div class="form-group">
 									<select class="form-control pull-left px100" name="sfield">
@@ -59,16 +59,17 @@
 						</div>
 					</div>
 					<div class="select_box">
-						<select class="form-control">
-							<option value="">인기순</option>
-							<option value="">추천순</option>
-							<option value="">최신순</option>
-							<option value="">가격낮은순</option>
+						<select class="form-control" id="findex_select">
+							<option value="">기본순</option>
+							<option value="cit_hit desc" <?php echo ($this->input->get('findex') === 'cit_hit desc') ? ' selected="selected" ' : ''; ?>>인기순</option>
+							<option value="cit_review_count desc, cit_review_average dsec" <?php echo ($this->input->get('findex') === 'cit_review_count desc, cit_review_average dsec') ? ' selected="selected" ' : ''; ?>>추천순</option>
+							<option value="cit_datetime desc" <?php echo ($this->input->get('findex') === 'cit_datetime desc') ? ' selected="selected" ' : ''; ?>>최신순</option>
+							<option value="cit_price asc" <?php echo ($this->input->get('findex') === 'cit_price asc') ? ' selected="selected" ' : ''; ?>>가격낮은순</option>
 						</select>
 					</div>
 					<div class="top_right_box">
-						<a href="">장바구니 <?=banner('cart')?></a>
-						<a href="">구매내역 <?=banner('purchase_history')?></a>
+						<a href="/cmall/cart">장바구니 <?=banner('cart')?></a>
+						<a href="/cmall/orderlist">구매내역 <?=banner('purchase_history')?></a>
 					</div>
 				</div>
 			</div>
@@ -83,6 +84,12 @@
 						<div class="thumbnail" >
 							<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>" title="<?php echo html_escape(element('cit_name', $item)); ?>">
 								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="<?php echo html_escape(element('cit_name', $item)); ?>" title="<?php echo html_escape(element('cit_name', $item)); ?>" />
+
+								<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+								<div class="soldout_mask">
+									<span>SOLD OUT</span>
+								</div>
+								<?php } ?>
 							</a>
 							<p class="cmall-tit"><a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>" title="<?php echo html_escape(element('cit_name', $item)); ?>"><?php echo html_escape(element('cit_name', $item)); ?></a></p>
 							<p class="cmall-txt"><?php echo element('cit_summary', $item); ?></p>
@@ -123,6 +130,12 @@
 
 		// shop 페이지일 때 사이드바 메뉴 활성화
 		$('#shop a').addClass('selected');
+
+		//정렬 변경 후 자동 검색
+		$('#findex_select').change(function(){
+			$("input[name='findex']").val($(this).val());
+			$(".navbar-form-item-list").submit();
+		});
 	});
 
 	// 검색버튼 토글 함수
