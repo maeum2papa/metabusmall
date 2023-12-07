@@ -211,11 +211,10 @@
 						</span>
 					</div>
 				</div>
-				<div class="form-group" style="display: none">
-					<label class="col-sm-2 control-label">기본설명</label>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">요약설명</label>
 					<div class="col-sm-10">
-						<textarea class="form-control" name="cit_summary" id="cit_summary" rows="3"><?php echo set_value('cit_summary', element('cit_summary', element('data', $view))); ?></textarea>
-						<div class="help-block">요약설명을 입력해주세요</div>
+						<textarea class="form-control" name="cit_summary" id="cit_summary" rows="1"><?php echo set_value('cit_summary', element('cit_summary', element('data', $view))); ?></textarea>
 					</div>
 				</div>
 				<div class="form-group" style="display: none">
