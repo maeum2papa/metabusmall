@@ -223,4 +223,33 @@ class Cmall_item_model extends CB_Model
 
 		return $result;
 	}
+
+	/**
+	 * shop 메이에서 추천 상품 불러오기
+	 * - 추천 체크 && 아이템 카테고리 = true
+	 * - 삭제된게 아니면 = true
+	 */
+	public function get_latest_shop($config,$cconfig,$company_idx=0)
+	{
+		$where['cmall_item.cit_status'] = 1;
+		$where['cmall_item.cit_type1'] = 1;
+		$where['cmall_category_rel.cca_id'] = $config['cca_id']; //cb_cmall_category_rel.cca_id
+		$where['cmall_item.cit_del_flag'] = 'n'; //cb_cmall_item.cit_del_flag
+		
+		$limit = ($config['cca_id'])?$config['cca_id']:4;
+
+		$this->db->select('cmall_item.*');
+		$this->db->join('cmall_category_rel', 'cmall_category_rel.cit_id = cmall_item.cit_id', 'left');
+		//자사몰 필터링은 위한 조건
+		if($cconfig['custom']['category']['company'] == $config['cca_id']){
+			$where['cmall_item.company_idx'] = $company_idx;
+		}
+		$this->db->where($where);
+		$this->db->limit($limit);
+		$this->db->order_by('cmall_item.cit_id', 'DESC');
+		$qry = $this->db->get("cmall_item");
+		$result = $qry->result_array();
+
+		return $result;
+	}
 }

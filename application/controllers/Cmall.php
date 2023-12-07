@@ -61,30 +61,26 @@ class Cmall extends CB_Controller
 
 		$this->load->model('Cmall_item_model');
 
+		$cconfig['custom'] = config_item('custom');
+		
 		$config = array(
-			'cit_type1' => '1',
-			'limit' => '4',
+			'cca_id' => $cconfig['custom']['category']['item'],
+			'limit' => 4
 		);
-		$view['view']['type1'] = $this->Cmall_item_model->get_latest($config);
-
+		$view['view']['type1'] = $this->Cmall_item_model->get_latest_shop($config,$cconfig);
+		
 		$config = array(
-			'cit_type2' => '1',
-			'limit' => '4',
+			'cca_id' => $cconfig['custom']['category']['basic'],
+			'limit' => 2
 		);
-		$view['view']['type2'] = $this->Cmall_item_model->get_latest($config);
-
+		$view['view']['type2'] = $this->Cmall_item_model->get_latest_shop($config,$cconfig);
+		
 		$config = array(
-			'cit_type3' => '1',
-			'limit' => '4',
+			'cca_id' => $cconfig['custom']['category']['company'],
+			'limit' => 3
 		);
-		$view['view']['type3'] = $this->Cmall_item_model->get_latest($config);
-
-		$config = array(
-			'cit_type4' => '1',
-			'limit' => '4',
-		);
-		$view['view']['type4'] = $this->Cmall_item_model->get_latest($config);
-
+		$view['view']['type3'] = $this->Cmall_item_model->get_latest_shop($config,$cconfig,$this->member->item('company_idx'));
+		
 		$view['view']['canonical'] = site_url('cmall');
 
 		// 이벤트가 존재하면 실행합니다

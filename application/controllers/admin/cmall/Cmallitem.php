@@ -823,6 +823,7 @@ class Cmallitem extends CB_Controller
 				 */
 				$updatedata['cit_datetime'] = cdate('Y-m-d H:i:s');
 				$updatedata['mem_id'] = $this->member->item('mem_id');
+				$updatedata['company_idx'] = $this->member->item('company_idx');
 				$pid = $this->{$this->modelname}->insert($updatedata);
 
 				$metadata['ip_address'] = $this->input->ip_address();

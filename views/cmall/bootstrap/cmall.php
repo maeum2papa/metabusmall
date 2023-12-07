@@ -133,7 +133,7 @@
 						<?=banner('coin')?>
 					</div>
 					<div class="status_info">
-						<span id="coin_count">1000 개</span>
+						<span id="coin_count"><?php echo html_escape($this->member->item('mem_point')); ?> 개</span>
 					</div>
 				</div>
 			</div>
@@ -186,133 +186,53 @@
 			</div>
 
 			<div class="reco_cont_wrap">
+
+			<?php
+			if (element('type1', $view)) {
+				foreach (element('type1', $view) as $item) {
+			?>
 				<div class="reco_cont">
-					<a href="">
+					<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 						<div class="cont_img">
-							<!-- <img src="" alt=""> -->
+							<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
 						</div>
 						<div class="cont_info">
 							<div class="cont_info_title">
-								<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-								<span>엔제리너스 상품입니다.</span>
+								<p><?php echo html_escape(element('cit_name', $item)); ?></p>
+								<span><?php echo element('cit_summary', $item); ?></span>
 							</div>
 							<div class="cont_info_desc">
 								<div class="info_desc_left">
 									<div class="info_desc_box">
 										<?=banner('heart')?>
-										<span id="heart_cnt">1,000</span>
+										<span id="heart_cnt"><?php echo number_format(element('cit_wish_count', $item)); ?></span>
 									</div>
 
 									<div class="info_desc_box">
 										<?=banner('cart_2')?>
-										<span id="buy_cnt">1,000</span>
+										<span id="buy_cnt"><?php echo number_format(element('cit_sell_count', $item)); ?></span>
 									</div>
 								</div>
 
 								<div class="info_desc_right">
-									<?=banner('fruit')?>
-									<span id="price">1,000</span>개
+									<?php
+										if($item['cit_money_type']=='f'){
+											echo banner('fruit');
+										}else{
+											echo banner('coin');
+										}
+									?>
+									<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
 								</div>
 							</div>
 						</div>
 					</a>
 				</div>
-
-				<div class="reco_cont">
-					<a href="">
-						<div class="cont_img">
-							<!-- <img src="" alt=""> -->
-						</div>
-						<div class="cont_info">
-							<div class="cont_info_title">
-								<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-								<span>엔제리너스 상품입니다.</span>
-							</div>
-							<div class="cont_info_desc">
-								<div class="info_desc_left">
-									<div class="info_desc_box">
-										<?=banner('heart')?>
-										<span id="heart_cnt">1,000</span>
-									</div>
-
-									<div class="info_desc_box">
-										<?=banner('cart_2')?>
-										<span id="buy_cnt">1,000</span>
-									</div>
-								</div>
-
-								<div class="info_desc_right">
-									<?=banner('fruit')?>
-									<span id="price">1,000</span>개
-								</div>
-							</div>
-						</div>
-					</a>
-				</div>
-
-				<div class="reco_cont">
-					<a href="">
-						<div class="cont_img">
-							<!-- <img src="" alt=""> -->
-						</div>
-						<div class="cont_info">
-							<div class="cont_info_title">
-								<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-								<span>엔제리너스 상품입니다.</span>
-							</div>
-							<div class="cont_info_desc">
-								<div class="info_desc_left">
-									<div class="info_desc_box">
-										<?=banner('heart')?>
-										<span id="heart_cnt">1,000</span>
-									</div>
-
-									<div class="info_desc_box">
-										<?=banner('cart_2')?>
-										<span id="buy_cnt">1,000</span>
-									</div>
-								</div>
-
-								<div class="info_desc_right">
-									<?=banner('fruit')?>
-									<span id="price">1,000</span>개
-								</div>
-							</div>
-						</div>
-					</a>
-				</div>
-
-				<div class="reco_cont">
-					<a href="">
-						<div class="cont_img">
-							<!-- <img src="" alt=""> -->
-						</div>
-						<div class="cont_info">
-							<div class="cont_info_title">
-								<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-								<span>엔제리너스 상품입니다.</span>
-							</div>
-							<div class="cont_info_desc">
-								<div class="info_desc_left">
-									<div class="info_desc_box">
-										<?=banner('heart')?>
-										<span id="heart_cnt">1,000</span>
-									</div>
-
-									<div class="info_desc_box">
-										<?=banner('cart_2')?>
-										<span id="buy_cnt">1,000</span>
-									</div>
-								</div>
-
-								<div class="info_desc_right">
-									<?=banner('fruit')?>
-									<span id="price">1,000</span>개
-								</div>
-							</div>
-						</div>
-					</a>
-				</div>
+				<?php
+					}
+				}
+				?>
+				
 			</div>
 		</div>
 		<div class="cmall_reco_wrap">
@@ -323,69 +243,53 @@
 				</div>
 
 				<div class="reco_cont_wrap">
+
+					<?php
+					if (element('type2', $view)) {
+						foreach (element('type2', $view) as $item) {
+					?>
 					<div class="reco_cont">
-						<a href="">
+						<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 							<div class="cont_img">
-								<!-- <img src="" alt=""> -->
+								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
 							</div>
 							<div class="cont_info">
 								<div class="cont_info_title">
-									<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-									<span>엔제리너스 상품입니다.</span>
+									<p><?php echo html_escape(element('cit_name', $item)); ?></p>
+									<span><?php echo element('cit_summary', $item); ?></span>
 								</div>
 								<div class="cont_info_desc">
 									<div class="info_desc_left">
 										<div class="info_desc_box">
 											<?=banner('heart')?>
-											<span id="heart_cnt">1,000</span>
+											<span id="heart_cnt"><?php echo number_format(element('cit_wish_count', $item)); ?></span>
 										</div>
 
 										<div class="info_desc_box">
 											<?=banner('cart_2')?>
-											<span id="buy_cnt">1,000</span>
+											<span id="buy_cnt"><?php echo number_format(element('cit_sell_count', $item)); ?></span>
 										</div>
 									</div>
 
 									<div class="info_desc_right">
-										<?=banner('fruit')?>
-										<span id="price">1,000</span>개
+										<?php
+											if($item['cit_money_type']=='f'){
+												echo banner('fruit');
+											}else{
+												echo banner('coin');
+											}
+										?>
+										<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
 									</div>
 								</div>
 							</div>
 						</a>
 					</div>
+					<?php
+						}
+					}
+					?>
 
-					<div class="reco_cont">
-						<a href="">
-							<div class="cont_img">
-								<!-- <img src="" alt=""> -->
-							</div>
-							<div class="cont_info">
-								<div class="cont_info_title">
-									<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-									<span>엔제리너스 상품입니다.</span>
-								</div>
-								<div class="cont_info_desc">
-									<div class="info_desc_left">
-										<div class="info_desc_box">
-											<?=banner('heart')?>
-											<span id="heart_cnt">1,000</span>
-										</div>
-
-										<div class="info_desc_box">
-											<?=banner('cart_2')?>
-											<span id="buy_cnt">1,000</span>
-										</div>
-									</div>
-
-									<div class="info_desc_right">
-										<?=banner('fruit')?>
-										<span id="price">1,000</span>개
-									</div>
-								</div>
-							</div>
-						</a>
-					</div>
 				</div>
 			</div>
 			<div class="cmall_company cmall_reco">
@@ -395,69 +299,51 @@
 				</div>
 
 				<div class="reco_cont_wrap">
+				<?php
+					if (element('type3', $view)) {
+						foreach (element('type3', $view) as $item) {
+					?>
 					<div class="reco_cont">
-						<a href="">
+						<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 							<div class="cont_img">
-								<!-- <img src="" alt=""> -->
+								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
 							</div>
 							<div class="cont_info">
 								<div class="cont_info_title">
-									<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-									<span>엔제리너스 상품입니다.</span>
+									<p><?php echo html_escape(element('cit_name', $item)); ?></p>
+									<span><?php echo element('cit_summary', $item); ?></span>
 								</div>
 								<div class="cont_info_desc">
 									<div class="info_desc_left">
 										<div class="info_desc_box">
 											<?=banner('heart')?>
-											<span id="heart_cnt">1,000</span>
+											<span id="heart_cnt"><?php echo number_format(element('cit_wish_count', $item)); ?></span>
 										</div>
 
 										<div class="info_desc_box">
 											<?=banner('cart_2')?>
-											<span id="buy_cnt">1,000</span>
+											<span id="buy_cnt"><?php echo number_format(element('cit_sell_count', $item)); ?></span>
 										</div>
 									</div>
 
 									<div class="info_desc_right">
-										<?=banner('fruit')?>
-										<span id="price">1,000</span>개
+										<?php
+											if($item['cit_money_type']=='f'){
+												echo banner('fruit');
+											}else{
+												echo banner('coin');
+											}
+										?>
+										<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
 									</div>
 								</div>
 							</div>
 						</a>
 					</div>
-
-					<div class="reco_cont">
-						<a href="">
-							<div class="cont_img">
-								<!-- <img src="" alt=""> -->
-							</div>
-							<div class="cont_info">
-								<div class="cont_info_title">
-									<p>떠먹는 스트로베리 초콜릿 생크림 + 아메리카노 (R) 2잔</p>
-									<span>엔제리너스 상품입니다.</span>
-								</div>
-								<div class="cont_info_desc">
-									<div class="info_desc_left">
-										<div class="info_desc_box">
-											<?=banner('heart')?>
-											<span id="heart_cnt">1,000</span>
-										</div>
-
-										<div class="info_desc_box">
-											<?=banner('cart_2')?>
-											<span id="buy_cnt">1,000</span>
-										</div>
-									</div>
-
-									<div class="info_desc_right">
-										<?=banner('fruit')?>
-										<span id="price">1,000</span>개
-									</div>
-								</div>
-							</div>
-						</a>
-					</div>
+					<?php
+						}
+					}
+					?>
 				</div>
 			</div>
 		</div>

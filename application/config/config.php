@@ -704,6 +704,6 @@ $config['ciboard_check_latest_version'] = 'http://api.ciboard.co.kr/version/chec
 /**
 상품 유형별 카테고리 설정
 **/
-$cofing['custom']['category']['item'] = 6; //아이템몰
-$cofing['custom']['category']['basic'] = 1; //공용몰
-$cofing['custom']['category']['company'] = 2; //자사몰
+$config['custom']['category']['item'] = 6; //아이템몰
+$config['custom']['category']['basic'] = 1; //공용몰
+$config['custom']['category']['company'] = 2; //자사몰
