@@ -781,6 +781,12 @@ class Cmall extends CB_Controller
 		$session_cct_id = array();
 		if ($result) {
 			foreach ($result as $key => $val) {
+
+				if(soldoutYn($val['cit_id'])=='y'){
+					alert(cmsg("2100"));
+					exit;
+				}
+
 				$result[$key]['item_url'] = cmall_item_url(element('cit_key', $val));
 				$result[$key]['detail'] = $this->Cmall_cart_model
 					->get_order_detail($mem_id, element('cit_id', $val));
