@@ -1,6 +1,6 @@
 <?php $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css'); ?>
 <?php $this->managelayout->add_js(base_url('assets/js/cmallitem.js')); ?>
-
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
 <div id="order">
 	<h3>주문하기</h3>
 
@@ -83,6 +83,20 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 				<label class="control-label">휴대폰</label>
 				<input type="text" name="mem_phone" class="form-control" value="<?php echo $this->member->item('mem_phone'); ?>" />
 			</div>
+			<?php
+			if(element('input_address', $view)=='y'){
+			?>
+			<div class="form-group">
+				<label class="control-label">배송지</label>
+				<input type="text" name="ship_zipcode" class="form-control" value="" placeholder="우편번호">
+				<button type='button' class="btn" onclick="win_zip('fpayment', 'ship_zipcode', 'ship_address', 'ship_address_detail', 'ship_address_detail', 'ship_address4');">[우편번호 검색]</button>
+				<input type="text" name="ship_address" class="form-control" value="" placeholder="주소">
+				<input type="text" name="ship_address_detail" class="form-control" value="" placeholder="주소상세">
+				<input type="hidden" name="ship_address4" value="" readonly>
+			</div>
+			<?php
+				}
+			?>
 			<div class="form-group">
 				<label class="control-label">하고싶은 말</label>
 				<textarea name="cor_content" class="form-control " cols="5"></textarea>

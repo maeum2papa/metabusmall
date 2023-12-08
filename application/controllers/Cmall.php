@@ -730,6 +730,9 @@ class Cmall extends CB_Controller
 	 */
 	public function order()
 	{
+		//주소 flag
+		$input_address = 'n';
+
 		// 이벤트 라이브러리를 로딩합니다
 		$eventname = 'event_cmall_order';
 		$this->load->event($eventname);
@@ -775,12 +778,17 @@ class Cmall extends CB_Controller
 		 */
 		$where = array();
 		$where['cmall_cart.mem_id'] = $mem_id;
+		$where['cmall_item.cit_del_flag'] = 'n';
 		$result = $this->Cmall_cart_model->get_order_list($where, $findex, $forder);
 		$good_name = '';
 		$good_count = -1;
 		$session_cct_id = array();
 		if ($result) {
 			foreach ($result as $key => $val) {
+
+				if($val['cit_item_type']=='b' && $input_address == 'n'){
+					$input_address = 'y';
+				}
 
 				if(soldoutYn($val['cit_id'])=='y'){
 					alert(cmsg("2100"));
@@ -797,7 +805,14 @@ class Cmall extends CB_Controller
 				$session_cct_id[] = element('cct_id', $val);
 			}
 		}
+
+		if(count($result) == 0){
+			alert(cmsg("2101"));
+			exit;
+		}
+
 		$view['view']['data'] = $result;
+		$view['view']['input_address'] = $input_address;
 
 		$this->load->model('Unique_id_model');
 		$unique_id = $this->Unique_id_model->get_id($this->input->ip_address());

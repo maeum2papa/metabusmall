@@ -139,6 +139,24 @@ if (typeof(PAYMENT_JS) === 'undefined') {
 			f.mem_phone.select();
 			return false;
 		}
+		
+		//배송지 입력이 활성화 된 경우
+		if(f.ship_zipcode != undefined){
+			if(f.ship_zipcode.value==''){
+				alert("우편번호를 입력해 주세요.");
+				return false;
+			}
+
+			if(f.ship_address.value==''){
+				alert("주소를 입력해 주세요.");
+				return false;
+			}
+
+			if(f.ship_address_detail.value==''){
+				alert("주소상세를 입력해 주세요.");
+				return false;
+			}
+		}
 
 		if (ptype === 'deposit') {
 			var money_val = document.getElementsByName('money_value');
