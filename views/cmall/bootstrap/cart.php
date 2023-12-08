@@ -22,7 +22,12 @@ echo form_open(site_url('cmall/cart'), $attributes);
 		?>
 			<li>
 				<div class="col-xs-12 col-md-9 prd-info">
-					<div class="prd-chk"><input type="checkbox" name="chk[]" class="list-chkbox" value="<?php echo element('cit_id', $result); ?>" checked="checked" /></div>
+					<?php if(soldoutYn($result['cit_id'])=='y'){?>
+						<div class="prd-chk"><input type="checkbox" name="chk[]" class="list-chkbox" value="<?php echo element('cit_id', $result); ?>" checked="checked" disabled/></div>
+						<div><h1>품절</h1></div>
+					<?php }else{ ?>
+						<div class="prd-chk"><input type="checkbox" name="chk[]" class="list-chkbox" value="<?php echo element('cit_id', $result); ?>" checked="checked"/></div>
+					<?php } ?>
 					<div class="prd-img"><a href="<?php echo element('item_url', $result); ?>" title="<?php echo html_escape(element('cit_name', $result)); ?>" ><img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $result), 60, 60); ?>" class="thumbnail" style="margin:0;width:60px;height:60px;" alt="<?php echo html_escape(element('cit_name', $result)); ?>" title="<?php echo html_escape(element('cit_name', $result)); ?>" /></a></div>
 
 					<a href="<?php echo element('item_url', $result); ?>" title="<?php echo html_escape(element('cit_name', $result)); ?>" ><?php echo html_escape(element('cit_name', $result)); ?></a>
@@ -71,7 +76,13 @@ echo form_open(site_url('cmall/cart'), $attributes);
 		?>
 			<li>
 				<div class="col-xs-12 col-md-9 prd-info">
-					<div class="prd-chk"><input type="checkbox" name="chk[]" class="list-chkbox" value="<?php echo element('cit_id', $result); ?>" /></div>
+					<?php if(soldoutYn($result['cit_id'])=='y'){?>
+						<div class="prd-chk"><input type="checkbox" name="chk[]" class="list-chkbox" value="<?php echo element('cit_id', $result); ?>" disabled/></div>
+						<div><h1>품절</h1></div>
+					<?php }else{ ?>
+						<div class="prd-chk"><input type="checkbox" name="chk[]" class="list-chkbox" value="<?php echo element('cit_id', $result); ?>" /></div>
+					<?php } ?>
+					
 					<div class="prd-img"><a href="<?php echo element('item_url', $result); ?>" title="<?php echo html_escape(element('cit_name', $result)); ?>" ><img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $result), 60, 60); ?>" class="thumbnail" style="margin:0;width:60px;height:60px;" alt="<?php echo html_escape(element('cit_name', $result)); ?>" title="<?php echo html_escape(element('cit_name', $result)); ?>" /></a></div>
 
 					<a href="<?php echo element('item_url', $result); ?>" title="<?php echo html_escape(element('cit_name', $result)); ?>" ><?php echo html_escape(element('cit_name', $result)); ?></a>
