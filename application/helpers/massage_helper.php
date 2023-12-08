@@ -1,4 +1,9 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+/**
+ * basic_helper.php 에 include 되어 있음
+ * 사용법 <?php echo cmsg("1100");?>
+ */
 if ( ! function_exists('cmsg')) {
     /**
      * 모든 메세지 모음 메소드

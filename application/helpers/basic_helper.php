@@ -1633,6 +1633,3 @@ if ( ! function_exists('upload_mkdir')) {
         return $upload_path;
     }
 }
-
-
-include "./massage_helper.php";

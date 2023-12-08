@@ -287,6 +287,12 @@ class Cmall extends CB_Controller
 			'cit_key' => $cit_key,
 		);
 		$data = $this->Cmall_item_model->get_one('', '', $where);
+		
+		//삭제 상품(플래그) 상품 접근 차단
+		if($data['cit_del_flag']=='y'){
+			alert(cmsg("1100"));
+		}
+
 		if ( ! element('cit_id', $data)) {
 			show_404();
 		}
