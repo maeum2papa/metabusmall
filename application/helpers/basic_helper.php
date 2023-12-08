@@ -9,6 +9,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @author CIBoard (develop@ciboard.co.kr)
  */
 
+/**
+ * 품절 여부
+ */
+if ( ! function_exists('soldoutYn')) {
+	function soldoutYn($cit_id){
+		$CI =& get_instance();
+		$q = "select cit_stock_type, cit_stock_cnt from cb_cmall_item where cit_id = '".$cit_id."'";
+		$r = $CI->db->query($q);
+		$soldoutYn = (array) $r->row();
+		if($soldoutYn[cit_stock_type] == 's' && $soldoutYn[cit_stock_cnt] == 0){
+			return 'y';
+		}else{
+			return 'n';
+		}
+	}
+}
+
 
 /**
  * 기업명 찾기
@@ -1616,3 +1633,6 @@ if ( ! function_exists('upload_mkdir')) {
         return $upload_path;
     }
 }
+
+
+include "./massage_helper.php";
