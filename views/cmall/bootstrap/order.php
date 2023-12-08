@@ -105,44 +105,102 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 	</div>
 	<div class="col-xs-12 col-md-6 info-wr">
 		<div class="pay-info">
-			<h5 class="market-title">
-				<?php
-					if(element('cor_pay_type',$view)=='f'){
-						echo "열매상품";
-					}else if(element('cor_pay_type',$view)=='c'){
-						echo "코인상품";
-					}
-				?> 결제정보</h5>
-			<ul>
-				<li>
-					<span class="info-tit">총 주문금액</span>
-					<strong><?php echo number_format($total_price_sum); ?>원</strong>
-				</li>
-				<li>
-					<?php
-					if ($this->cbconfig->item('use_deposit')) {
+			<?php
+				if(element('cor_pay_type',$view)=='f'){
 					?>
-						<span class="info-tit">보유<?php echo html_escape($this->cbconfig->item('deposit_name')); ?> </span> <?php echo number_format((int) $this->member->item('total_deposit'));?> <?php echo html_escape($this->cbconfig->item('deposit_unit')); ?>
-						( 최대
-						<?php
-						$max_deposit = min((int) $this->member->item('total_deposit'), $total_price_sum);
-						echo number_format($max_deposit);
-						echo html_escape($this->cbconfig->item('deposit_unit'));
-						?>
-						까지 사용 가능 )
+					<div>
+					<h5 class="market-title">열매상품 결제정보</h5>
+					<ul>
+						<li>
+							<span class="info-tit">총 주문 열매</span>
+							<strong><?php echo number_format($total_price_sum); ?>개</strong>
+						</li>
+						<li>
+							<span class="info-tit">보유 열매 </span> <?php echo number_format((int) $this->member->item('mem_cur_fruit'));?> 개
+								( 최대
+								<?php
+								$max_f = min((int) $this->member->item('mem_cur_fruit'), $total_price_sum);
+								echo number_format($max_f);
+								?>
+								개 까지 사용 가능 )
+						</li>
+						<li>
+							<?php
+								if($total_price_sum <= $this->member->item('mem_cur_fruit')){
+									?>
+									<span class="info-tit">사용 열매 </span> <input type="text" name="order_fruit" id="order_fruit" class="form-control px100" value="<?php echo $max_f; ?>"  readonly/> 원	
+									<?php
+								}
+							?>	
+						</li>
+					</ul>
+					</div>
+					<?php
+				}else if(element('cor_pay_type',$view)=='c'){
+					?>
+					<div>
+					<h5 class="market-title">코인상품 결제정보</h5>
+					<ul>
+						<li>
+							<span class="info-tit">총 주문 코인</span>
+							<strong><?php echo number_format($total_price_sum); ?>개</strong>
+						</li>
+						<li>
+							<span class="info-tit">보유 코인 </span> <?php echo number_format((int) $this->member->item('mem_point'));?> 개
+								( 최대
+								<?php
+								$max_c = min((int) $this->member->item('mem_point'), $total_price_sum);
+								echo number_format($max_c);
+								?>
+								개 까지 사용 가능 )
+						</li>
+						<li>
+							<?php
+								if($total_price_sum <= $this->member->item('mem_point')){
+									?>
+									<span class="info-tit">사용 코인 </span> <input type="text" name="order_coin" id="order_coin" class="form-control px100" value="<?php echo $max_c; ?>"  readonly/> 원
+									<?php
+								}
+							?>	
+						</li>
+					</ul>
+					</div>
+					<?php
+				}
+			?> 
+			<div style="display:none">
+				<h5 class="market-title">결제정보</h5>
+				<ul>
+					<li>
+						<span class="info-tit">총 주문</span>
+						<strong><?php echo number_format($total_price_sum); ?>원</strong>
 					</li>
 					<li>
-						<input type="hidden" name="max_deposit" id="max_deposit" value="<?php echo $max_deposit; ?>" />
-						<span class="info-tit">사용
-						<?php echo html_escape($this->cbconfig->item('deposit_name')); ?> </span> <input type="text" name="order_deposit" id="order_deposit" class="form-control px100" value="0" /> 원
-					<?php } else { ?>
-						<input type="hidden" name="order_deposit" id="order_deposit" class="input" value="0" />
-					<?php }?>
-				</li>
-			</ul>
+						<?php
+						if ($this->cbconfig->item('use_deposit')) {
+						?>
+							<span class="info-tit">보유<?php echo html_escape($this->cbconfig->item('deposit_name')); ?> </span> <?php echo number_format((int) $this->member->item('total_deposit'));?> <?php echo html_escape($this->cbconfig->item('deposit_unit')); ?>
+							( 최대
+							<?php
+							$max_deposit = min((int) $this->member->item('total_deposit'), $total_price_sum);
+							echo number_format($max_deposit);
+							echo html_escape($this->cbconfig->item('deposit_unit'));
+							?>
+							까지 사용 가능 )
+						</li>
+						<li>
+							<input type="hidden" name="max_deposit" id="max_deposit" value="<?php echo $max_deposit; ?>" />
+							<span class="info-tit">사용
+							<?php echo html_escape($this->cbconfig->item('deposit_name')); ?> </span> <input type="text" name="order_deposit" id="order_deposit" class="form-control px100" value="0" /> 원
+						<?php } else { ?>
+							<input type="hidden" name="order_deposit" id="order_deposit" class="input" value="0" />
+						<?php }?>
+					</li>
+				</ul>
+			</div>
 			
 
-			<div class="feedback-box">
+			<div class="feedback-box" style="display:none">
 				<h5>결제수단</h5>
 				<?php if ($this->cbconfig->item('use_payment_bank')) { ?>
 					<label for="pay_type_bank" >
@@ -169,9 +227,14 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 						<input type="radio" name="pay_type" value="phone" id="pay_type_phone" /> 휴대폰결제
 					</label>
 				<?php } ?>
+					<label for="pay_type_f" >
+						<input type="radio" name="pay_type" value="f" id="pay_type_f" /> 열매
+					</label>
 
-					<input type="hidden" name="pay_type" value="<?php echo element('cor_pay_type',$view);?>" />
-					
+					<label for="pay_type_c" >
+						<input type="radio" name="pay_type" value="c" id="pay_type_c" /> 코인
+					</label>
+
 				</div>
 				<div class="alert alert-success bank-info">
 					<div><strong>계좌안내</strong></div>
@@ -179,7 +242,15 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 				</div>
 				<?php
 				if ($this->cbconfig->item('use_payment_pg')) {
-					$this->load->view('paymentlib/' . $this->cbconfig->item('use_payment_pg') . '/' . element('form3name', $view), $sform);
+					
+					if($total_price_sum > $this->member->item('mem_cur_fruit') && element('cor_pay_type',$view)=='f'){
+						?><h5><?php echo cmsg("2103");?></h5><?php
+					}else if($total_price_sum > $this->member->item('mem_point') && element('cor_pay_type',$view)=='c'){
+						?><h5><?php echo cmsg("2104");?></h5><?php
+					}else{
+						$this->load->view('paymentlib/' . $this->cbconfig->item('use_payment_pg') . '/' . element('form3name', $view), $sform);
+					}
+
 				} ?>
 			</div>
 		</div>
@@ -187,6 +258,31 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 
 	<?php echo form_close(); ?>
 </div>
+
+
+<?php
+	if(element('cor_pay_type',$view)=='f' || element('cor_pay_type',$view)=='c'){
+		?>
+		<script type="text/javascript">
+
+			function paytypefc(type){
+				var genderRadios = document.getElementsByName("pay_type");
+
+				// 라디오 버튼을 반복하면서 'f' or 'c' 값을 가진 것을 찾아 체크하기
+				for (var i = 0; i < genderRadios.length; i++) {
+					if (genderRadios[i].value == type) {
+						genderRadios[i].checked = true;
+						break; // 'f' 값을 찾으면 루프를 종료
+					}
+				}
+			}
+			
+			paytypefc('<?php echo element('cor_pay_type',$view);?>');
+
+		</script>
+		<?php	
+	}
+?>
 
 
 <script type="text/javascript">
