@@ -733,6 +733,9 @@ class Cmall extends CB_Controller
 		//주소 flag
 		$input_address = 'n';
 
+		//결제 타입
+		$cor_pay_type = '';
+
 		// 이벤트 라이브러리를 로딩합니다
 		$eventname = 'event_cmall_order';
 		$this->load->event($eventname);
@@ -785,6 +788,15 @@ class Cmall extends CB_Controller
 		$session_cct_id = array();
 		if ($result) {
 			foreach ($result as $key => $val) {
+				
+				if($key == 0){
+					$cor_pay_type = $val['cit_money_type'];
+				}else{
+					if($cor_pay_type != $val['cit_money_type']){
+						alert(cmsg("2102"));
+						exit;
+					}
+				}
 
 				if($val['cit_item_type']=='b' && $input_address == 'n'){
 					$input_address = 'y';

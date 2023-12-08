@@ -163,10 +163,10 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 					</label>
 				<?php } ?>
 				</div>
-				<div class="alert alert-success bank-info">
+				<!-- <div class="alert alert-success bank-info">
 					<div><strong>계좌안내</strong></div>
 					<div><?php echo nl2br($this->cbconfig->item('payment_bank_info')); ?> </div>
-				</div>
+				</div> -->
 				<?php
 				if ($this->cbconfig->item('use_payment_pg')) {
 					$this->load->view('paymentlib/' . $this->cbconfig->item('use_payment_pg') . '/' . element('form3name', $view), $sform);
