@@ -7,7 +7,6 @@
 $attributes = array('class' => 'form-inline', 'name' => 'flist', 'id' => 'flist');
 echo form_open(site_url('cmall/cart'), $attributes);
 ?>
-	<input type="hidden" name="cor_pay_type" id='cor_pay_type' value='f'/>
 	<div id="cart">
 		
 
@@ -240,13 +239,11 @@ jQuery(function($) {
 		}
 
 		if(fcount > 0 && ccount == 0){
-			$('#cor_pay_type').val('f');
 			$('#flist').submit();
 			return;
 		}
 
 		if(fcount == 0 && ccount > 0){
-			$('#cor_pay_type').val('c');
 			$('#flist').submit();
 			return;
 		}
