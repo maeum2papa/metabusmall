@@ -105,7 +105,14 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 	</div>
 	<div class="col-xs-12 col-md-6 info-wr">
 		<div class="pay-info">
-			<h5 class="market-title">결제정보</h5>
+			<h5 class="market-title">
+				<?php
+					if(element('cor_pay_type',$view)=='f'){
+						echo "열매상품";
+					}else if(element('cor_pay_type',$view)=='c'){
+						echo "코인상품";
+					}
+				?> 결제정보</h5>
 			<ul>
 				<li>
 					<span class="info-tit">총 주문금액</span>
@@ -162,11 +169,14 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 						<input type="radio" name="pay_type" value="phone" id="pay_type_phone" /> 휴대폰결제
 					</label>
 				<?php } ?>
+
+					<input type="hidden" name="pay_type" value="<?php echo element('cor_pay_type',$view);?>" />
+					
 				</div>
-				<!-- <div class="alert alert-success bank-info">
+				<div class="alert alert-success bank-info">
 					<div><strong>계좌안내</strong></div>
 					<div><?php echo nl2br($this->cbconfig->item('payment_bank_info')); ?> </div>
-				</div> -->
+				</div>
 				<?php
 				if ($this->cbconfig->item('use_payment_pg')) {
 					$this->load->view('paymentlib/' . $this->cbconfig->item('use_payment_pg') . '/' . element('form3name', $view), $sform);

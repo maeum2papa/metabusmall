@@ -825,6 +825,7 @@ class Cmall extends CB_Controller
 
 		$view['view']['data'] = $result;
 		$view['view']['input_address'] = $input_address;
+		$view['view']['cor_pay_type'] = $cor_pay_type;
 
 		$this->load->model('Unique_id_model');
 		$unique_id = $this->Unique_id_model->get_id($this->input->ip_address());
