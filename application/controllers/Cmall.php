@@ -1226,6 +1226,9 @@ class Cmall extends CB_Controller
 				}
 
 				$session_cct_id[] = element('cct_id', $val);
+
+                //최상위 카테고리 구하기 (아이템몰, 공통몰, 자사몰)
+                $orderlist[$key]['cca_id'] = cmall_item_parent_category($val['cit_id']);
 			}
 		}
 
@@ -1504,6 +1507,13 @@ class Cmall extends CB_Controller
 		$insertdata['cor_useragent'] = $this->agent->agent_string();
 		$insertdata['is_test'] = $this->cbconfig->item('use_pg_test');
 		$insertdata['status'] = $od_status;
+
+        //사용 예치금이 0보다 크면 로그 기록을 위한 준비
+        if($insertdata['cor_deposit'] > 0) $order_deposit = $insertdata['cor_deposit'];
+
+        debug($orderlist);
+        debug($insertdata);
+        exit;
 
 		$this->load->model(array('Cmall_item_model', 'Cmall_order_model', 'Cmall_order_detail_model'));
 		$res = $this->Cmall_order_model->insert($insertdata);

@@ -94,12 +94,11 @@ if ( ! function_exists('fdeposit')) {
                 exit;
             }
 
-            if($v['company_idx'] != $company_idx){
+            if($v['company_idx'] != $company_idx || $v['cca_id'] != $cconfig['custom']['category']['company']){
                 $use_items[] = $v;
             }
 
         }
-
 
         if(count($use_items) > 0){
 
@@ -108,7 +107,7 @@ if ( ! function_exists('fdeposit')) {
             debug("$company_coin_value = "+ $company_coin_value);
 
             foreach($use_items as $k => $v){
-                $use_deposit += $v['cct_count'] * $company_coin_value;
+                $use_deposit += $v['cct_count'] * $v['cit_price'] * $company_coin_value;
             }
         }
 

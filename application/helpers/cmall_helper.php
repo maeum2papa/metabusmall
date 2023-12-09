@@ -215,3 +215,26 @@ if ( ! function_exists('exists_inicis_cmall_order')) {
 	}
 
 }
+
+// 상품의 최상위 카테고리 cca_id 구하기 ( 아이테몰 / 공통몰 / 자사몰 )
+if ( ! function_exists('cmall_item_parent_category')) {
+
+	function cmall_item_parent_category($cit_id){
+
+		$CI =& get_instance();
+		$q = "select 
+					cb_cmall_category.cca_id 
+				from 
+					cb_cmall_category_rel left join cb_cmall_category on cb_cmall_category_rel.cca_id = cb_cmall_category.cca_id
+				where 
+					cb_cmall_category_rel.cit_id = '".$cit_id."' 
+					AND 
+					cb_cmall_category.cca_parent = 0
+					";
+		$r = $CI->db->query($q);
+		$result = (array) $r->row();
+		
+		return $result['cca_id'];
+	}
+
+}
