@@ -77,7 +77,7 @@ class Cmall extends CB_Controller
 		
 		$config = array(
 			'cca_id' => $cconfig['custom']['category']['company'],
-			'limit' => 3
+			'limit' => 2
 		);
 		$view['view']['type3'] = $this->Cmall_item_model->get_latest_shop($config,$cconfig,$this->member->item('company_idx'));
 		

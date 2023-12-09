@@ -234,12 +234,14 @@ class Cmall_item_model extends CB_Model
 		$where['cmall_item.cit_status'] = 1;
 		$where['cmall_item.cit_type1'] = 1;
 		$where['cmall_category_rel.cca_id'] = $config['cca_id']; //cb_cmall_category_rel.cca_id
+		$where['cmall_category.cca_parent'] = 0;
 		$where['cmall_item.cit_del_flag'] = 'n'; //cb_cmall_item.cit_del_flag
 		
-		$limit = ($config['cca_id'])?$config['cca_id']:4;
-
-		$this->db->select('cmall_item.*');
+		$limit = ($config['limit'])?$config['limit']:4;
+		
+		$this->db->select('cmall_item.*,cmall_category.cca_id');
 		$this->db->join('cmall_category_rel', 'cmall_category_rel.cit_id = cmall_item.cit_id', 'left');
+		$this->db->join('cmall_category','cmall_category.cca_id = cmall_category_rel.cca_id','left');
 		//자사몰 필터링은 위한 조건
 		if($cconfig['custom']['category']['company'] == $config['cca_id']){
 			$where['cmall_item.company_idx'] = $company_idx;
@@ -249,7 +251,7 @@ class Cmall_item_model extends CB_Model
 		$this->db->order_by('cmall_item.cit_id', 'DESC');
 		$qry = $this->db->get("cmall_item");
 		$result = $qry->result_array();
-
+		
 		return $result;
 	}
 }
