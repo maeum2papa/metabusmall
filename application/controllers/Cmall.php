@@ -1201,6 +1201,8 @@ class Cmall extends CB_Controller
 		if ( ! $this->session->userdata('order_cct_id')) {
 			alert('잘못된 접근입니다');
 		}
+
+        $cconfig['custom'] = config_item('custom');
 		
 		$this->load->model('Cmall_cart_model');
 		$where = array();
@@ -1245,6 +1247,12 @@ class Cmall extends CB_Controller
                 //결제시 재고 확인 해서 없으면 중단
                 if(soldoutYn($val['cit_id'])=='y'){
                     alert(cmsg("3103"));
+                    exit;
+                }
+
+                //자사몰 상품인데 코인 결제면 차단
+                if($val['cit_money_type']=='c' && $cconfig['custom']['category']['company'] == $val['cca_id']){
+                    alert(cmsg("3104"));
                     exit;
                 }
 			}
