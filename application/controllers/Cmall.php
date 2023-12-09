@@ -1201,7 +1201,7 @@ class Cmall extends CB_Controller
 		if ( ! $this->session->userdata('order_cct_id')) {
 			alert('잘못된 접근입니다');
 		}
-
+		
 		$this->load->model('Cmall_cart_model');
 		$where = array();
 		$where['cmall_cart.mem_id'] = $mem_id;
@@ -1235,15 +1235,20 @@ class Cmall extends CB_Controller
 		if ($this->session->userdata('order_cct_id') !== implode('-', $session_cct_id)) {
 			alert('결제 내역이 상이합니다, 관리자에게 문의하여주세요');
 		}
-
+		
 		if ( ! is_numeric($this->input->post('order_deposit'))) {
 			alert(html_escape($this->cbconfig->item('deposit_name')) . ' 의 값은 숫자만 와야 합니다');
 		}
 		if ( ! is_numeric($this->input->post('total_price_sum'))) {
 			alert('총 결제금액의 값은 숫자만 와야 합니다');
 		}
+
+		
 		$order_deposit = (int) $this->input->post('order_deposit');
 		$total_price_sum = (int) $this->input->post('total_price_sum');
+		//오리지널 예치금 부분 -- start --
+		//2023-12-09 사용안함
+		/*
 		if ($order_deposit) {
 			if ($order_deposit < 0) {
 				alert(html_escape($this->cbconfig->item('deposit_name')) . ' 의 값은 0 보다 작을 수 없습니다 ', site_url('cmall/order'));
@@ -1255,6 +1260,8 @@ class Cmall extends CB_Controller
 				alert(html_escape($this->cbconfig->item('deposit_name')) . ' 값이 회원님이 보유하고 계신 값보다 큰 값이 입력되어서 진행할 수 없습니다', site_url('cmall/order'));
 			}
 		}
+		*/
+		//오리지널 예치금 부분 -- end --
 
 
 		$this->load->library('paymentlib');
@@ -1398,27 +1405,87 @@ class Cmall extends CB_Controller
 			if ( ((int) $item_cct_price - (int) $order_deposit - $cor_cash) == 0 ) {
 				$od_status = 'deposit'; //주문상태
 			}
+		
+		} elseif ($this->input->post('pay_type') === 'f') { //열매 결제
+			
+			if ( ! function_exists('fdeposit')) {
+				$this->load->helper('fruit');
+			}
+
+			//결제시간
+			$insertdata['cor_datetime'] = date('Y-m-d H:i:s');
+
+			//주문한회원실명
+			$insertdata['mem_realname'] = $this->input->post('mem_realname', null, '');
+
+			//총주문금액
+			$insertdata['cor_total_money'] = $total_price_sum;
+
+			//사용예치금
+			$insertdata['cor_deposit'] = fdeposit($orderlist,$this->member->item('company_idx'));
+
+			//현금으로 결제한 금액
+			$insertdata['cor_cash'] = 0;
+
+			//승인여부
+			$insertdata['cor_status'] = 1;
+			
+			//승인시간
+			$insertdata['cor_approve_datetime'] = date('Y-m-d H:i:s');
+
+			//주문상태
+			$od_status = 'deposit'; 
+
+
+		} elseif ($this->input->post('pay_type') === 'c') { // 코인 결제
+
+			//결제시간
+			$insertdata['cor_datetime'] = date('Y-m-d H:i:s');
+
+			//주문한회원실명
+			$insertdata['mem_realname'] = $this->input->post('mem_realname', null, '');
+			
+			//총주문금액
+			$insertdata['cor_total_money'] = $total_price_sum;
+
+			//사용예치금
+			$insertdata['cor_deposit'] = 0;
+
+			//현금으로 결제한 금액
+			$insertdata['cor_cash'] = 0;
+
+			//승인여부
+			$insertdata['cor_status'] = 1;
+
+			//승인시간
+			$insertdata['cor_approve_datetime'] = date('Y-m-d H:i:s');
+
+			//주문상태
+			$od_status = 'deposit'; 
 
 		} else {
 			alert('결제 수단이 잘못 입력되었습니다');
 		}
-
+		
 		// 이벤트가 존재하면 실행합니다
 		Events::trigger('step1', $eventname);
+			
+		// 주문 결제 금액 재검증
+		if(!($this->input->post('pay_type') === 'f' || $this->input->post('pay_type') === 'c')){
+			//실제로 결제된 금액
+			$real_total_price = $total_price_sum - $order_deposit;
 
-		//실제로 결제된 금액
-		$real_total_price = $total_price_sum - $order_deposit;
-
-		// 주문금액과 결제금액이 일치하는지 체크
-		if (element('tno', $result) && (int) element('amount', $result) !== $real_total_price) {
-			if ($this->cbconfig->item('use_payment_pg') === 'kcp') {
-				$this->paymentlib->kcp_pp_ax_hub_cancel($result);
-			} elseif ($this->cbconfig->item('use_payment_pg') === 'lg') {
-				$this->paymentlib->xpay_cancel($result);
-			} elseif ($this->cbconfig->item('use_payment_pg') === 'inicis') {
-				$this->paymentlib->inipay_cancel($result, $agent_type);
+			// 주문금액과 결제금액이 일치하는지 체크
+			if (element('tno', $result) && (int) element('amount', $result) !== $real_total_price) {
+				if ($this->cbconfig->item('use_payment_pg') === 'kcp') {
+					$this->paymentlib->kcp_pp_ax_hub_cancel($result);
+				} elseif ($this->cbconfig->item('use_payment_pg') === 'lg') {
+					$this->paymentlib->xpay_cancel($result);
+				} elseif ($this->cbconfig->item('use_payment_pg') === 'inicis') {
+					$this->paymentlib->inipay_cancel($result, $agent_type);
+				}
+				alert('결제가 완료되지 않았습니다. 다시 시도해주십시오', site_url('cmall/order'));
 			}
-			alert('결제가 완료되지 않았습니다. 다시 시도해주십시오', site_url('cmall/order'));
 		}
 
 		// 이벤트가 존재하면 실행합니다

@@ -54,6 +54,19 @@ if ( ! function_exists('busiIcon')) {
 	}
 }
 
+/**
+ * 기업 재화가치 찾기
+ */
+if ( ! function_exists('busiCoin')) {
+	function busiCoin($company_idx){
+		$CI =& get_instance();
+		$q = "select coin_value from cb_company_info where company_idx = '".$company_idx."'";
+		$r = $CI->db->query($q);
+		$company_logo = (array) $r->row();
+		return $company_logo[coin_value];
+	}
+}
+
 
 /**
  * 디버깅함수 추가 231112

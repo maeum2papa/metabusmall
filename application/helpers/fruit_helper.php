@@ -69,3 +69,49 @@ if ( ! function_exists('fuse')) {
         //log write
     }
 }
+
+
+if ( ! function_exists('fdeposit')) {
+    /**
+     * 열매 전환가치를 적용하여 사용시킬 예치금 산출
+     * @param Array $items 주문상품들
+     * @param int $company_idx 주문하는 회원의 소속 기업PK
+     * @return int 차감할 예치금
+     */
+    function fdeposit($items, $company_idx){
+        // 자사몰 상품일때는 열매만 소모되고 기업 예치금은 그대로
+        // 팀메타 아이템(열매) + 자사몰 상품(열매) 경우 있을 수 있음
+        $use_deposit = 0;
+        $use_items = array(); //계산 대상 아이템
+        $cconfig['custom'] = config_item('custom');
+        //$cconfig['custom']['category']['company']
+        
+        foreach($items as $k => $v){
+            
+            // 1. 열매 결제가 아닌게 들어왔는지 체크
+            if($v['cit_money_type'] == 'c'){
+                alert(cmsg('3100'));
+                exit;
+            }
+
+            if($v['company_idx'] != $company_idx){
+                $use_items[] = $v;
+            }
+
+        }
+
+
+        if(count($use_items) > 0){
+
+            //회원의 기업 재화가치 가져오기
+            $company_coin_value = busiCoin($company_idx);
+            debug("$company_coin_value = "+ $company_coin_value);
+
+            foreach($use_items as $k => $v){
+                $use_deposit += $v['cct_count'] * $company_coin_value;
+            }
+        }
+
+        return $use_deposit;
+    }
+}
