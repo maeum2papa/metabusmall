@@ -39,7 +39,7 @@ if ( ! function_exists('cmsg')) {
             "3102"=>"주소 입력은 필수값 입니다.",
             "3103"=>"품절된 상품이 포함되어 있습니다."
         );
-
+        
         $result = ($msg[$code])?$msg[$code]:"";
 
         return $result;

@@ -1251,7 +1251,7 @@ class Cmall extends CB_Controller
 
 
             //기본 상품이 포함된 경우 배송지 입력 검증
-            if($input_address=='y' && ($this->input->post('ship_zipcode')=='' || $this->input->post('ship_address')=='' || $this->input->post('ship_address_detail')=='')){
+            if($input_address=='y' && ($this->input->post('cor_ship_zipcode')=='' || $this->input->post('cor_ship_address')=='' || $this->input->post('cor_ship_address_detail')=='')){
                 alert(cmsg("3102"));
                 exit;
             }
@@ -1533,6 +1533,12 @@ class Cmall extends CB_Controller
 		$insertdata['cor_useragent'] = $this->agent->agent_string();
 		$insertdata['is_test'] = $this->cbconfig->item('use_pg_test');
 		$insertdata['status'] = $od_status;
+        //정보입력 주소
+        if($input_address=='y'){
+            $insertdata['cor_ship_zipcode'] = $this->input->post('cor_ship_zipcode');
+            $insertdata['cor_ship_address'] = $this->input->post('cor_ship_address');
+            $insertdata['cor_ship_address_detail'] = $this->input->post('cor_ship_address_detail');
+        }
 
         //사용 예치금이 0보다 크면 로그 기록을 위한 준비
         if($insertdata['cor_deposit'] > 0){

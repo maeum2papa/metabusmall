@@ -141,18 +141,18 @@ if (typeof(PAYMENT_JS) === 'undefined') {
 		}
 		
 		//배송지 입력이 활성화 된 경우
-		if(f.ship_zipcode != undefined){
-			if(f.ship_zipcode.value==''){
+		if(f.cor_ship_zipcode != undefined){
+			if(f.cor_ship_zipcode.value==''){
 				alert("우편번호를 입력해 주세요.");
 				return false;
 			}
 
-			if(f.ship_address.value==''){
+			if(f.cor_ship_address.value==''){
 				alert("주소를 입력해 주세요.");
 				return false;
 			}
 
-			if(f.ship_address_detail.value==''){
+			if(f.cor_ship_address_detail.value==''){
 				alert("주소상세를 입력해 주세요.");
 				return false;
 			}

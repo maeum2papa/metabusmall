@@ -88,11 +88,11 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 			?>
 			<div class="form-group">
 				<label class="control-label">배송지</label>
-				<input type="text" name="ship_zipcode" class="form-control" value="" placeholder="우편번호">
-				<button type='button' class="btn" onclick="win_zip('fpayment', 'ship_zipcode', 'ship_address', 'ship_address_detail', 'ship_address_detail', 'ship_address4');">[우편번호 검색]</button>
-				<input type="text" name="ship_address" class="form-control" value="" placeholder="주소">
-				<input type="text" name="ship_address_detail" class="form-control" value="" placeholder="주소상세">
-				<input type="hidden" name="ship_address4" value="" readonly>
+				<input type="text" name="cor_ship_zipcode" class="form-control" value="" placeholder="우편번호">
+				<button type='button' class="btn" onclick="win_zip('fpayment', 'cor_ship_zipcode', 'cor_ship_address', 'cor_ship_address_detail', 'cor_ship_address_detail', 'cor_ship_address4');">[우편번호 검색]</button>
+				<input type="text" name="cor_ship_address" class="form-control" value="" placeholder="주소">
+				<input type="text" name="cor_ship_address_detail" class="form-control" value="" placeholder="주소상세">
+				<input type="hidden" name="cor_ship_address4" value="" readonly>
 			</div>
 			<?php
 				}
