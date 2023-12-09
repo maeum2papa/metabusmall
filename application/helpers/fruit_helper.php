@@ -104,7 +104,6 @@ if ( ! function_exists('fdeposit')) {
 
             //회원의 기업 재화가치 가져오기
             $company_coin_value = busiCoin($company_idx);
-            debug("$company_coin_value = "+ $company_coin_value);
 
             foreach($use_items as $k => $v){
                 $use_deposit += $v['cct_count'] * $v['cit_price'] * $company_coin_value;

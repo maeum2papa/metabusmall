@@ -1548,6 +1548,19 @@ class Cmall extends CB_Controller
             $insertdata['cor_ship_address_detail'] = $this->input->post('cor_ship_address_detail');
         }
 
+        //결제 최종 단계전 열매나 코인 사용가능한만큼 있는지 체크
+        if($this->input->post('pay_type') === 'f'){
+            if($total_price_sum > $this->member->item('mem_cur_fruit')){
+                alert(cmsg("3105"));
+                exit;
+            }
+        }else if($this->input->post('pay_type') === 'c'){
+            if($total_price_sum > $this->member->item('mem_point')){
+                alert(cmsg("3106"));
+                exit;
+            }
+        }
+
         //사용 예치금이 0보다 크면 로그 기록을 위한 준비
         if($insertdata['cor_deposit'] > 0){
             $order_deposit = $insertdata['cor_deposit'];
@@ -1555,6 +1568,9 @@ class Cmall extends CB_Controller
             //예치금이 기업이 보유한것보다 많은지 확인
             //$this->member->item('company_idx')
         }
+
+        
+
 
         debug($orderlist);
         debug($insertdata);
