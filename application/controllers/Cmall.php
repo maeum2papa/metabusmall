@@ -1241,6 +1241,12 @@ class Cmall extends CB_Controller
                 if($val['cit_item_type']=='b' && $input_address == 'n'){
 					$input_address = 'y';
 				}
+
+                //결제시 재고 확인 해서 없으면 중단
+                if(soldoutYn($val['cit_id'])=='y'){
+                    alert(cmsg("3103"));
+                    exit;
+                }
 			}
 
 
