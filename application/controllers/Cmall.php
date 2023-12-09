@@ -1214,7 +1214,7 @@ class Cmall extends CB_Controller
 
 		$orderlist = $this->Cmall_cart_model->get_order_list($where, $findex, $forder);
 		if ($orderlist) {
-			foreach ($orderlist as $key => $val) {
+			foreach ($orderlist as $key => $val){
 				$details = $this->Cmall_cart_model->get_order_detail($mem_id, element('cit_id', $val));
 
 				if( !empty($details) ){
@@ -1229,6 +1229,12 @@ class Cmall extends CB_Controller
 
                 //최상위 카테고리 구하기 (아이템몰, 공통몰, 자사몰)
                 $orderlist[$key]['cca_id'] = cmall_item_parent_category($val['cit_id']);
+
+                //삭제된 상품이 포함된 경우 차단
+                if($val['cit_del_flag']=='y'){
+                    alert(cmsg("3101"));
+                    exit;
+                }
 			}
 		}
 
@@ -1509,7 +1515,12 @@ class Cmall extends CB_Controller
 		$insertdata['status'] = $od_status;
 
         //사용 예치금이 0보다 크면 로그 기록을 위한 준비
-        if($insertdata['cor_deposit'] > 0) $order_deposit = $insertdata['cor_deposit'];
+        if($insertdata['cor_deposit'] > 0){
+            $order_deposit = $insertdata['cor_deposit'];
+
+            //예치금이 기업이 보유한것보다 많은지 확인
+            //$this->member->item('company_idx')
+        }
 
         debug($orderlist);
         debug($insertdata);
@@ -1548,7 +1559,7 @@ class Cmall extends CB_Controller
 			if ($order_deposit) {
 				$this->load->library('depositlib');
 				$this->depositlib->do_deposit_to_contents(
-					$mem_id,
+					$mem_id,//<-바꿔야할 수도
 					$order_deposit,
 					$pay_type = '',
 					$content = '상품구매 주문번호 : ' . $cor_id,
