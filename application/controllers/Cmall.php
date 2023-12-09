@@ -1208,6 +1208,7 @@ class Cmall extends CB_Controller
 		$findex = 'cmall_item.cit_id';
 		$forder = 'desc';
 		$session_cct_id = array();
+        $input_address = 'n';
 
 		$good_mny = $this->input->post('good_mny', null, 0);	//request 값으로 받은 값
 		$item_cct_price = 0;		//주문한 상품의 총 금액의 초기화
@@ -1235,7 +1236,20 @@ class Cmall extends CB_Controller
                     alert(cmsg("3101"));
                     exit;
                 }
+
+                //기본 상품이 포함된 경우 배송지 입력 검증
+                if($val['cit_item_type']=='b' && $input_address == 'n'){
+					$input_address = 'y';
+				}
 			}
+
+
+            //기본 상품이 포함된 경우 배송지 입력 검증
+            if($input_address=='y' && ($this->input->post('ship_zipcode')=='' || $this->input->post('ship_address')=='' || $this->input->post('ship_address_detail')=='')){
+                alert(cmsg("3102"));
+                exit;
+            }
+
 		}
 
 		if ( $item_cct_price != $good_mny ){
