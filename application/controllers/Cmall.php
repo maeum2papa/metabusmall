@@ -1574,13 +1574,6 @@ class Cmall extends CB_Controller
 			
         }
 
-        
-
-
-        debug($orderlist);
-        debug($insertdata);
-        exit;
-
 		$this->load->model(array('Cmall_item_model', 'Cmall_order_model', 'Cmall_order_detail_model'));
 		$res = $this->Cmall_order_model->insert($insertdata);
 		if ($res) {
@@ -1612,12 +1605,17 @@ class Cmall extends CB_Controller
 				}
 			}
 			if ($order_deposit) {
+				
+				//기업 마스터 아이디 구하기
+				$company_admin_mem_id = camll_company_idx($this->member->item('mem_id'));
+
 				$this->load->library('depositlib');
+				//예치금 사용 및 내역기록
 				$this->depositlib->do_deposit_to_contents(
-					$mem_id,//<-바꿔야할 수도
+					$company_admin_mem_id,
 					$order_deposit,
 					$pay_type = '',
-					$content = '상품구매 주문번호 : ' . $cor_id,
+					$content = $this->member->item("mem_username")."(".$this->member->item("mem_userid").") 상품구매 (주문번호 : ".$cor_id.")",
 					$admin_memo = ''
 				);
 			}

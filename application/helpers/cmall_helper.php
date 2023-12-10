@@ -242,6 +242,26 @@ if ( ! function_exists('cmall_item_parent_category')) {
 
 }
 
+//회원이 소속된 기업 PK
+if ( ! function_exists('camll_company_idx')) {
+	function camll_company_idx($mem_id){
+		$CI =& get_instance();
+		$q = "select 
+					mem_id
+				from 
+					cb_member
+				where
+					company_idx = (select company_idx from cb_member where mem_id = '".$mem_id."') 
+					and 
+					mem_level = 100
+		";
+		$r = $CI->db->query($q);
+		$company_admin = (array) $r->row();
+
+		return $company_admin['mem_id'];
+	}
+}
+
 
 //회원이 소속된 기업의 예치금 가져오기
 if ( ! function_exists('camll_company_deposit')) {
