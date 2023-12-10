@@ -1565,8 +1565,13 @@ class Cmall extends CB_Controller
         if($insertdata['cor_deposit'] > 0){
             $order_deposit = $insertdata['cor_deposit'];
 
-            //예치금이 기업이 보유한것보다 많은지 확인
-            //$this->member->item('company_idx')
+            //사용 예치금이 기업이 보유한것보다 많은지 확인
+			$company_deposit = camll_company_deposit($this->member->item("mem_id"));
+			if($insertdata['cor_deposit'] > 0){
+				alert(cmsg("3107"));
+				exit;
+			}
+			
         }
 
         

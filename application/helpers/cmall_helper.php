@@ -218,7 +218,10 @@ if ( ! function_exists('exists_inicis_cmall_order')) {
 
 // 상품의 최상위 카테고리 cca_id 구하기 ( 아이테몰 / 공통몰 / 자사몰 )
 if ( ! function_exists('cmall_item_parent_category')) {
-
+	/**
+	 * @param int $cit_id 상품PK
+	 * @return int 상품의 최상위 카테고리PK
+	 */
 	function cmall_item_parent_category($cit_id){
 
 		$CI =& get_instance();
@@ -237,4 +240,32 @@ if ( ! function_exists('cmall_item_parent_category')) {
 		return $result['cca_id'];
 	}
 
+}
+
+
+//회원이 소속된 기업의 예치금 가져오기
+if ( ! function_exists('camll_company_deposit')) {
+	/**
+	 * @param int $mem_id 회원PK
+	 * @return int 기업의 최고회원의 예치금 합
+	 */
+	function camll_company_deposit($mem_id){
+		$CI =& get_instance();
+		$q = "select 
+					mem_id
+				from 
+					cb_member
+				where
+					company_idx = (select company_idx from cb_member where mem_id = '".$mem_id."') 
+					and 
+					mem_level = 100
+		";
+		$r = $CI->db->query($q);
+		$company_admin = (array) $r->row();
+
+		$CI->load->model(array('Deposit_model'));
+		$sum_deposit = $CI->Deposit_model->get_deposit_sum($company_admin['mem_id']);
+		
+		return $sum_deposit;
+	}
 }
