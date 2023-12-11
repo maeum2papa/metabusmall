@@ -1640,7 +1640,10 @@ class Cmall extends CB_Controller
 
 
 			//재고 반영 -> cmall_helper에서 처리
-
+			foreach($orderlist as $k=>$v){
+				cmall_item_stock_change($v['cit_id'],$v['cct_count']*(-1));
+			}
+			
 		}
 
 		if (empty($res)) {

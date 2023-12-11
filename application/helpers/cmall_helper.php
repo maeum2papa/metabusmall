@@ -289,3 +289,25 @@ if ( ! function_exists('camll_company_deposit')) {
 		return $sum_deposit;
 	}
 }
+
+
+//상품 재고 수정 (차감/증감)
+if ( ! function_exists('cmall_item_stock_change')) {
+	function cmall_item_stock_change($cit_id,$cct_count){
+
+		$CI =& get_instance();
+		$q = "select cit_stock_type, cit_stock_cnt from cb_cmall_item where cit_id='".$cit_id."'";
+		$r = $CI->db->query($q);
+		$item = (array) $r->row();
+
+		if($item['cit_stock_type']=='s'){
+
+			$cit_stock_cnt = $item['cit_stock_cnt'] + ($cct_count);
+
+			$q = "update cb_cmall_item set cit_stock_cnt = ".$cit_stock_cnt." where cit_id='".$cit_id."'";
+			$CI->db->query($q);
+
+		}
+
+	}
+}
