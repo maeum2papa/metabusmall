@@ -1474,7 +1474,7 @@ class Cmall extends CB_Controller
 			$insertdata['cor_approve_datetime'] = date('Y-m-d H:i:s');
 
 			//주문상태
-			$od_status = 'deposit'; 
+			$od_status = 'order'; 
 
 
 		} elseif ($this->input->post('pay_type') === 'c') { // 코인 결제
@@ -1504,7 +1504,7 @@ class Cmall extends CB_Controller
 			$insertdata['cor_approve_datetime'] = date('Y-m-d H:i:s');
 
 			//주문상태
-			$od_status = 'deposit'; 
+			$od_status = 'order'; 
 
 		} else {
 			alert('결제 수단이 잘못 입력되었습니다');
