@@ -311,3 +311,78 @@ if ( ! function_exists('cmall_item_stock_change')) {
 
 	}
 }
+
+//주문상세 데이터 구하기
+if ( ! function_exists('cmall_order_detail')) {
+	function cmall_order_detail($cor_id){
+		$CI =& get_instance();
+		$items = [];
+
+		//기본
+		$q = "select 
+					cb_cmall_item.cit_name,
+					cb_cmall_item.cit_file_1,
+					cb_cmall_item.cit_summary
+				from 
+					cb_cmall_item left join cb_cmall_order_detail on cb_cmall_item.cit_id = cb_cmall_order_detail.cit_id
+				where 
+					cb_cmall_order_detail.cor_id='".$cor_id."'
+					and
+					cb_cmall_item.cit_item_type = 'b'
+					";
+		$r = $CI->db->query($q);
+		$tmp_items = (array) $r->result_array();
+		if(count($tmp_items) > 0){
+			foreach($tmp_items as $k => $v){
+				$items[] = $v;
+			}
+		}
+		unset($tmp_items);
+
+		//기프티콘
+		$q = "select 
+					cb_cmall_item.cit_name,
+					cb_cmall_item.cit_file_1,
+					cb_cmall_item.cit_summary
+				from 
+					cb_cmall_item left join cb_cmall_order_detail on cb_cmall_item.cit_id = cb_cmall_order_detail.cit_id
+				where 
+					cb_cmall_order_detail.cor_id='".$cor_id."'
+					and
+					cb_cmall_item.cit_item_type = 'g'
+					";
+		$r = $CI->db->query($q);
+		$tmp_items = (array) $r->result_array();
+		if(count($tmp_items) > 0){
+			foreach($tmp_items as $k => $v){
+				$items[] = $v;
+			}
+		}
+		unset($tmp_items);
+		
+		//아이템
+		$q = "select 
+					cb_cmall_item.cit_name,
+					cb_cmall_item.cit_file_1,
+					cb_cmall_item.cit_summary
+				from 
+					cb_cmall_item left join cb_cmall_order_detail on cb_cmall_item.cit_id = cb_cmall_order_detail.cit_id
+				where 
+					cb_cmall_order_detail.cor_id='".$cor_id."'
+					and
+					cb_cmall_item.cit_item_type = 'i'
+					";
+		$r = $CI->db->query($q);
+		$tmp_items = (array) $r->result_array();
+		if(count($tmp_items) > 0){
+			foreach($tmp_items as $k => $v){
+				$items[] = $v;
+			}
+		}
+		unset($tmp_items);
+
+		
+
+		return $items;
+	}
+}
