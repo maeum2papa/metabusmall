@@ -1614,7 +1614,8 @@ class Cmall extends CB_Controller
 						'cod_status' => $od_status,
 						'cod_fruit' => $tmp_cod_fruit,
 						'cod_deposit' => $tmp_cod_deposit,
-						'cod_point' => $tmp_cod_point //코인
+						'cod_point' => $tmp_cod_point, //코인
+						'cit_item_type' => $orderlist[$key]['cit_item_type']
 					);
 					$this->Cmall_order_detail_model->insert($insertdetail);
 					$deletewhere = array(
