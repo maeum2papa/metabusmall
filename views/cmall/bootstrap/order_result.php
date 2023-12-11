@@ -5,7 +5,13 @@ $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css
 ?>
 
 <div id="order-result">
-	<h3>주문상세내역</h3>
+	
+
+	<?php if($view['data']['cor_pay_type']=='f'){?>
+		<h3>열매상품</h3>
+	<?php }else if($view['data']['cor_pay_type']=='c'){?>
+		<h3>코인상품</h3>
+	<?php }?>
 
 	<ul class="prd-list">
 
@@ -151,9 +157,14 @@ $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css
 				</table>
 			</div>
 		</div>
+		
 		<div class="col-xs-12 col-md-6 ">
 			<div class="pay-info">
-				<h5>결제합계</h5>
+			<?php if($view['data']['cor_pay_type']=='f'){?>
+				<h5>열매결제합계</h5>
+			<?php }else if($view['data']['cor_pay_type']=='c'){?>
+				<h5>코인결제상품</h5>
+			<?php }?>
 				<ul>
 					<li>
 						<span class="info-tit">총 주문액</span>
