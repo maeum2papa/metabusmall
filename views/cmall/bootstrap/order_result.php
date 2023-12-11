@@ -184,5 +184,17 @@ $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css
 				</ul>
 			</div>
 		</div>
+
+		<?php if($view['data']['cor_ship_zipcode']!=''){
+			?>
+			<div style="clear:both;">
+				<h5>배송정보</h5>
+				<div><?php echo $view['data']['cor_ship_zipcode'] ?></div>
+				<div><?php echo $view['data']['cor_ship_address'] ?></div>
+				<div><?php echo $view['data']['cor_ship_address_detail'] ?></div>
+				<div><?php echo $view['data']['cor_content']; ?></div>
+			</div>
+			<?php
+		}?>
 	</div>
 </div>
