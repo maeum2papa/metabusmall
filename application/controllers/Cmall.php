@@ -1461,8 +1461,11 @@ class Cmall extends CB_Controller
 			//사용예치금
 			$insertdata['cor_deposit'] = fdeposit($orderlist,$this->member->item('company_idx'));
 
-			//현금으로 결제한 금액
-			$insertdata['cor_cash'] = 0;
+			//결제요청금액
+			$insertdata['cor_cash_request'] = $total_price_sum;
+
+			//결제금액
+			$insertdata['cor_cash'] = $total_price_sum;
 
 			//승인여부
 			$insertdata['cor_status'] = 1;
@@ -1488,8 +1491,11 @@ class Cmall extends CB_Controller
 			//사용예치금
 			$insertdata['cor_deposit'] = 0;
 
-			//현금으로 결제한 금액
-			$insertdata['cor_cash'] = 0;
+			//결제요청금액
+			$insertdata['cor_cash_request'] = $total_price_sum;
+
+			//결제금액
+			$insertdata['cor_cash'] = $total_price_sum;
 
 			//승인여부
 			$insertdata['cor_status'] = 1;
@@ -1567,7 +1573,7 @@ class Cmall extends CB_Controller
 
             //사용 예치금이 기업이 보유한것보다 많은지 확인
 			$company_deposit = camll_company_deposit($this->member->item("mem_id"));
-			if($insertdata['cor_deposit'] > 0){
+			if($insertdata['cor_deposit'] > $company_deposit){
 				alert(cmsg("3107"));
 				exit;
 			}
@@ -1586,6 +1592,18 @@ class Cmall extends CB_Controller
 				foreach ($cartorder as $key => $val) {
 					$item = $this->Cmall_item_model
 						->get_one(element('cit_id', $val), 'cit_download_days');
+
+					$tmp_cod_fruit = 0;
+					$tmp_cod_deposit = 0;
+					$tmp_cod_point = 0;
+					
+					if($orderlist[$key]['cit_money_type']=='f'){
+						$tmp_cod_fruit = $orderlist[$key]['cit_price'] * $val['cct_count'];
+						$tmp_cod_deposit = fdeposit(array($orderlist[$key]),$this->member->item('company_idx'));
+					}else{
+						$tmp_cod_point = $item['cit_price'] * $val['cct_count'];
+					}
+
 					$insertdetail = array(
 						'cor_id' => $cor_id,
 						'mem_id' => $mem_id,
@@ -1594,6 +1612,9 @@ class Cmall extends CB_Controller
 						'cod_download_days' => element('cit_download_days', $item),
 						'cod_count' => element('cct_count', $val),
 						'cod_status' => $od_status,
+						'cod_fruit' => $tmp_cod_fruit,
+						'cod_deposit' => $tmp_cod_deposit,
+						'cod_point' => $tmp_cod_point //코인
 					);
 					$this->Cmall_order_detail_model->insert($insertdetail);
 					$deletewhere = array(
