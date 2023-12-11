@@ -1632,6 +1632,9 @@ class Cmall extends CB_Controller
 
 			//코인 사용 로그 기록 cb_point
 			if($this->input->post('pay_type') === 'c'){
+				
+				$this->load->library('point');
+				$this->point->insert_point($this->member->item('mem_id'), ($total_price_sum * (-1)), "상품구매 (주문번호 : ".$cor_id.")", "order", $cor_id, "주문");
 
 			}
 
