@@ -1619,6 +1619,25 @@ class Cmall extends CB_Controller
 					$admin_memo = ''
 				);
 			}
+
+			//열매 사용 로그 기록 cb_fruit_log
+			if($this->input->post('pay_type') === 'f'){
+				if ( ! function_exists('fuse')) {
+					$this->load->helper('fruit');
+				}
+
+				fuse($this->member->item('mem_id'), $total_price_sum, "상품구매 (주문번호 : ".$cor_id.")",$insertdata['cor_datetime'], "order", $cor_id, "주문");
+			}
+
+
+			//코인 사용 로그 기록 cb_point
+			if($this->input->post('pay_type') === 'c'){
+
+			}
+
+
+			//재고 반영 -> cmall_helper에서 처리
+
 		}
 
 		if (empty($res)) {

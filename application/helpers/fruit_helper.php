@@ -61,12 +61,38 @@ if ( ! function_exists('fuse')) {
      * @param int $mem_id 대상회원PK
      * @param int $amount 열매사용량
      * @param string $message 메시지
-     * @param int $company_idx 기업PK cb_company_info.company_idx
-     * @param int $admin_mem_id 열매사용처리관리자회원, system의 경우 0
+     * @param datetime $cor_datetime 결제일시
+     * @param string $type 타입 : order, member 등
+     * @param int $related_id 관련 인덱스 : 주문 PK 등
+     * @param string $action 액션 설명
      */
-    function fuse($mem_id, $amount, $message, $company_idx, $admin_mem_id){
+    function fuse($mem_id, $amount, $message, $cor_datetime, $type, $related_id, $action){
+        $CI =& get_instance();
 
-        //log write
+        //로그 기록
+		$q = "insert into 
+                    cb_fruit_log 
+                set
+                    log_memNo = '".$mem_id."',
+                    log_txt = '".$message."',
+                    log_regDt = '".$cor_datetime."',
+                    fru_fruit = '".$amount."',
+                    fur_type = '".$type."',
+                    fru_related_id = '".$related_id."',
+                    fru_action = '".$action."'
+                ";
+        $CI->db->query($q);
+
+        //사용 가능한 열매 차감
+        $q = "update 
+                    cb_member
+                set
+                    mem_cur_fruit = mem_cur_fruit - ".$amount."
+                where
+                    mem_id = '".$mem_id."'
+            ";
+        
+        $CI->db->query($q);
     }
 }
 
