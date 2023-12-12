@@ -51,13 +51,18 @@
 
 						<?php echo number_format((int) element('cor_total_money', $result)); ?> 개
 					</td>
-					<td>
+					<td class="text-center">
 						<?php
 
 						if($result['status']=='cancel'){
 							echo '주문취소';
 						}elseif($result['status']=='order'){
-							echo '주문확인';
+							
+							?>
+							주문확인<br/>
+							<button type="button" onClick="order_cancel(<?php echo element('cor_id', $result);?>)">[주문취소]</button>
+							<?php
+
 						}elseif($result['status']=='end'){
 							echo '발송완료';
 						}
@@ -81,3 +86,20 @@
 		<nav><?php echo element('paging', $view); ?></nav>
 	</div>
 </div>
+
+<script>
+function order_cancel(cor_id){
+	$.post(
+		cb_url + "/cmall/ordercancel",
+		{cor_id:cor_id, csrf_test_name: cb_csrf_hash },
+		function(res){
+		if(res=='false'){
+			alert("<?php echo cmsg("4100"); ?>");
+		}else if(res=='false_status'){
+			alert("<?php echo cmsg("4101"); ?>");
+		}else if(res=='true'){
+			location.reload();
+		}
+	});
+}
+</script>

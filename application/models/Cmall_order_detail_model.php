@@ -66,4 +66,22 @@ class Cmall_order_detail_model extends CB_Model
 
 		return $result;
 	}
+
+
+	/**
+	 * 결제 초기화
+	 */
+	public function pay_init($cod_id){
+		$q = "update cb_cmall_order_detail set cod_fruit=0, cod_deposit=0, cod_point=0 where cod_id='".$cod_id."'";
+		$CI->db->query($q);
+	}
+
+
+	/**
+	 * 주문상품 상태 취소 처리
+	 */
+	public function set_status_cancel($cod_id){
+		$q = "update cb_cmall_order_detail set cod_status='cancel' where cod_id='".$cod_id."'";
+		$CI->db->query($q);
+	}
 }

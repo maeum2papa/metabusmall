@@ -322,7 +322,8 @@ if ( ! function_exists('cmall_order_detail')) {
 		$q = "select 
 					cb_cmall_item.cit_name,
 					cb_cmall_item.cit_file_1,
-					cb_cmall_item.cit_summary
+					cb_cmall_item.cit_summary,
+					cb_cmall_order_detail.*
 				from 
 					cb_cmall_item left join cb_cmall_order_detail on cb_cmall_item.cit_id = cb_cmall_order_detail.cit_id
 				where 
@@ -343,7 +344,8 @@ if ( ! function_exists('cmall_order_detail')) {
 		$q = "select 
 					cb_cmall_item.cit_name,
 					cb_cmall_item.cit_file_1,
-					cb_cmall_item.cit_summary
+					cb_cmall_item.cit_summary,
+					cb_cmall_order_detail.*
 				from 
 					cb_cmall_item left join cb_cmall_order_detail on cb_cmall_item.cit_id = cb_cmall_order_detail.cit_id
 				where 
@@ -364,7 +366,8 @@ if ( ! function_exists('cmall_order_detail')) {
 		$q = "select 
 					cb_cmall_item.cit_name,
 					cb_cmall_item.cit_file_1,
-					cb_cmall_item.cit_summary
+					cb_cmall_item.cit_summary,
+					cb_cmall_order_detail.*
 				from 
 					cb_cmall_item left join cb_cmall_order_detail on cb_cmall_item.cit_id = cb_cmall_order_detail.cit_id
 				where 

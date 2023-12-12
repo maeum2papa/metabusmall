@@ -1662,7 +1662,7 @@ class Cmall extends CB_Controller
 				$this->depositlib->do_deposit_to_contents(
 					$company_admin_mem_id,
 					$order_deposit,
-					$pay_type = '',
+					$pay_type = 'order',
 					$content = $this->member->item("mem_username")."(".$this->member->item("mem_userid").") 상품구매 (주문번호 : ".$cor_id.")",
 					$admin_memo = ''
 				);
@@ -2676,5 +2676,84 @@ class Cmall extends CB_Controller
 				alert_close('정상적으로 입력되었습니다.');
 			}
 		}
+	}
+
+	/**
+	 * 주문취소(주문상품일괄취소)
+	 */
+	public function ordercancel(){
+		//$cor_id = $this->input->post('ord_id');
+		$cor_id = 202312121225475321;
+		$now = date('Y-m-d H:i:s');
+
+		//주문정보
+		$this->load->model('Cmall_order_model');
+		$order = $this->Cmall_order_model->get_one($cor_id);
+
+		if($order['status']!='order'){
+			echo 'false_status';
+			exit;
+		}
+		
+		//주문상품
+		$order_detail = cmall_order_detail($cor_id);
+
+		//주문상품에 아이템 껴 있으면 주문취소 차단
+		foreach($order_detail as $k=>$v){
+			if($v['cit_item_type']=='i'){
+				echo "false";
+				exit;
+			}
+
+			//주문상품중에 상태가 주문확인이 아니면 차단
+			if($v['cod_status']!='order'){
+				echo 'false_status';
+				exit;
+			}
+		}
+		
+		//주문의 열매와 예치금 환원, 주문의 코인 환원
+		if($order['cor_pay_type']=='f'){
+			fuse($order['mem_id'], $order['cor_cash'], "주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "주문취소");
+
+			if($order['cor_deposit']>0){
+				//기업 마스터 아이디 구하기
+				$company_admin_mem_id = camll_company_idx($order['mem_id']);
+				
+				$this->load->model('Member_model');
+				$this->Member_model->get_btyuserid();
+				$order_member = $this->Member_model->get_one($order['mem_id']);
+
+				$this->load->library('depositlib');
+				//예치금 사용 및 내역기록
+				$this->depositlib->do_deposit_to_contents(
+					$company_admin_mem_id,
+					$order['cor_deposit']*(-1),
+					$pay_type = 'order',
+					$content = $order_member["mem_username"]."(".$order_member["mem_userid"].") 주문취소 (주문번호 : ".$cor_id.")",
+					$admin_memo = ''
+				);
+			}
+		}elseif($order['cor_pay_type']=='c'){
+			$this->load->library('point');
+			$this->point->insert_point($order['mem_id'], $order['cor_cash'], "주문취소 (주문번호 : ".$cor_id.")", "order", $cor_id, "주문취소");
+		}
+
+		$this->load->model("Cmall_order_detail_model");
+		foreach($order_detail as $k=>$v){
+			//재고 복구
+			cmall_item_stock_change($v['cit_id'],$v['cct_count']); //함수 내부에서 재고 타입 검증
+
+			//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
+			$this->Cmall_order_detail_model->pay_init($v['cod_id']);
+
+			//주문 상품 상태 변경
+			$this->Cmall_order_detail_model->set_status_cancel($v['cod_id']);
+		}
+
+		//주문 상태 변경
+		$this->Cmall_order_model->set_status_cancel($cor_id);
+		
+		echo 'true';
 	}
 }

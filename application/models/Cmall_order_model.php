@@ -171,4 +171,12 @@ class Cmall_order_model extends CB_Model
 		$rows = $qry->row_array();
 		return $rows;
 	}
+
+	/**
+	 * 주문 상태 취소 처리
+	 */
+	public function set_status_cancel($cor_id){
+		$q = "update cb_cmall_order set status='cancel' where cor_id='".$cor_id."'";
+		$CI->db->query($q);
+	}
 }
