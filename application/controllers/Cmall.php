@@ -1674,7 +1674,7 @@ class Cmall extends CB_Controller
 					$this->load->helper('fruit');
 				}
 
-				fuse($this->member->item('mem_id'), $total_price_sum, "상품구매 (주문번호 : ".$cor_id.")",$insertdata['cor_datetime'], "order", $cor_id, "주문");
+				fuse($this->member->item('mem_id'), ($total_price_sum*(-1)), "상품구매 (주문번호 : ".$cor_id.")",$insertdata['cor_datetime'], "order", $cor_id, "주문");
 			}
 
 
@@ -2682,14 +2682,13 @@ class Cmall extends CB_Controller
 	 * 주문취소(주문상품일괄취소)
 	 */
 	public function ordercancel(){
-		//$cor_id = $this->input->post('ord_id');
-		$cor_id = 202312121225475321;
+		$cor_id = $this->input->post('cor_id');
 		$now = date('Y-m-d H:i:s');
 
 		//주문정보
 		$this->load->model('Cmall_order_model');
 		$order = $this->Cmall_order_model->get_one($cor_id);
-
+		
 		if($order['status']!='order'){
 			echo 'false_status';
 			exit;
@@ -2697,7 +2696,7 @@ class Cmall extends CB_Controller
 		
 		//주문상품
 		$order_detail = cmall_order_detail($cor_id);
-
+		
 		//주문상품에 아이템 껴 있으면 주문취소 차단
 		foreach($order_detail as $k=>$v){
 			if($v['cit_item_type']=='i'){
@@ -2714,6 +2713,10 @@ class Cmall extends CB_Controller
 		
 		//주문의 열매와 예치금 환원, 주문의 코인 환원
 		if($order['cor_pay_type']=='f'){
+			if ( ! function_exists('fuse')) {
+				$this->load->helper('fruit');
+			}
+
 			fuse($order['mem_id'], $order['cor_cash'], "주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "주문취소");
 
 			if($order['cor_deposit']>0){
@@ -2721,9 +2724,8 @@ class Cmall extends CB_Controller
 				$company_admin_mem_id = camll_company_idx($order['mem_id']);
 				
 				$this->load->model('Member_model');
-				$this->Member_model->get_btyuserid();
 				$order_member = $this->Member_model->get_one($order['mem_id']);
-
+				
 				$this->load->library('depositlib');
 				//예치금 사용 및 내역기록
 				$this->depositlib->do_deposit_to_contents(
@@ -2739,10 +2741,14 @@ class Cmall extends CB_Controller
 			$this->point->insert_point($order['mem_id'], $order['cor_cash'], "주문취소 (주문번호 : ".$cor_id.")", "order", $cor_id, "주문취소");
 		}
 
+		//주문 상품 사용한 열매, 예치금 초기화
+		$this->Cmall_order_model->pay_init($cor_id);
+
+
 		$this->load->model("Cmall_order_detail_model");
 		foreach($order_detail as $k=>$v){
 			//재고 복구
-			cmall_item_stock_change($v['cit_id'],$v['cct_count']); //함수 내부에서 재고 타입 검증
+			cmall_item_stock_change($v['cit_id'],$v['cod_count']); //함수 내부에서 재고 타입 검증
 
 			//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
 			$this->Cmall_order_detail_model->pay_init($v['cod_id']);

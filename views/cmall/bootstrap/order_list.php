@@ -57,10 +57,9 @@
 						if($result['status']=='cancel'){
 							echo '주문취소';
 						}elseif($result['status']=='order'){
-							
 							?>
 							주문확인<br/>
-							<button type="button" onClick="order_cancel(<?php echo element('cor_id', $result);?>)">[주문취소]</button>
+							<button type="button" onClick="order_cancel('<?php echo element('cor_id', $result);?>')">[주문취소]</button>
 							<?php
 
 						}elseif($result['status']=='end'){
@@ -98,6 +97,7 @@ function order_cancel(cor_id){
 		}else if(res=='false_status'){
 			alert("<?php echo cmsg("4101"); ?>");
 		}else if(res=='true'){
+			alert("<?php echo cmsg("4000"); ?>);
 			location.reload();
 		}
 	});

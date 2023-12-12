@@ -73,7 +73,7 @@ class Cmall_order_detail_model extends CB_Model
 	 */
 	public function pay_init($cod_id){
 		$q = "update cb_cmall_order_detail set cod_fruit=0, cod_deposit=0, cod_point=0 where cod_id='".$cod_id."'";
-		$CI->db->query($q);
+		$this->db->query($q);
 	}
 
 
@@ -82,6 +82,6 @@ class Cmall_order_detail_model extends CB_Model
 	 */
 	public function set_status_cancel($cod_id){
 		$q = "update cb_cmall_order_detail set cod_status='cancel' where cod_id='".$cod_id."'";
-		$CI->db->query($q);
+		$this->db->query($q);
 	}
 }
