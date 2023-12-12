@@ -1466,7 +1466,7 @@ class Cmall extends CB_Controller
 			$insertdata['cor_total_money'] = $total_price_sum;
 
 			//사용예치금
-			$insertdata['cor_deposit'] = fdeposit($orderlist,$this->member->item('company_idx'));
+			$insertdata['cor_company_deposit'] = fdeposit($orderlist,$this->member->item('company_idx'));
 
 			//결제요청금액
 			$insertdata['cor_cash_request'] = $total_price_sum;
@@ -1594,12 +1594,12 @@ class Cmall extends CB_Controller
         }
 
         //사용 예치금이 0보다 크면 로그 기록을 위한 준비
-        if($insertdata['cor_deposit'] > 0){
-            $order_deposit = $insertdata['cor_deposit'];
+        if($insertdata['cor_company_deposit'] > 0){
+            $order_deposit = $insertdata['cor_company_deposit'];
 
             //사용 예치금이 기업이 보유한것보다 많은지 확인
-			$company_deposit = camll_company_deposit($this->member->item("mem_id"));
-			if($insertdata['cor_deposit'] > $company_deposit){
+			$company_deposit = camll_company_deposit($this->member->item("company_idx"));
+			if($insertdata['cor_company_deposit'] > $company_deposit){
 				alert(cmsg("3107"));
 				exit;
 			}
@@ -1620,12 +1620,12 @@ class Cmall extends CB_Controller
 						->get_one(element('cit_id', $val), 'cit_download_days');
 
 					$tmp_cod_fruit = 0;
-					$tmp_cod_deposit = 0;
+					$tmp_cod_company_deposit = 0;
 					$tmp_cod_point = 0;
 					
 					if($orderlist[$key]['cit_money_type']=='f'){
 						$tmp_cod_fruit = $orderlist[$key]['cit_price'] * $val['cct_count'];
-						$tmp_cod_deposit = fdeposit(array($orderlist[$key]),$this->member->item('company_idx'));
+						$tmp_cod_company_deposit = fdeposit(array($orderlist[$key]),$this->member->item('company_idx'));
 					}else{
 						$tmp_cod_point = $item['cit_price'] * $val['cct_count'];
 					}
@@ -1639,7 +1639,7 @@ class Cmall extends CB_Controller
 						'cod_count' => element('cct_count', $val),
 						'cod_status' => $orderlist[$key]['cod_status'],
 						'cod_fruit' => $tmp_cod_fruit,
-						'cod_deposit' => $tmp_cod_deposit,
+						'cod_company_deposit' => $tmp_cod_company_deposit,
 						'cod_point' => $tmp_cod_point, //코인
 						'cit_item_type' => $orderlist[$key]['cit_item_type']
 					);
@@ -1657,15 +1657,9 @@ class Cmall extends CB_Controller
 				//기업 마스터 아이디 구하기
 				$company_admin_mem_id = camll_company_idx($this->member->item('mem_id'));
 
-				$this->load->library('depositlib');
 				//예치금 사용 및 내역기록
-				$this->depositlib->do_deposit_to_contents(
-					$company_admin_mem_id,
-					$order_deposit,
-					$pay_type = 'order',
-					$content = $this->member->item("mem_username")."(".$this->member->item("mem_userid").") 상품구매 (주문번호 : ".$cor_id.")",
-					$admin_memo = ''
-				);
+				company_depoist_use($this->member->item('mem_id'), $order_deposit*(-1), $this->member->item("mem_username")."(".$this->member->item("mem_userid").") 상품구매 (주문번호 : ".$cor_id.")", $insertdata['cor_datetime'], "order", $cor_id, "주문");
+
 			}
 
 			//열매 사용 로그 기록 cb_fruit_log
@@ -2719,22 +2713,14 @@ class Cmall extends CB_Controller
 
 			fuse($order['mem_id'], $order['cor_cash'], "주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "주문취소");
 
-			if($order['cor_deposit']>0){
-				//기업 마스터 아이디 구하기
-				$company_admin_mem_id = camll_company_idx($order['mem_id']);
+			if($order['cor_company_deposit']>0){
 				
 				$this->load->model('Member_model');
 				$order_member = $this->Member_model->get_one($order['mem_id']);
-				
-				$this->load->library('depositlib');
-				//예치금 사용 및 내역기록
-				$this->depositlib->do_deposit_to_contents(
-					$company_admin_mem_id,
-					$order['cor_deposit']*(-1),
-					$pay_type = 'order',
-					$content = $order_member["mem_username"]."(".$order_member["mem_userid"].") 주문취소 (주문번호 : ".$cor_id.")",
-					$admin_memo = ''
-				);
+			
+				//예치금 환원
+				company_depoist_use($order['mem_id'], $order['cor_company_deposit'], $order_member["mem_username"]."(".$order_member["mem_userid"].") 주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "주문취소");
+
 			}
 		}elseif($order['cor_pay_type']=='c'){
 			$this->load->library('point');
@@ -2762,4 +2748,9 @@ class Cmall extends CB_Controller
 		
 		echo 'true';
 	}
+
+
+	// function ttt(){
+	// 	company_depoist_use(1, 100000, "테스트 예치금 주입", date('Y-m-d H:i:s'), "test", "", "테스트");
+	// }
 }

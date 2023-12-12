@@ -176,7 +176,7 @@ class Cmall_order_model extends CB_Model
 	 * 결제 초기화
 	 */
 	public function pay_init($cor_id){
-		$q = "update cb_cmall_order set cor_cash=0, cor_deposit=0 where cor_id='".$cor_id."'";
+		$q = "update cb_cmall_order set cor_cash=0, cor_company_deposit=0 where cor_id='".$cor_id."'";
 		$this->db->query($q);
 	}
 

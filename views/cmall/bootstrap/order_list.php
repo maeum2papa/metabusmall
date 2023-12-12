@@ -97,7 +97,7 @@ function order_cancel(cor_id){
 		}else if(res=='false_status'){
 			alert("<?php echo cmsg("4101"); ?>");
 		}else if(res=='true'){
-			alert("<?php echo cmsg("4000"); ?>);
+			alert("<?php echo cmsg("4000"); ?>");
 			location.reload();
 		}
 	});

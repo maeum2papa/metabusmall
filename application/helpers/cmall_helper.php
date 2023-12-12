@@ -262,31 +262,70 @@ if ( ! function_exists('camll_company_idx')) {
 	}
 }
 
+//예치금 추가/차감 기록
+if ( ! function_exists('company_depoist_use')) {
+	/**
+     * 예치금 사용
+     * @param int $mem_id 대상회원PK
+     * @param int $amount 예치금사용량
+     * @param string $message 메시지
+     * @param datetime $cor_datetime 결제일시
+     * @param string $type 타입 : order, member 등
+     * @param int $related_id 관련 인덱스 : 주문 PK 등
+     * @param string $action 액션 설명
+     */
+	function company_depoist_use($mem_id, $amount, $message, $cor_datetime, $type, $related_id, $action){
+		$CI =& get_instance();
+
+		//company_idx 찾기
+		$q = "select company_idx from cb_member where mem_id='".$mem_id."'";
+		$r = $CI->db->query($q);
+		$member = (array) $r->row();
+
+		$company_idx = $member['company_idx'];
+
+		//cb_company_deposit에 기록
+		$q = "insert into 
+					cb_company_deposit 
+                set
+					company_idx = '".$company_idx."',
+					mem_id = '".$mem_id."',
+                    ccd_content = '".$message."',
+                    ccd_datetime = '".$cor_datetime."',
+                    ccd_deposit = '".$amount."',
+                    ccd_type = '".$type."',
+                    ccd_related_id = '".$related_id."',
+                    ccd_action = '".$action."'
+                ";
+        $CI->db->query($q);
+		
+		//cb_company_info.company_deposit 업데이트
+		$q = "update cb_company_info set company_deposit = company_deposit + (".$amount.") where company_idx='".$company_idx."'";
+		$CI->db->query($q);
+
+	}
+}
+
 
 //회원이 소속된 기업의 예치금 가져오기
 if ( ! function_exists('camll_company_deposit')) {
 	/**
-	 * @param int $mem_id 회원PK
+	 * @param int $company_idx 기업PK
 	 * @return int 기업의 최고회원의 예치금 합
 	 */
-	function camll_company_deposit($mem_id){
+	function camll_company_deposit($company_idx){
 		$CI =& get_instance();
 		$q = "select 
-					mem_id
+					company_deposit
 				from 
-					cb_member
+					cb_company_info
 				where
-					company_idx = (select company_idx from cb_member where mem_id = '".$mem_id."') 
-					and 
-					mem_level = 100
+					company_idx = '".$company_idx."'
 		";
 		$r = $CI->db->query($q);
-		$company_admin = (array) $r->row();
-
-		$CI->load->model(array('Deposit_model'));
-		$sum_deposit = $CI->Deposit_model->get_deposit_sum($company_admin['mem_id']);
+		$company = (array) $r->row();
 		
-		return $sum_deposit;
+		return $company['company_deposit'];
 	}
 }
 
