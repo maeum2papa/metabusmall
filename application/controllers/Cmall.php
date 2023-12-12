@@ -1255,6 +1255,13 @@ class Cmall extends CB_Controller
                     alert(cmsg("3104"));
                     exit;
                 }
+
+				//주문상태 지정(주문이 정상적으로 되었을때만 적용됨)
+				if($val['cit_item_type']=='b' || $val['cit_item_type']=='g'){
+					$orderlist[$key]['cod_status'] = 'order';
+				}elseif($val['cit_item_type']=='i'){
+					$orderlist[$key]['cod_status'] = 'end';
+				}
 			}
 
 
@@ -1305,7 +1312,7 @@ class Cmall extends CB_Controller
 
 		$insertdata = array();
 		$result = '';
-		$od_status = 'order'; //주문상태
+		$od_status = ''; //주문상태
 
 		if ($this->input->post('pay_type') === 'bank') {		//무통장입금
 			$insertdata['cor_datetime'] = date('Y-m-d H:i:s');
@@ -1474,8 +1481,17 @@ class Cmall extends CB_Controller
 			$insertdata['cor_approve_datetime'] = date('Y-m-d H:i:s');
 
 			//주문상태
-			$od_status = 'order'; 
+			foreach($orderlist as $k => $v){
+				if($v['cit_item_type']=='b' || $v['cit_item_type']=='g'){
+					$od_status = 'order';
+					break;
+				}
+			}
 
+			if($od_status == ''){
+				$od_status = 'end';
+			}
+			 
 
 		} elseif ($this->input->post('pay_type') === 'c') { // 코인 결제
 
@@ -1504,7 +1520,16 @@ class Cmall extends CB_Controller
 			$insertdata['cor_approve_datetime'] = date('Y-m-d H:i:s');
 
 			//주문상태
-			$od_status = 'order'; 
+			foreach($orderlist as $k => $v){
+				if($v['cit_item_type']=='b' || $v['cit_item_type']=='g'){
+					$od_status = 'order';
+					break;
+				}
+			}
+
+			if($od_status == ''){
+				$od_status = 'end';
+			}
 
 		} else {
 			alert('결제 수단이 잘못 입력되었습니다');
@@ -1547,6 +1572,7 @@ class Cmall extends CB_Controller
 		$insertdata['cor_useragent'] = $this->agent->agent_string();
 		$insertdata['is_test'] = $this->cbconfig->item('use_pg_test');
 		$insertdata['status'] = $od_status;
+
         //정보입력 주소
         if($input_address=='y'){
             $insertdata['cor_ship_zipcode'] = $this->input->post('cor_ship_zipcode');
@@ -1611,7 +1637,7 @@ class Cmall extends CB_Controller
 						'cde_id' => element('cde_id', $val),
 						'cod_download_days' => element('cit_download_days', $item),
 						'cod_count' => element('cct_count', $val),
-						'cod_status' => $od_status,
+						'cod_status' => $orderlist[$key]['cod_status'],
 						'cod_fruit' => $tmp_cod_fruit,
 						'cod_deposit' => $tmp_cod_deposit,
 						'cod_point' => $tmp_cod_point, //코인

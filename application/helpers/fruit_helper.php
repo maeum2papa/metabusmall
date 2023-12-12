@@ -87,7 +87,7 @@ if ( ! function_exists('fuse')) {
         $q = "update 
                     cb_member
                 set
-                    mem_cur_fruit = mem_cur_fruit - ".$amount."
+                    mem_cur_fruit = mem_cur_fruit - (".$amount.")
                 where
                     mem_id = '".$mem_id."'
             ";
