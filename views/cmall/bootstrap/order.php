@@ -149,7 +149,7 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 								( 최대
 								<?php
 								$max_f = min((int) $this->member->item('mem_cur_fruit'), $total_price_sum);
-								echo number_format($max_f);
+								echo number_format($max_f / element('company_coin_value',$view));
 								?>
 								개 까지 사용 가능 )
 						</li>
