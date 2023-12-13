@@ -36,12 +36,13 @@ echo form_open(site_url('cmall/cart'), $attributes);
 					$total_price = 0;
 					foreach (element('detail', $result) as $detail) {
 					?>
-						<li><i class="fa fa-angle-right" aria-hidden="true"></i> <?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cct_count', $detail);?>개 (+<?php echo number_format(element('cde_price', $detail)); ?>원)</li>
+						<li><i class="fa fa-angle-right" aria-hidden="true"></i> <?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cct_count', $detail);?>개 (+<?php echo number_format(element('cde_price', $detail) / element('company_coin_value', $result)); ?>개)</li>
 					<?php
 						$total_num += element('cct_count', $detail);
 						$total_price += ((int) element('cit_price', $result) + (int) element('cde_price', $detail)) * element('cct_count', $detail);
 					}
 					// $total_price_sum += $total_price;
+					$total_price = $total_price / element('company_coin_value', $result);
 					?>
 					</ul>
 					<div class="cmall-option-change">
@@ -50,8 +51,8 @@ echo form_open(site_url('cmall/cart'), $attributes);
 				</div>
 				<div class="col-xs-12 col-md-3 prd-price">
 					<div><span>수량 :</span> <?php echo number_format($total_num); ?> 개</div>
-					<div><span>판매가 : </span> <?php echo number_format(element('cit_price', $result)); ?> 원</div>
-					<div class="prd-total"><span>소계 : </span> <strong><?php echo number_format($total_price); ?><input type="hidden" name="total_price[<?php echo element('cit_id', $result); ?>]" value="<?php echo $total_price; ?>" /></strong> 원</div>
+					<div><span>판매가 : </span> <?php echo number_format(element('fruit_cit_price', $result)); ?> 개</div>
+					<div class="prd-total"><span>소계 : </span> <strong><?php echo number_format($total_price); ?><input type="hidden" name="total_price[<?php echo element('cit_id', $result); ?>]" value="<?php echo $total_price; ?>" /></strong> 개</div>
 				</div>
 			</li>
 		<?php
@@ -91,7 +92,7 @@ echo form_open(site_url('cmall/cart'), $attributes);
 					$total_price = 0;
 					foreach (element('detail', $result) as $detail) {
 					?>
-						<li><i class="fa fa-angle-right" aria-hidden="true"></i> <?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cct_count', $detail);?>개 (+<?php echo number_format(element('cde_price', $detail)); ?>원)</li>
+						<li><i class="fa fa-angle-right" aria-hidden="true"></i> <?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cct_count', $detail);?>개 (+<?php echo number_format(element('cde_price', $detail)); ?>개)</li>
 					<?php
 						$total_num += element('cct_count', $detail);
 						$total_price += ((int) element('cit_price', $result) + (int) element('cde_price', $detail)) * element('cct_count', $detail);
@@ -105,8 +106,8 @@ echo form_open(site_url('cmall/cart'), $attributes);
 				</div>
 				<div class="col-xs-12 col-md-3 prd-price">
 					<div><span>수량 :</span> <?php echo number_format($total_num); ?> 개</div>
-					<div><span>판매가 : </span> <?php echo number_format(element('cit_price', $result)); ?> 원</div>
-					<div class="prd-total"><span>소계 : </span> <strong><?php echo number_format($total_price); ?><input type="hidden" name="total_price[<?php echo element('cit_id', $result); ?>]" value="<?php echo $total_price; ?>" /></strong> 원</div>
+					<div><span>판매가 : </span> <?php echo number_format(element('cit_price', $result)); ?> 개</div>
+					<div class="prd-total"><span>소계 : </span> <strong><?php echo number_format($total_price); ?><input type="hidden" name="total_price[<?php echo element('cit_id', $result); ?>]" value="<?php echo $total_price; ?>" /></strong> 개</div>
 				</div>
 			</li>
 		<?php
@@ -122,7 +123,7 @@ echo form_open(site_url('cmall/cart'), $attributes);
 
 	</div>
 	<div class="well well-sm">
-		<div class="total_price">결제금액 <span class="checked_price"><?php echo number_format($total_price_sum); ?></span> 원</div>
+		<div class="total_price">결제금액 <span class="checked_price"><?php echo number_format($total_price_sum); ?></span> 개</div>
 	</div>
 
 	<button type="button" class="btn btn-black btn-list-selected pull-right btn-order" >주문하기</button>
