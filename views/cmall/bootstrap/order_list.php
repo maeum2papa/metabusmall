@@ -43,13 +43,11 @@
 					<td class="text-right">
 						<?php 
 							if($result['cor_pay_type']=='f'){
-								echo '열매';
+								echo '열매 '.number_format((int) element('cor_total_money', $result) / $result['company_coin_value']);
 							}else{
-								echo '컬래버 코인';
+								echo '컬래버 코인 '.number_format((int) element('cor_total_money', $result));
 							}
-						?>
-
-						<?php echo number_format((int) element('cor_total_money', $result)); ?> 개
+						?>개
 					</td>
 					<td class="text-center">
 						<?php
