@@ -2704,7 +2704,14 @@ class Cmall extends CB_Controller
 	 */
 	public function ordercancel(){
 		$cor_id = $this->input->post('cor_id');
+		// $cor_id = 202312131902476193;
 		$now = date('Y-m-d H:i:s');
+
+		//유효성검사
+		if(!$cor_id){
+			echo '주문번호 필수 값';
+			exit;
+		}
 
 		//주문정보
 		$this->load->model('Cmall_order_model');
@@ -2738,7 +2745,9 @@ class Cmall extends CB_Controller
 				$this->load->helper('fruit');
 			}
 
-			fuse($order['mem_id'], $order['cor_cash'], "주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "주문취소");
+			$return_fruit = $order['cor_cash'] / $order['company_coin_value'];
+
+			fuse($order['mem_id'], $return_fruit, "주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "주문취소");
 
 			if($order['cor_company_deposit']>0){
 				
