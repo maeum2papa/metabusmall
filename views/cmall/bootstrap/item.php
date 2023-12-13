@@ -313,7 +313,7 @@
 						</li>
 					<?php } ?>
 					</ul>
-					<div class="cart_total_price">총금액 : <div class="total_order_price_box"><span id="total_order_price">0</span>원</div></div>
+					<div class="cart_total_price">총금액 : <div class="total_order_price_box"><span id="total_order_price">0</span>개</div></div>
 				</div>
 				<div class="item-btn">
 
