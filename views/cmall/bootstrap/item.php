@@ -9,6 +9,7 @@
 		<div class="cmall_item_top_box">
 			
 
+				<a href="">찜하기목록으로 <?=banner('heart_color')?></a>
 				<!-- asmo sh 231205 디자인 상 관리자일 때 노출되는 버튼 div.cmall_item_top_box 으로 재배치 -->
 				<?php if ($this->member->is_admin()) { ?>
 					<a href="<?php echo admin_url('cmall/cmallitem/write/' . element('cit_id', element('data', $view))); ?>" target="_blank" class="btn-sm btn btn-danger pull-right btn-edit">상품내용수정</a>
@@ -286,6 +287,10 @@
 					<?php
 					foreach (element('detail', element('data', $view)) as $detail) {
 						$price = element('cit_price', element('data', $view)) + element('cde_price', $detail);
+						if($view['data']['company_coin_value']){
+							$price = $price / $view['data']['company_coin_value'];
+							if($price < 0) $price = 0;
+						}
 					?>
 						<li>
 							<div class="opt-name">
@@ -302,7 +307,7 @@
 								</span>
 								<span class="detail_price">
 									<input type="hidden" name="item_price[<?php echo element('cde_id', $detail); ?>]" value="<?php echo $price; ?>" />
-									<span><?php echo number_format($price); ?></span>원
+									<span><?php echo number_format($price); ?></span>개
 								</span>
 							</div>
 						</li>

@@ -406,6 +406,12 @@ class Cmall extends CB_Controller
 			? display_html_content(element('mobile_footer_content', element('meta', $data)), 1, $thumb_width)
 			: display_html_content(element('footer_content', element('meta', $data)), 1, $thumb_width);
 
+		//열매이면 재화가치 구하기
+		if($data['cit_money_type']=='f'){
+			$this->load->model("Company_info_model");
+			$data['company_coin_value'] = $this->Company_info_model->get_company_coin_value();
+		}
+
 		$view['view']['data'] = $data;
 		$view['view']['item_key'] = $cit_key;
 
