@@ -1617,8 +1617,8 @@ class Cmall extends CB_Controller
 			}
 			
         }
-		
-		$this->load->model(array('Cmall_item_model', 'Cmall_order_model', 'Cmall_order_detail_model'));
+
+		$this->load->model(array('Cmall_item_model', 'Cmall_order_model', 'Cmall_order_detail_model','Cmall_item_detail_model'));
 		$res = $this->Cmall_order_model->insert($insertdata);
 		if ($res) {
 			$cwhere = array(
@@ -1649,7 +1649,10 @@ class Cmall extends CB_Controller
 					}else{
 						$tmp_cod_point = $item['cit_price'] * $val['cct_count'];
 					}
-				
+					
+					$itemDetail = $this->Cmall_item_detail_model
+						->get_one(element('cde_id', $val), 'cde_price');
+
 					$insertdetail = array(
 						'cor_id' => $cor_id,
 						'mem_id' => $mem_id,
@@ -1661,7 +1664,9 @@ class Cmall extends CB_Controller
 						'cod_fruit' => $tmp_cod_fruit,
 						'cod_company_deposit' => $tmp_cod_company_deposit,
 						'cod_point' => $tmp_cod_point, //코인
-						'cit_item_type' => $tmp_oderlist_item['cit_item_type']
+						'cit_item_type' => $tmp_oderlist_item['cit_item_type'],
+						'cit_price' => $tmp_oderlist_item['cit_price'],
+						'cde_price' => $itemDetail['cde_price']
 					);
 
 					if($company_coin_value && $tmp_cod_company_deposit > 0){

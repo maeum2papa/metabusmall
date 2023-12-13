@@ -68,7 +68,7 @@ if ( ! function_exists('fuse')) {
      */
     function fuse($mem_id, $amount, $message, $cor_datetime, $type, $related_id, $action){
         $CI =& get_instance();
-
+        
         //로그 기록
 		$q = "insert into 
                     cb_fruit_log 
