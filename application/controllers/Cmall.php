@@ -828,10 +828,14 @@ class Cmall extends CB_Controller
 			alert(cmsg("2101"));
 			exit;
 		}
-
+		
 		$view['view']['data'] = $result;
 		$view['view']['input_address'] = $input_address;
 		$view['view']['cor_pay_type'] = $cor_pay_type;
+		if($cor_pay_type == 'f'){
+			$this->load->model("Company_info_model");
+			$view['view']['company_coin_value'] = $this->Company_info_model->get_company_coin_value();
+		}
 
 		$this->load->model('Unique_id_model');
 		$unique_id = $this->Unique_id_model->get_id($this->input->ip_address());
@@ -2756,7 +2760,10 @@ class Cmall extends CB_Controller
 	}
 
 
-	// function ttt(){
-	// 	company_depoist_use(1, 100000, "테스트 예치금 주입", date('Y-m-d H:i:s'), "test", "", "테스트");
-	// }
+	function ttt(){
+		// company_depoist_use(1, 100000, "테스트 예치금 주입", date('Y-m-d H:i:s'), "test", "", "테스트");
+
+		// $this->load->helper('fruit');
+		// fuse(1,100000,"테스트 열매 주입", date('Y-m-d H:i:s'), "test", "", "테스트");
+	}
 }

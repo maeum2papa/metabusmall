@@ -21,7 +21,14 @@
 					$total_price = 0;
 					foreach (element('detail', $result) as $detail) {
 					?>
-						<li><i class="fa fa-angle-right" aria-hidden="true"></i> <?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cct_count', $detail);?>개 (+<?php echo number_format(element('cde_price', $detail)); ?>원)</li>
+						<li><i class="fa fa-angle-right" aria-hidden="true"></i> <?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cct_count', $detail);?>개 (+<?php 
+						if(element('company_coin_value', $result)){
+							echo number_format(element('cde_price', $detail)/element('company_coin_value', $result)); 
+						}else{
+							echo number_format(element('cde_price', $detail)); 
+						}
+						
+						?>개)</li>
 					<?php
 						$total_num += element('cct_count', $detail);
 						$total_price += ((int) element('cit_price', $result) + (int) element('cde_price', $detail)) * element('cct_count', $detail);
@@ -32,8 +39,24 @@
 			</div>
 			<div class="col-xs-12 col-md-4 prd-price">
 				<div><span>수량 :</span> <?php echo number_format($total_num); ?> 개</div>
-				<div><span>판매가 : </span> <?php echo number_format(element('cit_price', $result)); ?>원</div>
-				<div class="prd-total"><span>소계 : </span> <strong><?php echo number_format($total_price); ?><input type="hidden" name="total_price[<?php echo element('cit_id', $result); ?>]" value="<?php echo $total_price; ?>" /></strong> 원</div>
+				<div><span>판매가 : </span> 
+					<?php
+						if(element('fruit_cit_price', $result)){
+							echo number_format(element('fruit_cit_price', $result)); 
+						}else{
+							echo number_format(element('cit_price', $result)); 
+						}
+					?>
+				개</div>
+				<div class="prd-total"><span>소계 : </span> <strong>
+					<?php 
+					if(element('company_coin_value', $result)){
+						echo number_format($total_price/element('company_coin_value', $result)); 
+					}else{
+						echo number_format($total_price); 
+					}
+					?>
+				<input type="hidden" name="total_price[<?php echo element('cit_id', $result); ?>]" value="<?php echo $total_price; ?>" /></strong> 개</div>
 				<div><span>다운로드 : </span><?php echo (element('cit_download_days', $result)) ? '구매후 <strong>' . element('cit_download_days', $result) . '</strong> 일간 ' : ' 기간제한없음'; ?></div>
 			</div>
 		</li>
@@ -49,7 +72,13 @@
 	</ul>
 	<div class="well well-sm">
 	결제해야할 금액
-	<div class="total_price"><span class="checked_price"><?php echo number_format($total_price_sum); ?></span> 원</div>
+	<div class="total_price"><span class="checked_price"><?php 
+	if(element('cor_pay_type',$view) == 'f'){
+		echo number_format($total_price_sum / element('company_coin_value',$view)); 
+	}else{
+		echo number_format($total_price_sum); 
+	}
+	?></span> 개</div>
 </div>
 
 
@@ -113,7 +142,7 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 					<ul>
 						<li>
 							<span class="info-tit">총 주문 열매</span>
-							<strong><?php echo number_format($total_price_sum); ?>개</strong>
+							<strong><?php echo number_format($total_price_sum / element('company_coin_value',$view)); ?>개</strong>
 						</li>
 						<li>
 							<span class="info-tit">보유 열매 </span> <?php echo number_format((int) $this->member->item('mem_cur_fruit'));?> 개
@@ -126,9 +155,10 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 						</li>
 						<li>
 							<?php
-								if($total_price_sum <= $this->member->item('mem_cur_fruit')){
+								if(($total_price_sum / element('company_coin_value',$view)) <= $this->member->item('mem_cur_fruit')){
 									?>
-									<span class="info-tit">사용 열매 </span> <input type="text" name="order_fruit" id="order_fruit" class="form-control px100" value="<?php echo $max_f; ?>"  readonly/> 원	
+									<span class="info-tit">사용 열매 </span> <input type="text" class="form-control px100" value="<?php echo $max_f / element('company_coin_value',$view); ?>"  readonly/>개
+									<input type="hidden" name="order_fruit" id="order_fruit" class="form-control px100" value="<?php echo $max_f; ?>" />	
 									<?php
 								}
 							?>	
@@ -242,15 +272,23 @@ if ($this->cbconfig->item('use_payment_pg') && element('use_pg', $view)) {
 				</div>
 				<?php
 				if ($this->cbconfig->item('use_payment_pg')) {
-					
-					if($total_price_sum > $this->member->item('mem_cur_fruit') && element('cor_pay_type',$view)=='f'){
-						?><h5><?php echo cmsg("2103");?></h5><?php
-					}else if($total_price_sum > $this->member->item('mem_point') && element('cor_pay_type',$view)=='c'){
-						?><h5><?php echo cmsg("2104");?></h5><?php
+
+					if(element('cor_pay_type',$view)=='f'){
+						if(($total_price_sum / element('company_coin_value',$view)) > $this->member->item('mem_cur_fruit')){
+							?><h5><?php echo cmsg("2103");?></h5><?php
+						}else{
+							$this->load->view('paymentlib/' . $this->cbconfig->item('use_payment_pg') . '/' . element('form3name', $view), $sform);
+						}
+					}else if(element('cor_pay_type',$view)=='c'){
+						if($total_price_sum > $this->member->item('mem_point')){
+							?><h5><?php echo cmsg("2104");?></h5><?php
+						}else{
+							$this->load->view('paymentlib/' . $this->cbconfig->item('use_payment_pg') . '/' . element('form3name', $view), $sform);	
+						}
 					}else{
 						$this->load->view('paymentlib/' . $this->cbconfig->item('use_payment_pg') . '/' . element('form3name', $view), $sform);
 					}
-
+					
 				} ?>
 			</div>
 		</div>
