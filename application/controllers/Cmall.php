@@ -1664,7 +1664,7 @@ class Cmall extends CB_Controller
 						'cit_item_type' => $tmp_oderlist_item['cit_item_type']
 					);
 
-					if($company_coin_value){
+					if($company_coin_value && $tmp_cod_company_deposit > 0){
 						$insertdetail['company_coin_value'] = $company_coin_value;
 					}
 
