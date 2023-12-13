@@ -1477,7 +1477,7 @@ class Cmall extends CB_Controller
 
 			//사용예치금
 			$insertdata['cor_company_deposit'] = fdeposit($orderlist,$this->member->item('company_idx'));
-
+			
 			//결제요청금액
 			$insertdata['cor_cash_request'] = $total_price_sum;
 
@@ -1592,7 +1592,8 @@ class Cmall extends CB_Controller
 
         //결제 최종 단계전 열매나 코인 사용가능한만큼 있는지 체크
         if($this->input->post('pay_type') === 'f'){
-            if($total_price_sum > $this->member->item('mem_cur_fruit')){
+			$company_coin_value = busiCoin($this->member->item('company_idx'));
+            if(($total_price_sum / $company_coin_value) > $this->member->item('mem_cur_fruit')){
                 alert(cmsg("3105"));
                 exit;
             }
@@ -1602,7 +1603,7 @@ class Cmall extends CB_Controller
                 exit;
             }
         }
-
+		
         //사용 예치금이 0보다 크면 로그 기록을 위한 준비
         if($insertdata['cor_company_deposit'] > 0){
             $order_deposit = $insertdata['cor_company_deposit'];
@@ -1615,7 +1616,7 @@ class Cmall extends CB_Controller
 			}
 			
         }
-
+		
 		$this->load->model(array('Cmall_item_model', 'Cmall_order_model', 'Cmall_order_detail_model'));
 		$res = $this->Cmall_order_model->insert($insertdata);
 		if ($res) {
@@ -1627,19 +1628,27 @@ class Cmall extends CB_Controller
 			if ($cartorder) {
 				foreach ($cartorder as $key => $val) {
 					$item = $this->Cmall_item_model
-						->get_one(element('cit_id', $val), 'cit_download_days');
+						->get_one(element('cit_id', $val), 'cit_download_days,cit_price');
 
 					$tmp_cod_fruit = 0;
 					$tmp_cod_company_deposit = 0;
 					$tmp_cod_point = 0;
+					$tmp_oderlist_item = array();
 					
-					if($orderlist[$key]['cit_money_type']=='f'){
-						$tmp_cod_fruit = $orderlist[$key]['cit_price'] * $val['cct_count'];
-						$tmp_cod_company_deposit = fdeposit(array($orderlist[$key]),$this->member->item('company_idx'));
+					foreach($orderlist as $k =>$v){
+						if($v['cit_id'] == $val['cit_id']){
+							$tmp_oderlist_item = $v;
+							break;
+						}
+					}
+
+					if($tmp_oderlist_item['cit_money_type']=='f'){
+						$tmp_cod_fruit = ($tmp_oderlist_item['cit_price'] * $val['cct_count']) / $company_coin_value;
+						$tmp_cod_company_deposit = fdeposit(array($tmp_oderlist_item),$this->member->item('company_idx'));
 					}else{
 						$tmp_cod_point = $item['cit_price'] * $val['cct_count'];
 					}
-
+				
 					$insertdetail = array(
 						'cor_id' => $cor_id,
 						'mem_id' => $mem_id,
@@ -1647,11 +1656,11 @@ class Cmall extends CB_Controller
 						'cde_id' => element('cde_id', $val),
 						'cod_download_days' => element('cit_download_days', $item),
 						'cod_count' => element('cct_count', $val),
-						'cod_status' => $orderlist[$key]['cod_status'],
+						'cod_status' => $tmp_oderlist_item['cod_status'],
 						'cod_fruit' => $tmp_cod_fruit,
 						'cod_company_deposit' => $tmp_cod_company_deposit,
 						'cod_point' => $tmp_cod_point, //코인
-						'cit_item_type' => $orderlist[$key]['cit_item_type']
+						'cit_item_type' => $tmp_oderlist_item['cit_item_type']
 					);
 					$this->Cmall_order_detail_model->insert($insertdetail);
 					$deletewhere = array(
@@ -1664,9 +1673,6 @@ class Cmall extends CB_Controller
 			}
 			if ($order_deposit) {
 				
-				//기업 마스터 아이디 구하기
-				$company_admin_mem_id = camll_company_idx($this->member->item('mem_id'));
-
 				//예치금 사용 및 내역기록
 				company_depoist_use($this->member->item('mem_id'), $order_deposit*(-1), $this->member->item("mem_username")."(".$this->member->item("mem_userid").") 상품구매 (주문번호 : ".$cor_id.")", $insertdata['cor_datetime'], "order", $cor_id, "주문");
 
@@ -1678,7 +1684,7 @@ class Cmall extends CB_Controller
 					$this->load->helper('fruit');
 				}
 
-				fuse($this->member->item('mem_id'), ($total_price_sum*(-1)), "상품구매 (주문번호 : ".$cor_id.")",$insertdata['cor_datetime'], "order", $cor_id, "주문");
+				fuse($this->member->item('mem_id'), (($total_price_sum / $company_coin_value)*(-1)), "상품구매 (주문번호 : ".$cor_id.")",$insertdata['cor_datetime'], "order", $cor_id, "주문");
 			}
 
 
@@ -2761,9 +2767,25 @@ class Cmall extends CB_Controller
 
 
 	function ttt(){
-		// company_depoist_use(1, 100000, "테스트 예치금 주입", date('Y-m-d H:i:s'), "test", "", "테스트");
 
-		// $this->load->helper('fruit');
-		// fuse(1,100000,"테스트 열매 주입", date('Y-m-d H:i:s'), "test", "", "테스트");
+		/**
+		 * /cmall/ttt?kind=d&mem_id=1&amount=1000&msg=테스트 예치금 주입 <- 회원의 기업에 예치금
+		 * /cmall/ttt?kind=f&mem_id=1&amount=1000&msg=테스트 열매 주입 <- 회원의 열매
+		 */
+		
+		$kind = $this->input->get("kind");
+		$mem_id = $this->input->get("mem_id");
+		$amount = $this->input->get("amount");
+		$msg = $this->input->get("msg");
+
+		if($kind == 'd'){
+			company_depoist_use($mem_id, $amount, $msg, date('Y-m-d H:i:s'), "test", "", "테스트");
+			debug("예치금 적용 완료");
+		}else if($kind == 'f'){
+			$this->load->helper('fruit');
+			fuse($mem_id, $amount, $msg, date('Y-m-d H:i:s'), "test", "", "테스트");
+			debug("열매 적용 완료");
+		}
+
 	}
 }

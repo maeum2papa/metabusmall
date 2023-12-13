@@ -127,13 +127,11 @@ if ( ! function_exists('fdeposit')) {
         }
 
         if(count($use_items) > 0){
-
-            //회원의 기업 재화가치 가져오기
-            $company_coin_value = busiCoin($company_idx);
-
+            
             foreach($use_items as $k => $v){
-                $use_deposit += $v['cct_count'] * $v['cit_price'] * $company_coin_value;
+                $use_deposit += $v['cct_count'] * $v['cit_price'];
             }
+
         }
 
         return $use_deposit;
