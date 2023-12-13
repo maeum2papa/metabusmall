@@ -119,7 +119,7 @@
 		<div class="cmall_top_wrap">
 			<div class="top_left_box">
 
-				<div class="status_box">
+				<div class="status_box" id="status_popup_open">
 					<div class="status_icon">
 						<?=banner('fruit')?>
 					</div>
@@ -128,7 +128,7 @@
 					</div>
 				</div>
 
-				<div class="status_box">
+				<div class="status_box" id="status_popup_open">
 					<div class="status_icon">
 						<?=banner('coin')?>
 					</div>
@@ -143,31 +143,29 @@
 			</div>
 		</div>
 
-		<div class="cmall_index_slide swiper mySwiper">
-			<div class="swiper-wrapper">
-				<div class="swiper-slide">
-					<div class="slide_img"><?=banner('shop_slide_banner')?></div>
+		<div class="swiper-wrap">
+			<div class="cmall_index_slide swiper mySwiper">
+				<div class="swiper-wrapper">
+					<div class="swiper-slide">
+						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
+					</div>
+					<div class="swiper-slide">
+						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
+					</div>
 				</div>
-
-				<div class="swiper-slide">
-					<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-				</div>
-
-				<div class="swiper-slide">
-					<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-				</div>
-
-				<div class="swiper-slide">
-					<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-				</div>
-
-				<div class="swiper-slide">
-					<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-				</div>
+				
 			</div>
 			<div class="swiper-button-next"></div>
 			<div class="swiper-button-prev"></div>
-			<div class="swiper-pagination"></div>
 		</div>
 
 
@@ -214,14 +212,19 @@
 								</div>
 
 								<div class="info_desc_right">
-									<?php
-										if($item['cit_money_type']=='f'){
-											echo banner('fruit');
-										}else{
-											echo banner('coin');
-										}
-									?>
-									<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
+										<?php
+											if($item['cit_money_type']=='f'){
+												echo banner('fruit');
+												?>
+												<span id="price"><?php echo number_format(element('fruit_cit_price', $item)); ?></span>개
+												<?php
+											}else{
+												echo banner('coin');
+												?>
+												<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
+												<?php
+											}
+										?>
 								</div>
 							</div>
 						</div>
@@ -281,11 +284,16 @@
 										<?php
 											if($item['cit_money_type']=='f'){
 												echo banner('fruit');
+												?>
+												<span id="price"><?php echo number_format(element('fruit_cit_price', $item)); ?></span>개
+												<?php
 											}else{
 												echo banner('coin');
+												?>
+												<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
+												<?php
 											}
 										?>
-										<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
 									</div>
 								</div>
 							</div>
@@ -343,11 +351,16 @@
 										<?php
 											if($item['cit_money_type']=='f'){
 												echo banner('fruit');
+												?>
+												<span id="price"><?php echo number_format(element('fruit_cit_price', $item)); ?></span>개
+												<?php
 											}else{
 												echo banner('coin');
+												?>
+												<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
+												<?php
 											}
 										?>
-										<span id="price"><?php echo number_format(element('cit_price', $item)); ?></span>개
 									</div>
 								</div>
 							</div>
@@ -362,7 +375,7 @@
 		</div>
 	</div>
 
-	<div class="status_popup_bg">
+	<!-- <div class="status_popup_bg">
 		<div id="status_popup">
 			<div class="status_box">
 				<div class="status_save_box">
@@ -390,7 +403,7 @@
 				</svg>
 			</button>
 		</div>
-	</div>
+	</div> -->
 </div>
 
 
@@ -425,13 +438,13 @@
 		$('#shop a').addClass('selected');
 
 		// 열매 박스 클릭 시 열매 팝업창 띄우기
-		$('.status_box').on('click', function() {
-			$('.status_popup_bg').css('display', 'block');
-		});
+		// $('#status_popup_open').on('click', function() {
+		// 	$('.status_popup_bg').css('display', 'block');
+		// });
 
-		// 열매 팝업창 닫기
-		$('#cancel_icon').on('click', function() {
-			$('.status_popup_bg').css('display', 'none');
-		});
+		// // 열매 팝업창 닫기
+		// $('#cancel_icon').on('click', function() {
+		// 	$('.status_popup_bg').css('display', 'none');
+		// });
 	});
 </script>
