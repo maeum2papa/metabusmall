@@ -37,6 +37,7 @@
                             <th>세금계산서메일</th>
                             <th><a href="<?php echo element('state', element('sort', $view)); ?>">활성화여부</a></th>
                             <th><a href="<?php echo element('reg_date', element('sort', $view)); ?>">등록일시</a></th>
+							<th>예치금</th>
 							<th>수정</th>
 						</tr>
 					</thead>
@@ -58,6 +59,7 @@
                             <td><?php echo element('company_mail', $result); ?></td>
                             <td><?php echo $view['state_str'][element('state', $result)]; ?></td>
                             <td><?php echo element('reg_date', $result); ?></td>
+							<td><?php echo element('company_deposit', $result); ?></td>
 							<td><a href="<?php echo admin_url($this->pagedir); ?>/write/<?php echo element(element('primary_key', $view), $result); ?>?<?php echo $this->input->server('QUERY_STRING', null, ''); ?>" class="btn btn-outline btn-default btn-xs">수정</a></td>
 						</tr>
                     <?php
