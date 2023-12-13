@@ -1593,6 +1593,7 @@ class Cmall extends CB_Controller
         //결제 최종 단계전 열매나 코인 사용가능한만큼 있는지 체크
         if($this->input->post('pay_type') === 'f'){
 			$company_coin_value = busiCoin($this->member->item('company_idx'));
+			$insertdata['company_coin_value'] = $company_coin_value;
             if(($total_price_sum / $company_coin_value) > $this->member->item('mem_cur_fruit')){
                 alert(cmsg("3105"));
                 exit;
@@ -1662,6 +1663,11 @@ class Cmall extends CB_Controller
 						'cod_point' => $tmp_cod_point, //코인
 						'cit_item_type' => $tmp_oderlist_item['cit_item_type']
 					);
+
+					if($company_coin_value){
+						$insertdetail['company_coin_value'] = $company_coin_value;
+					}
+
 					$this->Cmall_order_detail_model->insert($insertdetail);
 					$deletewhere = array(
 						'mem_id' => $mem_id,
