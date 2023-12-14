@@ -60,9 +60,10 @@ if ( ! function_exists('get_cmall_key_localize')) {
 	function get_cmall_key_localize(){
 
 		$keys = array(
-			'order'		=> '주문',	//주문
+			'order'		=> '주문확인',	//주문
 			'deposit'	=> '입금', //입금
 			'cancel'	=> '취소', //취소
+			'end'	=> '배송완료', //취소
 		);
 
 		return $keys;

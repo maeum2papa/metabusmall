@@ -15,11 +15,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		<div class="box-table-header">
 			<div class="btn-group btn-group-sm" role="group">
 				<a href="<?php echo admin_url('cmall/cmallorder'); ?>" class="btn btn-sm <?php echo ( ! $this->input->get('cor_pay_type')) ? 'btn-success' : 'btn-default';?>">전체내역</a>
-				<a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=bank" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'bank') ? 'btn-info' : 'btn-default';?>">무통장</a>
+                <a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=f" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'f') ? 'btn-info' : 'btn-default';?>">열매</a>
+                <a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=c" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'c') ? 'btn-info' : 'btn-default';?>">컬래버코인</a>
+				<!-- <a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=bank" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'bank') ? 'btn-info' : 'btn-default';?>">무통장</a>
 				<a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=card" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'card') ? 'btn-info' : 'btn-default';?>">카드</a>
 				<a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=realtime" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'realtime') ? 'btn-info' : 'btn-default';?>">실시간</a>
 				<a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=vbank" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'vbank') ? 'btn-info' : 'btn-default';?>">가상계좌</a>
-				<a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=phone" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'phone') ? 'btn-info' : 'btn-default';?>">핸드폰</a>
+				<a href="<?php echo admin_url('cmall/cmallorder'); ?>?cor_pay_type=phone" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'phone') ? 'btn-info' : 'btn-default';?>">핸드폰</a> -->
 			</div>
 			<?php
 			ob_start();
@@ -38,10 +40,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				<thead>
 					<tr>
 						<th>주문번호</th>
+                        <th>기업명</th>
 						<th>회원아이디</th>
 						<th>회원명/실명</th>
 						<th>주문상태</th>
-						<th>주문상품수</th>
+						<th>전화번호</th>
+                        <th>주문상품수</th>
 						<th>결제수단</th>
 						<th>주문합계</th>
 						<th>입금합계</th>
@@ -62,15 +66,86 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							<span class="btn btn-xs btn-warning">테스트 결제</span>
 						<?php } ?>
 						</td>
+                        <td>
+                            <?php echo $result['company_name']; ?>
+                        </td>
 						<td><a href="?sfield=deposit.mem_id&amp;skeyword=<?php echo element('mem_id', $result); ?>"><?php echo html_escape(element('mem_userid', $result)); ?></a></td>
 						<td><?php echo element('display_name', $result); ?> / <?php echo html_escape(element('mem_realname', $result)); ?></td>
 						<td><?php echo element('order_status', $result);	 //주문상태 ?></td>
-						<td><?php echo count($order_detail);	 //주문상품수 ?></td>
+						<td>
+                            <?php
+                                echo preg_replace('/(\d{3})(\d{4})(\d{4})/', '$1-$2-$3', $result['mem_phone']);
+                            ?>
+                        </td>
+                        <td>
+                            <?php 
+                                foreach($result['orderdetail'] as $k => $v){
+                                    foreach($v['itemdetail'] as $k2 =>$v2){
+
+                                        $ea = '';
+
+                                        if($v2['cod_count'] > 1){
+                                            $ea = 'X'.$v2['cod_count'];
+                                        }
+
+                                        ?>
+                                        <div>
+                                            <?php echo $v['item']['cit_name']; ?>
+                                            [옵션 : <?php echo $v2['cde_title']; ?>]
+                                            <?php echo $ea; ?>
+                                        </div><?php
+                                    }
+                                }
+                                // debug($result['orderdetail']);
+                            ?>
+                        </td>
 						<?php /* echo display_datetime(element('cor_datetime', $result), 'full') */ ?>
-						<td><?php echo element('pay_method', $result); ?></td>
-						<td class="text-right"><?php echo number_format(element('cor_total_money', $result)) . '원'; ?></td>
-						<td class="text-right"><?php echo number_format(element('cor_cash', $result)) . '원'; ?></td>
-						<td class="text-right"><?php echo number_format(element('cor_refund_price', $result)) . '원'; ?></td>
+						<td>
+                            <?php 
+                                if(element('pay_method', $result) == 'f'){
+                                    echo "열매";
+                                }else if(element('pay_method', $result) == 'c'){
+                                    echo "컬래버코인";
+                                }else{
+                                    echo element('pay_method', $result);
+                                }
+                            ?>
+                        </td>
+						<td class="text-right">
+                            <?php echo number_format(element('cor_total_money', $result)); ?>
+
+                            <?php
+                                if($result['cor_pay_type']=='f'){
+                                    echo '원';
+                                }else if($result['cor_pay_type']=='c'){
+                                    echo '개';
+                                }
+                            ?>
+                            
+                        </td>
+						<td class="text-right">
+                            <?php echo number_format(element('cor_cash', $result)); ?>
+                            
+                            <?php
+                                if($result['cor_pay_type']=='f'){
+                                    echo '원';
+                                }else if($result['cor_pay_type']=='c'){
+                                    echo '개';
+                                }
+                            ?>
+
+                        </td>
+						<td class="text-right">
+                            <?php echo number_format(element('cor_refund_price', $result)); ?>
+                            
+                            <?php
+                                if($result['cor_pay_type']=='f'){
+                                    echo '원';
+                                }else if($result['cor_pay_type']=='c'){
+                                    echo '개';
+                                }
+                            ?>
+                        </td>
 						<td><a href="<?php echo element('form_url', $view) .'/'. element('cor_id', $result); ?>">보기</a></td>
 					</tr>
 					<?php

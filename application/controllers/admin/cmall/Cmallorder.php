@@ -147,13 +147,14 @@ class Cmallorder extends CB_Controller
 		if ($this->input->get('cor_pay_type')) {
 			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
 		}
-
+		
 		$result = $this->{$this->modelname}
 			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {
+				if($val['company_idx']) $result['list'][$key]['company_name'] = busiNm($val['company_idx']);
 				$result['list'][$key]['display_name'] = display_username(
 					element('mem_userid', $val),
 					element('mem_nickname', $val),

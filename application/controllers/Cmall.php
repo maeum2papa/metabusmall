@@ -1582,6 +1582,7 @@ class Cmall extends CB_Controller
 		$insertdata['cor_useragent'] = $this->agent->agent_string();
 		$insertdata['is_test'] = $this->cbconfig->item('use_pg_test');
 		$insertdata['status'] = $od_status;
+		$insertdata['company_idx'] = $this->member->item("company_idx");
 
         //정보입력 주소
         if($input_address=='y'){
