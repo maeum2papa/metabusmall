@@ -2786,6 +2786,90 @@ class Cmall extends CB_Controller
 	}
 
 
+	//열매 사용 내역
+	public function fruit(){
+		$mem_id = $this->member->item('mem_id');
+		if(!$mem_id){
+			alert(cmsg("0101"));
+			exit;
+		}
+
+		/**
+		 * 페이지에 숫자가 아닌 문자가 입력되거나 1보다 작은 숫자가 입력되면 에러 페이지를 보여줍니다.
+		 */
+		$param =& $this->querystring;
+		$page = (((int) $this->input->get('page')) > 0) ? ((int) $this->input->get('page')) : 1;
+		
+		$sfield = $this->input->get('sfield', null, '');
+		$skeyword = $this->input->get('skeyword', null, '');
+
+		$per_page = $this->cbconfig->item('list_count') ? (int) $this->cbconfig->item('list_count') : 20;
+		$offset = ($page - 1) * $per_page;
+
+		/**
+		 * 게시판 목록에 필요한 정보를 가져옵니다.
+		 */
+		$where = array();
+		$where['log_memNo'] = $mem_id;
+
+		if ( ! function_exists('fdeposit')) {
+			$this->load->helper('fruit');
+		}
+		
+		$result = fhistoty($per_page, $offset, $where, "log_sno desc", $sfield, $skeyword);
+		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
+		if (element('list', $result)) {
+			foreach (element('list', $result) as $key => $val) {
+				$result['list'][$key]['num'] = $list_num--;
+			}
+		}
+		$view['view']['data'] = $result;
+
+		$view['view']['category_nav'] = $this->cmalllib->get_nav_category($category_id);
+		$view['view']['category_all'] = $this->cmalllib->get_all_category();
+		$view['view']['category_id'] = $category_id;
+
+		/**
+		 * 페이지네이션을 생성합니다
+		 */
+		$config['base_url'] = site_url('cmall/fruit?') . $param->replace('page');
+		$config['total_rows'] = $result['total_rows'];
+		$config['per_page'] = $per_page;
+		$this->pagination->initialize($config);
+		$view['view']['paging'] = $this->pagination->create_links();
+		$view['view']['page'] = $page;
+
+
+
+		/**
+		 * 레이아웃 설정
+		 */
+		$layoutconfig = array(
+			'path' => 'cmall',
+			'layout' => 'layout',
+			'skin' => 'fruit',
+			'layout_dir' => 'bootstrap',
+			'mobile_layout_dir' => 'bootstrap',
+			'use_sidebar' => 0,
+			'use_mobile_sidebar' => 0,
+			'skin_dir' => 'bootstrap',
+			'mobile_skin_dir' => 'bootstrap',
+			'page_title' => "열매 사용 내역",
+			'meta_description' => $meta_description,
+			'meta_keywords' => $meta_keywords,
+			'meta_author' => $meta_author,
+			'page_name' => "열매 사용 내역",
+			);
+		
+		
+		
+		$view['layout'] = $this->managelayout->front($layoutconfig, $this->cbconfig->get_device_view_type());
+		$this->data = $view;
+		$this->layout = element('layout_skin_file', element('layout', $view));
+		$this->view = element('view_skin_file', element('layout', $view));
+	}
+
+
 	function ttt(){
 
 		/**
