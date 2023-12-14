@@ -2955,4 +2955,9 @@ class Cmall extends CB_Controller
 		}
 
 	}
+
+	function preview(){
+		$video = $this->input->get("video");
+		echo "<video controls src='https://v1.collaborland.kr:8443/".$video."' width='800px'></video>";
+	}
 }
