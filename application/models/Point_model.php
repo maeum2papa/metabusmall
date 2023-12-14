@@ -37,6 +37,15 @@ class Point_model extends CB_Model
 		return $result;
 	}
 
+	
+	public function get_list($limit = '', $offset = '', $where = '', $like = '', $findex = '', $forder = '', $sfield = '', $skeyword = '', $sop = 'OR')
+	{
+		$select = 'point.*';
+		$result = $this->_get_list_common($select, $join, $limit, $offset, $where, $like, $findex, $forder, $sfield, $skeyword, $sop);
+
+		return $result;
+	}
+
 
 	public function get_point_sum($mem_id = 0)
 	{
