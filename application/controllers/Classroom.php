@@ -215,5 +215,31 @@ class Classroom extends CB_Controller
 		$this->layout = element('layout_skin_file', element('layout', $view));
 		$this->view = element('view_skin_file', element('layout', $view));
 	}
-	
+	public function test_game()
+	{
+		
+		$layoutconfig = array(
+			'path' => 'classroom',
+			'layout' => 'layout',
+			'skin' => 'test_game',
+			'layout_dir' => 'bootstrap',
+			'mobile_layout_dir' => 'bootstrap',
+			'use_sidebar' => 0,
+			'use_mobile_sidebar' => 0,
+			'skin_dir' => 'bootstrap',
+			'mobile_skin_dir' => 'bootstrap',
+			'page_title' => "테스트 게임",
+			'meta_description' => $meta_description,
+			'meta_keywords' => $meta_keywords,
+			'meta_author' => $meta_author,
+			'page_name' => "테스트 게임",
+			);
+		
+		
+		
+		$view['layout'] = $this->managelayout->front($layoutconfig, $this->cbconfig->get_device_view_type());
+		$this->data = $view;
+		$this->layout = element('layout_skin_file', element('layout', $view));
+		$this->view = element('view_skin_file', element('layout', $view));
+	}
 }
