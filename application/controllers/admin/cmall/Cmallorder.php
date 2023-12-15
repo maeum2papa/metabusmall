@@ -285,6 +285,7 @@ class Cmallorder extends CB_Controller
 			$pcase = $this->input->post('pcase');
 
 			if( $pcase === 'product' ){
+				debug($this->input->post());
 				$ori_ct_status = $this->input->post('ct_status');
 				$ct_status = $this->input->post('ct_status') ? cmall_get_stype_names($ori_ct_status) : '';
 				$pg_cancel = $this->input->post('pg_cancel');
@@ -294,183 +295,358 @@ class Cmallorder extends CB_Controller
 				$cod_download_days = $this->input->post('cod_download_days') ? $this->input->post('cod_download_days') : array();
 				$ct_qtys = $this->input->post('ct_qty') ? $this->input->post('ct_qty') : array();
 
+				$now = date('Y-m-d H:i:s');
+
 				$order = get_cmall_order_data($cor_id);
 				$status_normal = array('order', 'deposit');
-
-				for ($i=0; $i<$cnt; $i++)
-				{
-					$k = element($i, $chk);
-					$cit_id = element($k, $cit_ids);
-
-					if(!$cit_id)
-						continue;
-
-					/*
-					$item_detail = $this->Cmall_order_detail_model->get_detail_by_item($cor_id, $cit_id);
-
-					if( ! element('cit_id', $item_detail) ){
-						continue;
-					}
-					*/
-
-					$updatedata = array(		//주문상태 수정
-								'cod_status' => $ct_status,
-							);
-
-					if( element($k, $cod_download_days) !== null ){		//다운로드기간 수정
-
-						$updatedata['cod_download_days'] = (int) element($k, $cod_download_days);
-
+				$order_detail_filter = [];
+				
+				//주문상품
+				if ($order) {
+					$order_detail = $this->Cmall_order_detail_model->get_by_item($cor_id);
+					
+					if ($order_detail) {
+						foreach ($order_detail as $okey => $oval) {
+							$order_detail[$okey]['item'] = $item
+								= $this->Cmall_item_model->get_one(element('cit_id', $oval));
+							$order_detail[$okey]['itemdetail'] = $itemdetail
+								= $this->Cmall_order_detail_model->get_detail_by_item($cor_id, element('cit_id', $oval));
+						}
 					}
 
-					$where = array(
-						'cor_id' => $cor_id,
-						'mem_id' => $mem_id,
-						'cit_id' => $cit_id,
-					);
-
-					$this->Cmall_order_detail_model->update('', $updatedata, $where);
-				}
-
-				$cancel_change = false;
-				$pg_cancel_log = '';
-				$mod_history = '';
-
-				if( $ct_status == 'cancel'){
-
-					if( $pg_cancel ){
-
-						$select = "count(*) as od_count1, SUM(IF(cod_status = 'cancel', 1, 0)) as od_count2";
-						$where = array(
-							'cor_id' => $cor_id,
-							'mem_id' => $mem_id,
-							);
-
-						$row = $this->Cmall_order_detail_model->get_one('', $select, $where);
-
-						// PG 신용카드 결제 취소일 때
-						if($row['od_count1'] === $row['od_count2']) {
-							$cancel_change = true;
-
-							$pg_res_cd = '';
-							$pg_res_msg = '';
-							$pg_cancel_log = '';
-
-							$order = get_cmall_order_data($cor_id);
-
-							$this->load->library('paymentlib');
-
-							$pg_res_cd = '';
-
-							$result = array(
-								'req_tx' => 'pay',
-								'res_cd' => '0000',
-								'tno' => element('cor_tno', $order),
-								'cust_ip' => $this->input->ip_address(),
-								'refund_msg' => iconv('utf-8', 'euc-kr', '쇼핑몰 운영자 승인 취소'),
-								);
-
-							if( element('cor_tno', $order) && in_array( element('cor_pay_type', $order), array('card', 'easy') ) ){
-								switch ( element('cor_pg', $order) ){
-
-									case 'lg' :
-
-										$pg_res_cd = $this->paymentlib->xpay_admin_cancel($result, true);
-
-										break;
-									case 'kcp' :
-
-										$pg_res_cd = $this->paymentlib->kcp_pp_ax_hub_cancel($result, true);
-
-										break;
-									case 'inicis' :
-
-										$pg_res_cd = $this->paymentlib->inipay_admin_cancel($result, true);
-
-										break;
-
-								}
-
-								// PG 취소요청 성공했으면
-								if($pg_res_cd === 'success') {
-									$pg_cancel_log = ' PG 신용카드 승인취소 처리';
-
-									$updatedata = array(
-										'cor_refund_price' => element('cor_cash', $order),
-									);
-									$where = array(
-										'cor_id' => $cor_id,
-										'mem_id' => $mem_id,
-									);
-									$this->Cmall_order_model->update('', $updatedata, $where);
-
-								}
+					foreach($chk as $k=>$v){
+						$cit_id = $cit_ids[$v];
+						foreach($order_detail as $k2=>$v2){
+							if($cit_id == $v2['cit_id']){
+								$order_detail_filter[] = $v2;
 							}
 						}
-
-					} //enf if $pg_cancel
-
-					// 관리자 주문취소 로그
-					$mod_history .= date('Y-m-d H:i:s', time()).' '.$mem_id.' 주문'.$ori_ct_status.' 처리'.$pg_cancel_log."\n";
-
+					}
 				}
 
-				// 미수금 등의 정보
-				$info = get_cmall_order_amounts($cor_id);
+				if($order['cor_pay_type']=='f'){
 
-				$updatedata = array(
-					'cor_refund_price' => $info['od_cancel_price'],
-					'cor_cash' => $info['od_cash_price'],
-				);
-
-				if($mod_history){
-
-					$mod_history = $order['cor_order_history'].$mod_history;
-
-					$updatedata['cor_order_history'] = $mod_history;
-				}
-
-				if( $cancel_change ){
-
-					$updatedata['status'] = $ct_status;
-					$updatedata['cor_status'] = 0;
-
-				} else {
-
-					if (in_array($ct_status, $status_normal)) { // 정상인 주문상태만 기록
-						$updatedata['status'] = $ct_status;
+					if ( ! function_exists('fuse')) {
+						$this->load->helper('fruit');
 					}
 
-					if ( $ct_status === 'deposit' ){		//입금이면
-						$updatedata['cor_status'] = 1;
-					} else { //주문 또는 취소 인 경우
+					foreach ($order_detail_filter as $okey => $oval) {
 
-						$select = "count(*) as od_count1, SUM(IF(cod_status = 'order', 1, 0)) as od_count2, SUM(IF(cod_status = 'cancel', 1, 0)) as od_count3";
-						$where = array(
-							'cor_id' => $cor_id,
-							'mem_id' => $mem_id,
-							);
-
-						$row = $this->Cmall_order_detail_model->get_one('', $select, $where);
-
-						if( ($row['od_count1'] === $row['od_count2']) || ($row['od_count1'] === $row['od_count3']) ) {
-							$updatedata['cor_status'] = 0;
-							$updatedata['status'] = $ct_status;
+						//아이템 상품은 상태 변경 패스
+						if($oval["item"]["cit_item_type"] == 'i'){
+							continue;
 						}
 
+						//변경하고자 하는 주문상품 상태과 현 주문상품 상태가 같으면 패스
+						foreach($oval['itemdetail'] as $k2=>$v2){
+							if($ct_status == $v2['cod_status']){
+								continue;
+							}
+
+							/**
+							 * 주문확인 -> 취소
+							 */
+							if($v2['cod_status'] == 'order' && $ct_status == 'cancel'){
+
+								//주문의 열매 환원
+								$order['cor_cash'] -= ($v2['cod_fruit'] * $order['company_coin_value']);
+								$order['cor_refund_price'] += ($v2['cod_fruit'] * $order['company_coin_value']);
+								fuse($order['mem_id'], $v2['cod_fruit'], "주문상품취소 (주문번호 : ".$cor_id.", 상품 : ".$oval['item']['cit_name']."[".$v2['cde_title']."])", $now, "order", $v2['cod_id'], "관리자가 주문상품취소");
+								
+								//기업 예치금 환원
+								if($v2['cod_company_deposit']>0){
+									$order['cor_company_deposit'] -= $v2['cod_company_deposit'];
+								 	company_depoist_use($order['mem_id'], $v2['cod_company_deposit'], "주문상품취소 (주문번호 : ".$cor_id.", 상품 : ".$oval['item']['cit_name']."[".$v2['cde_title']."])", $now, "order", $v2['cod_id'], "관리자가 주문상품취소");
+								}
+
+								//재고 복구
+								cmall_item_stock_change($v2['cit_id'],$v2['cod_count']); //함수 내부에서 재고 타입 검증
+								
+								//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
+								$this->Cmall_order_detail_model->pay_init($v2['cod_id']);
+
+								//주문 상품 상태 변경
+								$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id']);
+								
+
+								$updatedata = array(
+									"cor_cash"=>$order['cor_cash'],
+									"cor_refund_price"=>$order['cor_refund_price'],
+									"cor_company_deposit"=>$order['cor_company_deposit']
+								);
+								
+								$where = array(
+									'cor_id' => $cor_id
+								);
+
+								$this->Cmall_order_model->update('', $updatedata, $where);
+							}
+
+							 /**
+							 * 주문확인 -> 발송완료
+							 */
+							if($v2['cod_status'] == 'order' && $ct_status == 'end'){
+								//cb_cmall_order_detail.cod_status = end;
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+							}
+
+							 /**
+							 * 발송완료 -> 주문확인
+							 */
+							if($v2['cod_status'] == 'end' && $ct_status == 'order'){
+								//cb_cmall_order_detail.cod_status = end;
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+							}
+						}
+						
+					}
+				
+				}elseif($order['cor_pay_type']=='c'){
+
+					foreach ($order_detail_filter as $okey => $oval) {
+
+						//아이템 상품은 상태 변경 패스
+						if($oval["item"]["cit_item_type"] == 'i'){
+							continue;
+						}
+
+						foreach($oval['itemdetail'] as $k2=>$v2){
+
+							/**
+							 * 주문확인 -> 발송완료
+							 */
+							if($v2['cod_status'] == 'order' && $ct_status == 'end'){
+								//cb_cmall_order_detail.cod_status = end;
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+							}
+
+							/**
+							 * 발송완료 -> 주문확인
+							 */
+							if($v2['cod_status'] == 'end' && $ct_status == 'order'){
+								//cb_cmall_order_detail.cod_status = end;
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+							}
+						}
 					}
 
 				}
 
-				$where = array(
-					'cor_id' => $this->input->post('cor_id'),
-					'mem_id' => $this->input->post('mem_id'),
-				);
+				//주문 상태 업데이트
+				$order_detail_confirm = $this->Cmall_order_detail_model->get_by_item($cor_id);
+				if ($order_detail_confirm) {
+					
+					$tmp_order_new_status = array(
+						'order'=>0,
+						'end'=>0,
+						'cancel'=>0
+					);
 
-				$this->Cmall_order_model->update('', $updatedata, $where);
+					foreach ($order_detail_confirm as $okey => $oval) {
+						$tmp_itemdetail = $this->Cmall_order_detail_model->get_detail_by_item($cor_id, element('cit_id', $oval));
+						foreach($tmp_itemdetail as $k2=>$v2){
+							$tmp_order_new_status[$v2['cod_status']] += 1;
+						}
+					}
+
+					foreach($tmp_order_new_status as $k=>$v){
+						if($v > 0){
+							
+							$updatedata = array(
+								"status"=>$k
+							);
+
+							if($k=='cancel'){
+								$updatedata['cor_status'] = 0;
+							}
+							
+							$where = array(
+								'cor_id' => $cor_id
+							);
+
+							$this->Cmall_order_model->update('', $updatedata, $where);
+
+							break;
+						}
+					}
+
+				}
+
+
+				// for ($i=0; $i<$cnt; $i++)
+				// {
+				// 	$k = element($i, $chk);
+				// 	$cit_id = element($k, $cit_ids);
+
+				// 	if(!$cit_id)
+				// 		continue;
+
+				// 	/*
+				// 	$item_detail = $this->Cmall_order_detail_model->get_detail_by_item($cor_id, $cit_id);
+
+				// 	if( ! element('cit_id', $item_detail) ){
+				// 		continue;
+				// 	}
+				// 	*/
+
+				// 	$updatedata = array(		//주문상태 수정
+				// 				'cod_status' => $ct_status,
+				// 			);
+
+				// 	if( element($k, $cod_download_days) !== null ){		//다운로드기간 수정
+
+				// 		$updatedata['cod_download_days'] = (int) element($k, $cod_download_days);
+
+				// 	}
+
+				// 	$where = array(
+				// 		'cor_id' => $cor_id,
+				// 		'mem_id' => $mem_id,
+				// 		'cit_id' => $cit_id,
+				// 	);
+
+				// 	$this->Cmall_order_detail_model->update('', $updatedata, $where);
+				// }
+
+				// $cancel_change = false;
+				// $pg_cancel_log = '';
+				// $mod_history = '';
+
+				// if( $ct_status == 'cancel'){
+
+				// 	if( $pg_cancel ){
+
+				// 		$select = "count(*) as od_count1, SUM(IF(cod_status = 'cancel', 1, 0)) as od_count2";
+				// 		$where = array(
+				// 			'cor_id' => $cor_id,
+				// 			'mem_id' => $mem_id,
+				// 			);
+
+				// 		$row = $this->Cmall_order_detail_model->get_one('', $select, $where);
+						
+				// 		// PG 신용카드 결제 취소일 때
+				// 		if($row['od_count1'] === $row['od_count2']) {
+				// 			$cancel_change = true;
+
+				// 			$pg_res_cd = '';
+				// 			$pg_res_msg = '';
+				// 			$pg_cancel_log = '';
+
+				// 			$order = get_cmall_order_data($cor_id);
+
+				// 			$this->load->library('paymentlib');
+
+				// 			$pg_res_cd = '';
+
+				// 			$result = array(
+				// 				'req_tx' => 'pay',
+				// 				'res_cd' => '0000',
+				// 				'tno' => element('cor_tno', $order),
+				// 				'cust_ip' => $this->input->ip_address(),
+				// 				'refund_msg' => iconv('utf-8', 'euc-kr', '쇼핑몰 운영자 승인 취소'),
+				// 				);
+
+				// 			if( element('cor_tno', $order) && in_array( element('cor_pay_type', $order), array('card', 'easy') ) ){
+				// 				switch ( element('cor_pg', $order) ){
+
+				// 					case 'lg' :
+
+				// 						$pg_res_cd = $this->paymentlib->xpay_admin_cancel($result, true);
+
+				// 						break;
+				// 					case 'kcp' :
+
+				// 						$pg_res_cd = $this->paymentlib->kcp_pp_ax_hub_cancel($result, true);
+
+				// 						break;
+				// 					case 'inicis' :
+
+				// 						$pg_res_cd = $this->paymentlib->inipay_admin_cancel($result, true);
+
+				// 						break;
+
+				// 				}
+
+				// 				// PG 취소요청 성공했으면
+				// 				if($pg_res_cd === 'success') {
+				// 					$pg_cancel_log = ' PG 신용카드 승인취소 처리';
+
+				// 					$updatedata = array(
+				// 						'cor_refund_price' => element('cor_cash', $order),
+				// 					);
+				// 					$where = array(
+				// 						'cor_id' => $cor_id,
+				// 						'mem_id' => $mem_id,
+				// 					);
+				// 					$this->Cmall_order_model->update('', $updatedata, $where);
+
+				// 				}
+				// 			}
+				// 		}
+
+				// 	} //enf if $pg_cancel
+
+				// 	// 관리자 주문취소 로그
+				// 	$mod_history .= date('Y-m-d H:i:s', time()).' '.$mem_id.' 주문'.$ori_ct_status.' 처리'.$pg_cancel_log."\n";
+
+				// }
+
+				// // 미수금 등의 정보
+				// $info = get_cmall_order_amounts($cor_id);
+
+				// $updatedata = array(
+				// 	'cor_refund_price' => $info['od_cancel_price'],
+				// 	'cor_cash' => $info['od_cash_price'],
+				// );
+
+				// if($mod_history){
+
+				// 	$mod_history = $order['cor_order_history'].$mod_history;
+
+				// 	$updatedata['cor_order_history'] = $mod_history;
+				// }
+
+				// if( $cancel_change ){
+
+				// 	$updatedata['status'] = $ct_status;
+				// 	$updatedata['cor_status'] = 0;
+
+				// } else {
+
+				// 	if (in_array($ct_status, $status_normal)) { // 정상인 주문상태만 기록
+				// 		$updatedata['status'] = $ct_status;
+				// 	}
+
+				// 	if ( $ct_status === 'deposit' ){		//입금이면
+				// 		$updatedata['cor_status'] = 1;
+				// 	} else { //주문 또는 취소 인 경우
+
+				// 		$select = "count(*) as od_count1, SUM(IF(cod_status = 'order', 1, 0)) as od_count2, SUM(IF(cod_status = 'cancel', 1, 0)) as od_count3";
+				// 		$where = array(
+				// 			'cor_id' => $cor_id,
+				// 			'mem_id' => $mem_id,
+				// 			);
+
+				// 		$row = $this->Cmall_order_detail_model->get_one('', $select, $where);
+
+				// 		if( ($row['od_count1'] === $row['od_count2']) || ($row['od_count1'] === $row['od_count3']) ) {
+				// 			$updatedata['cor_status'] = 0;
+				// 			$updatedata['status'] = $ct_status;
+				// 		}
+
+				// 	}
+
+				// }
+
+				// $where = array(
+				// 	'cor_id' => $this->input->post('cor_id'),
+				// 	'mem_id' => $this->input->post('mem_id'),
+				// );
+
+				// $this->Cmall_order_model->update('', $updatedata, $where);
 
 			} else if( $pcase === 'info' ){
-
+				
 				//$cor_cash = (int) $this->input->post('cor_cash');
 				//$cor_approve_datetime = $this->input->post('cor_approve_datetime');
 				//$cor_deposit = (int) $this->input->post('cor_deposit');
@@ -492,23 +668,35 @@ class Cmallorder extends CB_Controller
 
 				// 결제정보 반영
 				$updatedata = array(
-					'cor_cash' => $cor_cash,
-					'cor_approve_datetime' => $cor_approve_datetime,
-					'cor_deposit' => $cor_deposit,
-					'cor_refund_price' => $cor_refund_price,
+					//'cor_cash' => $cor_cash,
+					//'cor_approve_datetime' => $cor_approve_datetime,
+					//'cor_deposit' => $cor_deposit,
+					//'cor_refund_price' => $cor_refund_price,
 					'cor_admin_memo' => $cor_admin_memo,
-					'cor_bank_info' => $cor_bank_info,
+					//'cor_bank_info' => $cor_bank_info,
 					);
+				
+				if($this->input->post('cor_ship_zipcode')!=''){
+					$updatedata['cor_ship_zipcode'] = $this->input->post('cor_ship_zipcode');
+				}
+				
+				if($this->input->post('cor_ship_address')!=''){
+					$updatedata['cor_ship_address'] = $this->input->post('cor_ship_address');
+				}
+
+				if($this->input->post('cor_ship_address_detail')!=''){
+					$updatedata['cor_ship_address_detail'] = $this->input->post('cor_ship_address_detail');
+				}
 
 				//미수금 금액을 구함
-				$notyet = abs(element('cor_cash_request', $info)) - abs($cor_cash);
-				$cart_status = false;
+				// $notyet = abs(element('cor_cash_request', $info)) - abs($cor_cash);
+				// $cart_status = false;
 
-				if( 'order' == element('status', $info) && $notyet == 0 ){ // 주문 상태이면
-					$updatedata['status'] = 'deposit';	 //입금 상태로 변경
-					$updatedata['cor_status'] = 1;
-					$cart_status = true;
-				}
+				// if( 'order' == element('status', $info) && $notyet == 0 ){ // 주문 상태이면
+				// 	$updatedata['status'] = 'deposit';	 //입금 상태로 변경
+				// 	$updatedata['cor_status'] = 1;
+				// 	$cart_status = true;
+				// }
 
 				$where = array(
 					'cor_id' => $cor_id,
@@ -517,19 +705,19 @@ class Cmallorder extends CB_Controller
 
 				$this->Cmall_order_model->update('', $updatedata, $where);
 
-				if( $cart_status ){
-					$updatedata = array(
-						'cod_status' => 'deposit',
-						);
+				// if( $cart_status ){
+				// 	$updatedata = array(
+				// 		'cod_status' => 'deposit',
+				// 		);
 
-					$where = array(
-						'cor_id' => $cor_id,
-						'mem_id' => $mem_id,
-						'cod_status' => 'order',
-					);
+				// 	$where = array(
+				// 		'cor_id' => $cor_id,
+				// 		'mem_id' => $mem_id,
+				// 		'cod_status' => 'order',
+				// 	);
 
-					$this->Cmall_order_detail_model->update('', $updatedata, $where);
-				}
+				// 	$this->Cmall_order_detail_model->update('', $updatedata, $where);
+				// }
 			}
 
 			redirect(current_full_url(), 'refresh');
@@ -670,13 +858,13 @@ class Cmallorder extends CB_Controller
 						foreach($order_detail as $k2=>$v2){
 
 							foreach($v2['itemdetail'] as $k3=>$v3){
-							//재고 복구
+								//재고 복구
 								cmall_item_stock_change($v3['cit_id'],$v3['cod_count']); //함수 내부에서 재고 타입 검증
-				
-							//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
+								
+								//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
 								$this->Cmall_order_detail_model->pay_init($v3['cod_id']);
-				
-							//주문 상품 상태 변경
+								
+								//주문 상품 상태 변경
 								$this->Cmall_order_detail_model->set_status_cancel($v3['cod_id']);
 							}
 							
@@ -692,7 +880,7 @@ class Cmallorder extends CB_Controller
 
 						foreach($order_detail as $k2=>$v2){
 							foreach($v2['itemdetail'] as $k3=>$v3){
-							//cb_cmall_order_detail.cod_status = end;
+								//cb_cmall_order_detail.cod_status = end;
 								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end');
 							}
 						}
@@ -725,7 +913,7 @@ class Cmallorder extends CB_Controller
 
 						foreach($order_detail as $k2=>$v2){
 							foreach($v2['itemdetail'] as $k3=>$v3){
-							//cb_cmall_order_detail.cod_status = end;
+								//cb_cmall_order_detail.cod_status = end;
 								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end');
 							}
 						}
