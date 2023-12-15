@@ -1818,16 +1818,22 @@ class Cmall extends CB_Controller
 						}
 					}
 
+					$itemDetail = $this->Cmall_item_detail_model
+						->get_one(element('cde_id', $val), 'cde_price');
+
 					if($tmp_oderlist_item['cit_money_type']=='f'){
 						$tmp_cod_fruit = ($tmp_oderlist_item['cit_price'] * $val['cct_count']) / $company_coin_value;
+
+						//옵션가 있는 경우
+						if($itemDetail['cde_price'] > 0){
+							$tmp_cod_fruit += (($itemDetail['cde_price'] * $val['cct_count']) / $company_coin_value);
+						}
+
 						$tmp_cod_company_deposit = fdeposit(array($tmp_oderlist_item),$this->member->item('company_idx'));
 					}else{
 						$tmp_cod_point = $item['cit_price'] * $val['cct_count'];
 					}
 					
-					$itemDetail = $this->Cmall_item_detail_model
-						->get_one(element('cde_id', $val), 'cde_price');
-
 					$insertdetail = array(
 						'cor_id' => $cor_id,
 						'mem_id' => $mem_id,
