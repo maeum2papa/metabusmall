@@ -1121,8 +1121,8 @@ class Cmall extends CB_Controller
 		$this->layout = element('layout_skin_file', element('layout', $view));
 		$this->view = element('view_skin_file', element('layout', $view));
 	}
-
-
+	
+	
 	public function orderview($cor_id = 0)
 	{
 		// 이벤트 라이브러리를 로딩합니다
@@ -1937,7 +1937,7 @@ class Cmall extends CB_Controller
 		// 이벤트가 존재하면 실행합니다
 		$view['view']['event']['before'] = Events::trigger('before', $eventname);
 
-		$this->load->model(array('Cmall_order_model'));
+		$this->load->model(array('Cmall_order_model','Cmall_item_model','Cmall_order_detail_model'));
 		/**
 		 * 페이지에 숫자가 아닌 문자가 입력되거나 1보다 작은 숫자가 입력되면 에러 페이지를 보여줍니다.
 		 */
@@ -1958,6 +1958,24 @@ class Cmall extends CB_Controller
 		$result = $this->Cmall_order_model
 			->get_list($per_page, $offset, $where, '', $findex, $forder);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
+
+		if (element('list', $result)) {
+			foreach (element('list', $result) as $key => $val) {
+				$result['list'][$key]['num'] = $list_num--;
+
+				$orderdetail = $this->Cmall_order_detail_model->get_by_item(element('cor_id', $val));
+
+				if ($orderdetail) {
+					foreach ($orderdetail as $okey => $oval) {
+						$orderdetail[$okey]['item'] = $item
+							= $this->Cmall_item_model->get_one(element('cit_id', $oval));
+						$orderdetail[$okey]['itemdetail'] = $itemdetail
+							= $this->Cmall_order_detail_model->get_detail_by_item(element('cor_id', $val), element('cit_id', $oval));
+					}
+				}
+				$result['list'][$key]['orderdetail'] = $orderdetail;
+			}
+		}
 		$view['view']['data'] = $result;
 
 		/**
@@ -2879,7 +2897,7 @@ class Cmall extends CB_Controller
 	 */
 	public function ordercancel(){
 		$cor_id = $this->input->post('cor_id');
-		// $cor_id = 202312131902476193;
+		// $cor_id = 202312150806374762;
 		$now = date('Y-m-d H:i:s');
 
 		//유효성검사
@@ -2898,20 +2916,37 @@ class Cmall extends CB_Controller
 		}
 		
 		//주문상품
-		$order_detail = cmall_order_detail($cor_id);
+		$this->load->model(array('Cmall_order_detail_model','Cmall_item_model'));
+		if ($order) {
+			$order_detail = $this->Cmall_order_detail_model->get_by_item(element('cor_id', $order));
+			
+			if ($order_detail) {
+				foreach ($order_detail as $okey => $oval) {
+					$order_detail[$okey]['item'] = $item
+						= $this->Cmall_item_model->get_one(element('cit_id', $oval));
+					$order_detail[$okey]['itemdetail'] = $itemdetail
+						= $this->Cmall_order_detail_model->get_detail_by_item(element('cor_id', $order), element('cit_id', $oval));
+				}
+			}
+		}
+		
 		
 		//주문상품에 아이템 껴 있으면 주문취소 차단
 		foreach($order_detail as $k=>$v){
-			if($v['cit_item_type']=='i'){
+			
+			if($v['item']['cit_item_type']=='i'){
 				echo "false";
 				exit;
 			}
-
+			
 			//주문상품중에 상태가 주문확인이 아니면 차단
-			if($v['cod_status']!='order'){
-				echo 'false_status';
-				exit;
+			foreach($v['itemdetail'] as $k2=>$v2){
+				if($v2['cod_status']!='order'){
+					echo 'false_status';
+					exit;
+				}
 			}
+			
 		}
 		
 		//주문의 열매와 예치금 환원, 주문의 코인 환원
@@ -2942,16 +2977,18 @@ class Cmall extends CB_Controller
 		$this->Cmall_order_model->pay_init($cor_id);
 
 
-		$this->load->model("Cmall_order_detail_model");
 		foreach($order_detail as $k=>$v){
-			//재고 복구
-			cmall_item_stock_change($v['cit_id'],$v['cod_count']); //함수 내부에서 재고 타입 검증
 
-			//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
-			$this->Cmall_order_detail_model->pay_init($v['cod_id']);
+			foreach($v['itemdetail'] as $k2=>$v2){
+				//재고 복구
+				cmall_item_stock_change($v2['cit_id'],$v2['cod_count']); //함수 내부에서 재고 타입 검증
 
-			//주문 상품 상태 변경
-			$this->Cmall_order_detail_model->set_status_cancel($v['cod_id']);
+				//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
+				$this->Cmall_order_detail_model->pay_init($v2['cod_id']);
+
+				//주문 상품 상태 변경
+				$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id']);
+			}
 		}
 
 		//주문 상태 변경

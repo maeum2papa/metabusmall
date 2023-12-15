@@ -151,7 +151,7 @@ class Cmallorder extends CB_Controller
 		$result = $this->{$this->modelname}
 			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
-
+		
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {
 				if($val['company_idx']) $result['list'][$key]['company_name'] = busiNm($val['company_idx']);
@@ -584,4 +584,164 @@ class Cmallorder extends CB_Controller
 		$this->view = element('view_skin_file', element('layout', $view));
 
 	}
+
+	//주문상태변경(상품일괄변경)
+	public function statuschange(){
+		$cor_ids = $this->input->post('chk');
+		$change_status = $this->input->post('change_status');
+		$now = date('Y-m-d H:i:s');
+		
+		if(count($cor_ids) > 0){
+
+			$this->load->model(array('Cmall_order_model','Cmall_order_detail_model','Cmall_item_model'));
+
+			foreach($cor_ids as $k => $cor_id){
+
+				//주문정보
+				$order = $this->Cmall_order_model->get_one($cor_id);
+
+				//주문상품
+				if ($order) {
+					$order_detail = $this->Cmall_order_detail_model->get_by_item(element('cor_id', $order));
+					
+					if ($order_detail) {
+						foreach ($order_detail as $okey => $oval) {
+							$order_detail[$okey]['item'] = $item
+								= $this->Cmall_item_model->get_one(element('cit_id', $oval));
+							$order_detail[$okey]['itemdetail'] = $itemdetail
+								= $this->Cmall_order_detail_model->get_detail_by_item(element('cor_id', $order), element('cit_id', $oval));
+						}
+					}
+				}
+				
+
+				//주문 상태와 주문상품 상태가 서로 다르면 차단
+				foreach($order_detail as $k2=>$v2){
+
+					if($v2['item']['cit_stock_type'] == 'i'){
+						alert("아이템 상품이 포함되어 상태를 변경할 수 없습니다. 상태 변경을 중지 합니다.(주문번호 : ".$cor_id.")");
+						exit;
+					}
+					
+					foreach($v2['itemdetail'] as $k3 => $v3){
+						if($order['status'] != $v3['cod_status']){
+							alert("주문상품 단위로 상태 변경이 필요한 주문이 있어서 상태 변경을 중지 합니다.(주문번호 : ".$cor_id.")");
+							exit;
+						};
+
+						if($v3['cod_status']=='cancel'){
+							alert("취소된 주문 또는 주문상품은 상태를 변경할 수 없습니다. 상태 변경을 중지 합니다.(주문번호 : ".$cor_id.")");
+							exit;
+						}
+					}
+				}
+
+				
+				if($order['cor_pay_type']=='f'){
+
+					if ( ! function_exists('fuse')) {
+						$this->load->helper('fruit');
+					}
+
+					/**
+					 * 주문확인 -> 취소
+					 */
+					if($order['status'] == 'order' && $change_status == 'cancel'){
+						
+						//주문의 열매와 예치금 환원, 주문의 코인 환원
+						$return_fruit = $order['cor_cash'] / $order['company_coin_value'];
+
+						fuse($order['mem_id'], $return_fruit, "주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "관리자가 주문취소");
+
+						if($order['cor_company_deposit']>0){
+						
+							//예치금 환원
+							company_depoist_use($order['mem_id'], $order['cor_company_deposit'], "주문취소 (주문번호 : ".$cor_id.")", $now, "order", $cor_id, "관리자가 주문취소");
+
+						}
+						
+						//주문 상품 사용한 열매, 예치금 초기화
+						$this->Cmall_order_model->pay_init($cor_id);
+
+						//cb_cmall_order.status = cancel
+						//cb_cmall_order.cor_status = 0;
+						$this->Cmall_order_model->set_status_cancel($cor_id);
+
+
+						foreach($order_detail as $k2=>$v2){
+							//재고 복구
+							cmall_item_stock_change($v2['cit_id'],$v2['cod_count']); //함수 내부에서 재고 타입 검증
+				
+							//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
+							$this->Cmall_order_detail_model->pay_init($v2['cod_id']);
+				
+							//주문 상품 상태 변경
+							$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id']);
+						}
+					}
+
+					/**
+					 * 주문확인 -> 발송완료
+					 */
+					if($order['status'] == 'order' && $change_status == 'end'){
+						//cb_cmall_order.status = end
+						$this->Cmall_order_model->set_status_change($cor_id, 'end');
+
+						foreach($order_detail as $k2=>$v2){
+							//cb_cmall_order_detail.cod_status = end;
+							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+						}
+					}
+
+					/**
+					 * 발송완료 -> 주문확인
+					 */
+					if($order['status'] == 'end' && $change_status == 'order'){
+						//cb_cmall_order.status = order
+						$this->Cmall_order_model->set_status_change($cor_id, 'order');
+
+						//cb_cmall_order_detail.cod_status = order;
+						foreach($order_detail as $k2=>$v2){
+							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+						}
+					}
+
+					
+				}elseif($order['cor_pay_type']=='c'){
+
+					/**
+					 * 주문확인 -> 발송완료
+					 */
+					if($order['status'] == 'order' && $change_status == 'end'){
+						//cb_cmall_order.status = end
+						$this->Cmall_order_model->set_status_change($cor_id, 'end');
+
+						foreach($order_detail as $k2=>$v2){
+							//cb_cmall_order_detail.cod_status = end;
+							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+						}
+					}
+
+					/**
+					 * 발송완료 -> 주문확인
+					 */
+					if($order['status'] == 'end' && $change_status == 'order'){
+						//cb_cmall_order.status = order
+						$this->Cmall_order_model->set_status_change($cor_id, 'order');
+
+						//cb_cmall_order_detail.cod_status = order;
+						foreach($order_detail as $k2=>$v2){
+							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+						}
+					}
+
+				}
+				
+			}
+			alert("상태가 변경되었습니다.",$_SERVER['HTTP_REFERER']);
+		}else{
+			alert("상태를 변경할 주문번호가 없습니다.");
+		}
+	}
+
 }

@@ -25,13 +25,15 @@
 					<td>
 						<a href="<?php echo site_url('cmall/orderresult/' . element('cor_id', $result)); ?>" class="bold">
 							<?php 
-								$order_detail = cmall_order_detail(element('cor_id', $result));
+								$order_detail = $result['orderdetail'];
 								$thumnail = '';
 								$order_name = [];
-
+								
 								foreach($order_detail as $k => $v){
-									if($k==0) $thumnail = $v['cit_file_1'];
-									$order_name[] = $v['cit_name'];
+									if($k==0) $thumnail = $v['item']['cit_file_1'];
+									foreach($v['itemdetail'] as $k2=>$v2){
+										$order_name[] = $v['item']['cit_name']."(".$v2['cde_title'].")";
+									}
 								}
 
 							?>
