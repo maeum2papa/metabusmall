@@ -667,16 +667,19 @@ class Cmallorder extends CB_Controller
 						//cb_cmall_order.cor_status = 0;
 						$this->Cmall_order_model->set_status_cancel($cor_id);
 
-
 						foreach($order_detail as $k2=>$v2){
+
+							foreach($v2['itemdetail'] as $k3=>$v3){
 							//재고 복구
-							cmall_item_stock_change($v2['cit_id'],$v2['cod_count']); //함수 내부에서 재고 타입 검증
+								cmall_item_stock_change($v3['cit_id'],$v3['cod_count']); //함수 내부에서 재고 타입 검증
 				
 							//주문 상품 사용한 열매, 예치금, 코인(포인트) 초기화
-							$this->Cmall_order_detail_model->pay_init($v2['cod_id']);
+								$this->Cmall_order_detail_model->pay_init($v3['cod_id']);
 				
 							//주문 상품 상태 변경
-							$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id']);
+								$this->Cmall_order_detail_model->set_status_cancel($v3['cod_id']);
+							}
+							
 						}
 					}
 
@@ -688,8 +691,10 @@ class Cmallorder extends CB_Controller
 						$this->Cmall_order_model->set_status_change($cor_id, 'end');
 
 						foreach($order_detail as $k2=>$v2){
+							foreach($v2['itemdetail'] as $k3=>$v3){
 							//cb_cmall_order_detail.cod_status = end;
-							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end');
+							}
 						}
 					}
 
@@ -702,7 +707,9 @@ class Cmallorder extends CB_Controller
 
 						//cb_cmall_order_detail.cod_status = order;
 						foreach($order_detail as $k2=>$v2){
-							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+							foreach($v2['itemdetail'] as $k3=>$v3){
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'order');
+							}
 						}
 					}
 
@@ -717,8 +724,10 @@ class Cmallorder extends CB_Controller
 						$this->Cmall_order_model->set_status_change($cor_id, 'end');
 
 						foreach($order_detail as $k2=>$v2){
+							foreach($v2['itemdetail'] as $k3=>$v3){
 							//cb_cmall_order_detail.cod_status = end;
-							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end');
+							}
 						}
 					}
 
@@ -731,7 +740,9 @@ class Cmallorder extends CB_Controller
 
 						//cb_cmall_order_detail.cod_status = order;
 						foreach($order_detail as $k2=>$v2){
-							$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+							foreach($v2['itemdetail'] as $k3=>$v3){
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'order');
+							}
 						}
 					}
 
