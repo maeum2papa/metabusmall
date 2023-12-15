@@ -25,6 +25,8 @@ class Cmalllib extends CI_Controller
 			'realtime' => '실시간계좌이체',
 			'vbank' => '가상계좌',
 			'service' => '서비스',
+			'f' => '열매',
+			'c' => '컬래버코인',
 		);
 
 	function __construct()

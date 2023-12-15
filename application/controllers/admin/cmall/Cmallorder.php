@@ -471,12 +471,12 @@ class Cmallorder extends CB_Controller
 
 			} else if( $pcase === 'info' ){
 
-				$cor_cash = (int) $this->input->post('cor_cash');
-				$cor_approve_datetime = $this->input->post('cor_approve_datetime');
-				$cor_deposit = (int) $this->input->post('cor_deposit');
-				$cor_refund_price = (int) $this->input->post('cor_refund_price');
+				//$cor_cash = (int) $this->input->post('cor_cash');
+				//$cor_approve_datetime = $this->input->post('cor_approve_datetime');
+				//$cor_deposit = (int) $this->input->post('cor_deposit');
+				//$cor_refund_price = (int) $this->input->post('cor_refund_price');
 				$cor_admin_memo = $this->input->post('cor_admin_memo');
-				$cor_bank_info = $this->input->post('cor_bank_info');
+				//$cor_bank_info = $this->input->post('cor_bank_info');
 
 				if($cor_approve_datetime){
 					if (check_datetime( $cor_approve_datetime ) == false){

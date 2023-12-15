@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<script type="text/javascript" src="https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js"></script>
 
 <div class="box">
 	<div class="box-table">
@@ -9,6 +10,39 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		<?php
 		$result = element('data', $view);
 		if (element('orderdetail', $view)) {
+
+			$status_cancel_cnt = 0;
+			$cod_cnt = 0;
+			$item_cnt = 0;
+			
+			$all_checkbox_disabled = '';
+			foreach (element('orderdetail', $view) as $k=>$row) {
+				$checkbox_disabled = '';
+				
+				if($row['item']['cit_item_type'] == 'i'){
+					$checkbox_disabled = 'disabled';
+					$all_checkbox_disabled = 'disabled';
+				}
+
+				foreach($row['itemdetail'] as $k2=>$v2){
+					if($v2['cod_status']=='cancel'){
+						$checkbox_disabled = 'disabled';
+						$all_checkbox_disabled = 'disabled';
+					}
+
+					if($v2['cod_status'] == 'cancel'){
+						$status_cancel_cnt++;
+					}
+					
+					$cod_cnt++;
+				}
+
+				if($row['item']['cit_item_type'] == 'i'){
+					$item_cnt++;
+				}
+
+				$view['orderdetail'][$k]['checkbox_disabled'] = $checkbox_disabled;
+			}
 		?>
 		<li>
 			<h4 class="h2_frm">주문컨텐츠 목록</h4>
@@ -28,16 +62,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				<thead>
 					<tr class="success">
 						<th>
-							<input type="checkbox" name="chkall" id="chkall">
+							<input type="checkbox" name="chkall" id="chkall" <?php echo $all_checkbox_disabled;?>>
 						</th>
 						<th>이미지</th>
 						<th>상품명</th>
-						<th class="text-right">다운로드</th>
 						<th class="text-center">상태</th>
 						<th class="text-center">총수량</th>
 						<th>판매가</th>
 						<th>소계</th>
-						<th>다운로드기간</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -48,11 +80,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				?>
 					<tr>
 						<td>
-						<input type="checkbox" id="ct_chk_<?php echo $i; ?>" class="product_chk" name="chk[]" value="<?php echo $i; ?>">
+						
+						<input type="checkbox" id="ct_chk_<?php echo $i; ?>" class="product_chk" name="chk[]" value="<?php echo $i; ?>" <?php echo $row['checkbox_disabled'];?>>
+
 						<input type="hidden" name="cit_id[]" value="<?php echo element('cit_id', element('item', $row)); ?>">
 						</td>
 						<td><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>" target="_blank"><img src="<?php echo thumb_url('cmallitem', element('cit_file_1', element('item', $row)), 60, 60); ?>" class="thumbnail" style="margin:0;width:60px;height:60px;" alt="<?php echo html_escape(element('cit_name', element('item', $row))); ?>" title="<?php echo html_escape(element('cit_name', element('item', $row))); ?>" /></a></td>
-						<td colspan="2"><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>" target="_blank"><?php echo html_escape(element('cit_name', element('item', $row))); ?></a>
+						<td><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>" target="_blank"><?php echo html_escape(element('cit_name', element('item', $row))); ?></a>
 							<ul class="cmall-options">
 								<?php
 								$total_num = 0;
@@ -60,18 +94,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								foreach (element('itemdetail', $row) as $detail) {
 								?>
 									<li class="clearfix mt5"><?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cod_count', $detail);?>개 (+<?php echo number_format(element('cde_price', $detail)); ?>원)
-								<?php
-									if (element('cor_status', $result) === '1') {
-										if (element('possible_download', element('item', $row))) {
-								?>
-											<button type="button" class="btn btn-xs btn-success pull-right">다운로드가능</button>
-								<?php } else { ?>
-											<button type="button" class="btn btn-xs btn-danger pull-right">다운로드 기간 완료</button>
-								<?php } } else { ?>
-											<button type="button" class="btn btn-xs btn-danger pull-right">입금확인중</button>
-								<?php
-									}
-								?>
+						
 									</li>
 								<?php
 								$total_num += element('cod_count', $detail);
@@ -87,18 +110,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						</td>
 						<td><?php echo number_format(element('cit_price', element('item', $row))); ?></td>
 						<td><?php echo number_format($total_price); ?><input type="hidden" name="total_price[<?php echo element('cit_id', element('item', $row)); ?>]" value="<?php echo $total_price; ?>"></td>
-						<td>
-							<?php
-							if (element('cod_download_days', $detail)) {
-								echo '구매후 ' . element('cod_download_days', $detail) . '일간 ( ~ ' . element('download_end_date', element('item', $row)) . ' 까지)';
-							} else {
-								echo '기간제한없음';
-							}
-							?>
-							<div class="cor-id-cit-id-<?php echo element('cor_id', $result); ?>-<?php echo element('cit_id', element('item', $row)); ?>">
-								<input type="number" name="cod_download_days[<?php echo $i;?>]" class="form-control" value="<?php echo element('cod_download_days', $detail); ?>" />
-							</div>
-						</td>
 					</tr>
 				<?php
 				$i++;
@@ -107,13 +118,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				</tbody>
 			</table>
 			</div>
+			<?php 
+				$ct_status_order_disabled = '';
+				$ct_status_end_disabled = '';
+				$ct_status_cancel_disabled = '';
+
+				//상태가 주문취소인 상품 수와 상품 수가 일치 = 모두 취소된 것으로 버튼 비활성화
+				//주문상품 종류 수와 주문상품중 아이템인 상품 수가 일치 = 모두 취소된 것으로 버튼 비활성화
+				if($status_cancel_cnt == $cod_cnt || count($view['orderdetail']) == $item_cnt){
+					$ct_status_order_disabled = 'disabled';
+					$ct_status_end_disabled = 'disabled';
+					$ct_status_cancel_disabled = 'disabled';
+				}
+			?>
 			<div class="btn_list02 btn_list">
 				<p>
 					<input type="hidden" name="chk_cnt" value="<?php echo $i; ?>">
-					<strong>주문 상태 변경</strong>
-					<input type="submit" name="ct_status" value="주문" onclick="document.pressed=this.value" class="btn btn-sm">
-					<input type="submit" name="ct_status" value="입금" onclick="document.pressed=this.value" class="btn btn-sm">
-					<input type="submit" name="ct_status" value="취소" onclick="document.pressed=this.value" class="btn btn-sm">
+					<strong>주문상품 상태 변경</strong>
+					<input type="submit" name="ct_status" value="주문확인" onclick="document.pressed=this.value" class="btn btn-sm" <?php echo $ct_status_order_disabled;?>>
+					<input type="submit" name="ct_status" value="발송완료" onclick="document.pressed=this.value" class="btn btn-sm" <?php echo $ct_status_end_disabled;?>>
+					<input type="submit" name="ct_status" value="주문취소" onclick="document.pressed=this.value" class="btn btn-sm" <?php echo $ct_status_cancel_disabled;?>>
 				</p>
 			</div>
 		<?php echo form_close(); ?>
@@ -122,10 +146,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		?>
 	</ul>
 
-	<div class="alert alert-success">
+	<hr></hr>
+	<!-- <div class="alert alert-success">
 		<p>주문, 입금, 준비, 배송, 완료는 장바구니와 주문서 상태를 모두 변경하지만, 취소, 반품, 품절은 장바구니의 상태만 변경하며, 주문서 상태는 변경하지 않습니다.</p>
 		<p>개별적인(이곳에서의) 상태 변경은 모든 작업을 수동으로 처리합니다. 예를 들어 주문에서 입금으로 상태 변경시 입금액(결제금액)을 포함한 모든 정보는 수동 입력으로 처리하셔야 합니다.</p>
-	</div>
+	</div> -->
 
 	<?php if ( element('is_test', element('data', $view)) ) { ?>
 	<div class="bg-classes">
@@ -163,27 +188,63 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						</tr>
 						<tr>
 							<th>결제방식</th>
-							<td><?php echo $this->cmalllib->get_paymethodtype(element('cor_pay_type', element('data', $view)));?></td>
+							<td>
+								<?php echo $this->cmalllib->get_paymethodtype(element('cor_pay_type', element('data', $view)));?>
+							</td>
 						</tr>
 						<tr>
 							<th>총 주문액</th>
-							<td><?php echo number_format(element('cor_total_money', element('data', $view))); ?> 원</td>
+							<td>
+								<?php echo number_format(element('cor_total_money', element('data', $view))); ?> 
+								
+								<?php if($view['data']['cor_pay_type']=='c'){?>
+									개
+								<?php }else{?>
+									원
+								<?php }?>
+								
+							</td>
 						</tr>
 						<tr>
 							<th>결제요청금액</th>
-							<td><?php echo (element('cor_cash_request', element('data', $view))) ? number_format(abs(element('cor_cash_request', element('data', $view)))).' 원' : '아직 입금되지 않았습니다'; ?></td>
+							<td>
+								
+								<?php if(element('cor_cash_request', element('data', $view))){
+										echo number_format(abs(element('cor_cash_request', element('data', $view))));
+									?>
+									
+									<?php if($view['data']['cor_pay_type']=='c'){?>
+										개
+									<?php }else{?>
+										원
+									<?php }?>
+								
+								<?php }else{ ?>
+									아직 입금되지 않았습니다
+								<?php } ?>
+								
+
+							</td>
 						</tr>
+						<?php 
+							if(element('cor_pay_type', element('data', $view)) == 'f'){
+						?>
+						<tr>
+							<th>결제된 열매</th>
+							<td><?php echo number_format($view['data']['cor_cash'] / $view['data']['company_coin_value']);?> 개<br/>(결제 당시 재화가치 : <?php echo number_format($view['data']['company_coin_value']);?> 원)</td>
+						</tr>
+						<?php
+							}
+						?>
 						<tr>
 							<th>결제된 금액</th>
-							<td><?php echo number_format(element('cor_cash', element('data', $view))); ?> 원</td>
-						</tr>
-						<tr>
-							<th>미결제액</th>
 							<td>
-								<?php
-								$notyet = abs(element('cor_cash_request', element('data', $view))) - abs(element('cor_cash', element('data', $view)));
-								echo number_format($notyet);
-								?> 원
+								<?php echo number_format(element('cor_cash', element('data', $view))); ?>
+								<?php if($view['data']['cor_pay_type']=='c'){?>
+									개
+								<?php }else{?>
+									원
+								<?php }?>
 							</td>
 						</tr>
 						<?php if (element('cor_approve_datetime', element('data', $view)) > '0000-00-00 00:00:00') { ?>
@@ -226,49 +287,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 								<td><?php echo element('cor_bank_info', element('data', $view)); ?></td>
 							</tr>
 						<?php } ?>
-						<?php if( element('cor_pay_type', element('data', $view)) !== 'bank' ){ //무통장이 아니면 ?>
-							<tr>
-								<th scope="row">결제대행사 링크</th>
-								<td>
-									<?php
-										switch(element('cor_pg', element('data', $view))) {
-											case 'lg':
-												$pg_url  = 'http://pgweb.uplus.co.kr';
-												$pg_test = 'LG유플러스';
-												if ( $this->cbconfig->item('use_pg_test') ) {
-													$pg_url = 'http://pgweb.uplus.co.kr/tmert';
-													$pg_test .= ' 테스트 ';
-												}
-												break;
-											case 'inicis':
-												$pg_url  = 'https://iniweb.inicis.com/';
-												$pg_test = 'KG이니시스';
-												break;
-											default:
-												$pg_url  = 'http://admin8.kcp.co.kr';
-												$pg_test = 'KCP';
-												if ( $this->cbconfig->item('use_pg_test') ) {	   //테스트결제이면
-													// 로그인 아이디 / 비번
-													// 일반 : test1234 / test12345
-													// 에스크로 : escrow / escrow913
-													$pg_url = 'http://testadmin8.kcp.co.kr';
-													$pg_test .= ' 테스트 ';
-												}
-
-											}
-										echo "<a href=\"{$pg_url}\" target=\"_blank\">{$pg_test}바로가기</a><br>";
-									?>
-								</td>
-							</tr>
-						<?php } ?>
 					</tbody>
 				</table>
 			</div>
 		</div>
 		<div class="col-xs-12 col-md-6 ">
 			<div class="pay-info">
+				<h5 class="ord_info_title mb10">결제상세정보</h5>
 				<table class="table">
-					<caption>결제상세정보 수정</caption>
 					<colgroup>
 						<col class="grid_3">
 						<col>
@@ -330,8 +356,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						<tr>
 							<th scope="row"><label for="cor_approve_datetime">입금 확인일시</label></th>
 							<td>
-								<input type="checkbox" name="od_bank_chk" id="od_bank_chk" value="<?php echo date("Y-m-d H:i:s", time()); ?>" onclick="if (this.checked == true) this.form.cor_approve_datetime.value=this.form.od_bank_chk.value; else this.form.cor_approve_datetime.value = this.form.cor_approve_datetime.defaultValue;">
-								<label for="od_bank_chk">현재 시간으로 설정</label><br>
+
 								<input type="text" name="cor_approve_datetime" value="<?php echo element('cor_approve_datetime', element('data', $view)); ?>" id="cor_approve_datetime" maxlength="19">
 							</td>
 						</tr>
@@ -381,15 +406,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						</td>
 					</tr>
 					<?php } ?>
-
 					<tr>
-						<th><label for="cor_deposit">예치금 결제액</label></th>
-						<td><input type="text" name="cor_deposit" value="<?php echo element('cor_deposit', element('data', $view)); ?>" id="od_deposit"> 원</td>
+						<th><label for="cor_cash">결제 금액</label></th>
+						<td>
+							<input type="text" class="form-control per50" name="cor_cash" value="<?php echo element('cor_cash', element('data', $view)); ?>" id="cor_cash" disabled> 원
+							
+						</td>
+					</tr>
+					<tr>
+						<th><label for="cor_approve_datetime">결제일시</label></th>
+						<td>
+							<input type="text" class="form-control per50" name="cor_approve_datetime" value="<?php echo element('cor_approve_datetime', element('data', $view)); ?>" id="cor_approve_datetime" maxlength="19" disabled>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="cor_company_deposit">예치금 결제액</label></th>
+						<td><input type="text" class="form-control per50" name="cor_company_deposit" value="<?php echo element('cor_company_deposit', element('data', $view)); ?>" id="cor_company_deposit" disabled> 원</td>
 					</tr>
 					<tr>
 						<th><label for="cor_refund_price">결제취소/환불 금액</label></th>
 						<td>
-							<input type="text" name="cor_refund_price" value="<?php echo element('cor_refund_price', element('data', $view)); ?>"> 원
+							<input type="text" class="form-control per50" name="cor_refund_price" value="<?php echo element('cor_refund_price', element('data', $view)); ?>" disabled> 원
 						</td>
 					</tr>
 					</tbody>
@@ -397,6 +434,54 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			</div>
 		</div>
 		</div>
+		
+		<div class="clearfix mb10">
+			<div class="col-xs-12 col-md-6 ">
+				<div>
+					<h5 class="mb10">주문메모</h5>
+					<textarea class="form-control per100" rows=5 disabled><?php echo $view['data']['cor_content'];?></textarea>
+				</div>
+			</div>
+			<div class="col-xs-12 col-md-6 ">
+				<?php if($view['data']['cor_ship_zipcode']!=''){ ?>
+				<div>
+					<h5 class="mb10">배송지정보</h5>
+					<table class="table">
+						<colgroup>
+							<col class="grid_3">
+							<col>
+						</colgroup>
+						<tbody>
+						<tr>
+							<th>우편번호</th>
+							<td>
+								<input type="" class="form-control per50" name="cor_ship_zipcode" value="<?php echo $view['data']['cor_ship_zipcode'];?>">
+
+								<button type="button" class="btn btn-black btn-sm" style="margin-top:0px;" onclick="win_zip('frm_orderinfo', 'cor_ship_zipcode', 'cor_ship_address', 'cor_ship_address_detail', 'cor_ship_address_detail', 'cor_ship_address4');">주소 검색</button>
+
+							</td>
+						</tr>
+						<tr>
+							<th>주소</th>
+							<td>
+								<input type="" class="form-control per100" name="cor_ship_address" value="<?php echo $view['data']['cor_ship_address'];?>">
+							</td>
+						</tr>
+						<tr>
+							<th>주소상세</th>
+							<td>
+								<input type="" class="form-control per100" name="cor_ship_address_detail" value="<?php echo $view['data']['cor_ship_address_detail'];?>">
+							</td>
+						</tr>
+						</tbody>
+					</table>
+					<input type="hidden" name="cor_ship_address4" value="">
+				</div>
+				<?php }?>
+			</div>
+			
+		</div>
+		
 
 		<div class="cor_admin_memo_box">
 			<h4>관리자메모</h4>

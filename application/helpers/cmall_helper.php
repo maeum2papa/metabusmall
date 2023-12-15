@@ -62,7 +62,7 @@ if ( ! function_exists('get_cmall_key_localize')) {
 		$keys = array(
 			'order'		=> '주문확인',	//주문
 			'deposit'	=> '입금', //입금
-			'cancel'	=> '취소', //취소
+			'cancel'	=> '주문취소', //취소
 			'end'	=> '발송완료', //취소
 		);
 
