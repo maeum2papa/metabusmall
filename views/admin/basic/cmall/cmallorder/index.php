@@ -70,7 +70,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						<select class="form-control per20 change-status">
 							<option value="order">주문확인</option>
 							<option value="end">발송완료</option>
-							<option value="cancel">취소</option>
+							<option value="cancel">주문취소</option>
 						</select>
 						<div class="px50">
 							<button class="btn btn-default btn-sm btn-status-change" type="button">변경</button>

@@ -842,10 +842,16 @@ class Cmallorder extends CB_Controller
 						}
 					}
 				}
-				
 
 				//주문 상태와 주문상품 상태가 서로 다르면 차단
 				foreach($order_detail as $k2=>$v2){
+
+					if($this->session->userdata['mem_admin_flag']!=0){
+						if($this->session->userdata['company_idx']!=$v2['item']['company_idx']){
+							alert("다른몰의 상품이 포함된 주문입니다. 상태 변경을 중지 합니다.(주문번호 : ".$cor_id.")");
+							exit;
+						}
+					}
 
 					if($v2['item']['cit_stock_type'] == 'i'){
 						alert("아이템 상품이 포함되어 상태를 변경할 수 없습니다. 상태 변경을 중지 합니다.(주문번호 : ".$cor_id.")");
@@ -864,7 +870,6 @@ class Cmallorder extends CB_Controller
 						}
 					}
 				}
-
 				
 				if($order['cor_pay_type']=='f'){
 
