@@ -138,6 +138,7 @@
 				</div>
 			</div>
 			<div class="top_right_box">
+				<a href="/cmall/wishlist">찜하기목록으로 <?=banner('heart_color')?></a>
 				<a href="/cmall/cart">장바구니 <?=banner('cart')?></a>
 				<a href="/cmall/orderlist">구매내역 <?=banner('purchase_history')?></a>
 			</div>
