@@ -1028,8 +1028,11 @@ class Cmallorder extends CB_Controller
 			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
 		}
 
+		if($this->session->userdata['mem_admin_flag']!=0){
+			$where['cb_cmall_order.company_idx'] = $this->session->userdata['company_idx'];
+		}
+
 		/** 상세 검색 end */
-		
 		$result = $this->{$this->modelname}
 			->get_admin_list(0, 9999999999999, $where, '', $findex, $forder, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
@@ -1095,6 +1098,12 @@ class Cmallorder extends CB_Controller
 								$row['cor_fruit_or_coin_amount'] = $v3['cit_price'] * $v3["cod_count"];
 							}
 							
+							if($this->session->userdata['mem_admin_flag']!=0){
+								if($this->session->userdata['company_idx'] != $item['company_idx']){
+									continue;
+								}
+							}
+
 							$excel_data[] = $row;
 						}
 					}
@@ -1105,8 +1114,7 @@ class Cmallorder extends CB_Controller
 
 		$view['view']['data']['list'] = $excel_data;
 		$view['view']['data']['mem_admin_flag'] = $this->session->userdata['mem_admin_flag'];
-
-
+		
 		header('Content-type: application/vnd.ms-excel');
 		header('Content-Disposition: attachment; filename=주문내역_' . cdate('Y_m_d') . '.xls');
 		echo $this->load->view('admin/' . ADMIN_SKIN . '/' . $this->pagedir . '/excel', $view, true);

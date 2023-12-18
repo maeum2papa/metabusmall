@@ -47,7 +47,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							<select name="search_datetime_type" class="form-control change-status px140">
 								<option value="cor_datetime">주문확인일시</option>
 								<option value="cor_end_datetime">발송완료일시</option>
-								<option value="cor_cancel_datetime">취소일시</option>
+								<option value="cor_cancel_datetime">주문취소일시</option>
 							</select>
 							<input type="date" name="search_datetime_start" value="<?php echo substr($view['search']['search_datetime_start'],0,10);?>" class="form-control px140"> - 
 							<input type="date" name="search_datetime_end" value="<?php echo substr($view['search']['search_datetime_end'],0,10);?>" class="form-control px140">
