@@ -41,6 +41,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					$item_cnt++;
 				}
 
+				if($this->session->userdata['mem_admin_flag']!=0){
+					if($this->session->userdata['company_idx']!=$row['item']['company_idx']){
+						$checkbox_disabled = 'disabled';
+						$all_checkbox_disabled = 'disabled';
+					}
+				}
+
 				$view['orderdetail'][$k]['checkbox_disabled'] = $checkbox_disabled;
 			}
 		?>
