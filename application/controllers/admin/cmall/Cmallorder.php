@@ -172,12 +172,17 @@ class Cmallorder extends CB_Controller
 			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
 		}
 
+		//기업관리자에게 데이터 제한
+		if($this->session->userdata['mem_admin_flag']!=0){
+			$where['cb_cmall_order.company_idx'] = $this->session->userdata['company_idx'];
+		}
+
 		/** 상세 검색 end */
 		
 		$result = $this->{$this->modelname}
 			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
-		
+		// debug($result);
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {
 				if($val['company_idx']) $result['list'][$key]['company_name'] = busiNm($val['company_idx']);

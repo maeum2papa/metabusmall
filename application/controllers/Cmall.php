@@ -3154,8 +3154,8 @@ class Cmall extends CB_Controller
 	function ttt(){
 
 		/**
-		 * /cmall/ttt?kind=d&mem_id=1&amount=1000&msg=테스트 예치금 주입 <- 회원의 기업에 예치금
-		 * /cmall/ttt?kind=f&mem_id=1&amount=1000&msg=테스트 열매 주입 <- 회원의 열매
+		 * /cmall/ttt?kind=d&mem_id=40&amount=100000&msg=테스트 예치금 주입 <- 회원의 기업에 예치금
+		 * /cmall/ttt?kind=f&mem_id=40&amount=100000&msg=테스트 열매 주입 <- 회원의 열매
 		 */
 		
 		$kind = $this->input->get("kind");
