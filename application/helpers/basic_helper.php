@@ -10,6 +10,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 
 /**
+ * 뻥카 과정 여부 추가
+ */
+if ( ! function_exists('false_process')) {
+	function false_process($data=''){
+		echo '뻥카과정';
+	}
+}
+
+
+/**
  * 품절 여부
  */
 if ( ! function_exists('soldoutYn')) {

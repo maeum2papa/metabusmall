@@ -34,7 +34,7 @@ class Members extends CB_Controller
 	/**
 	 * 헬퍼를 로딩합니다
 	 */
-	protected $helpers = array('form', 'array', 'chkstring');
+	protected $helpers = array('form', 'array', 'chkstring', 'url');
 
 	function __construct()
 	{
@@ -1312,5 +1312,245 @@ class Members extends CB_Controller
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * 엑셀로 데이터를 업로드합니다.
+	 */
+	public function excel_upload()
+	{
+		$view = array();
+		$view['view'] = array();
+
+		$view['error'] = '';
+
+		$layoutconfig = array('layout' => 'layout', 'skin' => 'excel_upload');
+		$view['layout'] = $this->managelayout->admin($layoutconfig, $this->cbconfig->get_device_view_type());
+		$this->data = $view;
+		$this->layout = element('layout_skin_file', element('layout', $view));
+		$this->view = element('view_skin_file', element('layout', $view));
+
+		if(isset($_FILES)){
+			$this->load->library('excel');  
+
+			$config['upload_path'] = './uploads/csv_uploads/'; 
+			$config['allowed_types'] = 'xlsx|csv|xls';
+			$config['max_size'] = '10000'; 
+			$config['overwrite'] = true;
+			$config['encrypt_name'] = FALSE;
+			$config['remove_spaces'] = TRUE;
+
+			if (!is_dir('./uploads/csv_uploads'))
+			{
+				mkdir('./uploads/csv_uploads', 0777, true);
+			} 
+
+			$this->load->library('upload', $config);
+			$this->upload->do_upload('userfile');
+
+			$objPHPExcel = PHPExcel_IOFactory::load('./uploads/csv_uploads/'.$_FILES['userfile']['name']);
+			//$sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);
+			$iterator = $objPHPExcel->getWorksheetIterator();
+			$sheets = array();
+			while($iterator->valid()){
+				$objWorksheet = $iterator->current();
+				$sheet_title = $objWorksheet->getTitle();
+
+				$sheet = array();
+				foreach($objWorksheet->getRowIterator() as $row){
+					$cellIterator = $row->getCellIterator();
+					$cellIterator->setIterateOnlyExistingCells(FALSE);
+
+					$row_index = $row->getRowIndex();
+
+					// 배열의 key로 사용할 제목행 앞의 행은 무시
+					$key_row_index = 3;
+					if($row_index < $key_row_index){
+						continue;
+					}
+
+					// $key_row_index 에 설정된 줄의 값을 불러와서 배열의 key로 사용
+					if($row_index == $key_row_index){
+						$column_title_arr = array();
+						foreach($cellIterator as $cell){
+							$column_index = $cell->getColumn();
+							$column_title_arr[$column_index] = str_replace("\n", '', trim($cell->getCalculatedValue()));
+						}
+						continue;
+					}
+
+					foreach($cellIterator as $cell){
+						$column_index = $cell->getColumn();
+						$column_title = $column_title_arr[$column_index];
+						if($column_title == ''){
+							continue;
+						}
+
+						$sheet[$row_index][$column_title] = $cell->getCalculatedValue();
+					}
+				}
+				$sheets[$sheet_title] = $sheet;
+
+				$iterator->next();
+			}
+
+			// 엑셀 하단에 빈 행들이 들어가는 경우가 있다. 그거 해제.
+			foreach ($sheets as $sheet_title => $sheet) {
+				foreach ($sheet as $key => $data) {
+					$empty_arr = TRUE;
+					foreach ($data as $value) {
+						if (!empty($value)) {
+							$empty_arr = FALSE;
+						}
+					}
+					if ($empty_arr) {
+						unset($sheets[$sheet_title][$key]);
+					}
+				}
+			}
+			
+			$registerform = $this->cbconfig->item('registerform');
+			$form = json_decode($registerform, true);
+
+			foreach($sheets['Sheet1'] as $k => $v){
+
+				// id 중복체크
+				$chkUserId = $this->{$this->modelname}->getCountRegisterUserId($v['mem_userid']);
+				if($chkUserId > 0){
+					alert('회원아이디를 변경해주세요. 회원아이디 : '.$v['mem_userid']);
+					return false;
+				} else {
+					$updatedata = array(
+						'mem_userid' => $v['mem_userid'],
+						'company_idx' => $this->Company_info_model->get_company_idx_excel($v['company_name']),
+						'mem_div' => $v['mem_div'],
+						'mem_position' => $v['mem_position'],
+						'mem_state' => '',
+						'mem_cur_seed' => 0,
+						'mem_cur_fruit' => 0,
+						'mem_ranking' => 0,
+						'mem_email' => $v['mem_email'],
+						'mem_username' => $v['mem_username'],
+						'mem_level' => $v['mem_level'],
+						'mem_homepage' => '',
+						'mem_birthday' => $v['mem_birthday'],
+						'mem_phone' => $v['mem_phone'],
+						'mem_sex' => $v['mem_sex'],
+						'mem_zipcode' => $v['mem_zipcode'] ? $v['mem_zipcode'] : '',
+						'mem_address1' => $v['mem_address1'] ? $v['mem_address1'] : '',
+						'mem_address2' => $v['mem_address2'] ? $v['mem_address2'] : '',
+						'mem_address3' => $v['mem_address3'] ? $v['mem_address3'] : '',
+						'mem_address4' => '',
+						'mem_receive_email' => $v['mem_receive_email'],
+						'mem_use_note' => $v['mem_use_note'],
+						'mem_receive_sms' => $v['mem_receive_sms'],
+						'mem_open_profile' => $v['mem_open_profile'],
+						'mem_denied' => $v['mem_denied'],
+						'mem_email_cert' => 0,
+						'mem_is_admin' => 0,
+						'mem_profile_content' => '',
+						'mem_adminmemo' => '',
+					);
+	
+					$metadata = array();
+	
+					if (empty($v['mem_denied'])) {
+						$metadata['meta_denied_datetime'] = cdate('Y-m-d H:i:s');
+						$metadata['meta_denied_by_mem_id'] = $this->member->item('mem_id');
+					} else {
+						$metadata['meta_denied_datetime'] = '';
+						$metadata['meta_denied_by_mem_id'] = '';
+					}
+					
+					if (empty($v['mem_email_cert'])) {
+						$metadata['meta_email_cert_datetime'] = cdate('Y-m-d H:i:s');
+					} else {
+						$metadata['meta_email_cert_datetime'] = '';
+					}
+					
+					if ($v['mem_nickname']) {
+						$updatedata['mem_nickname'] = $v['mem_nickname'];
+						$metadata['meta_nickname_datetime'] = cdate('Y-m-d H:i:s');
+					} else {
+						$updatedata['mem_nickname'] = $v['mem_username'];
+						$metadata['meta_nickname_datetime'] = cdate('Y-m-d H:i:s');
+					}
+	
+					if ($v['mem_password']) {
+						$updatedata['mem_password'] = password_hash($v['mem_password'], PASSWORD_BCRYPT);
+					}
+	
+					$updatedata['mem_photo'] = '';
+					$updatedata['mem_icon'] = '';
+	
+					$updatedata['mem_register_datetime'] = cdate('Y-m-d H:i:s');
+					$updatedata['mem_register_ip'] = $this->input->ip_address();
+	
+					$mem_id = $this->{$this->modelname}->insert($updatedata);
+	
+					$useridinsertdata = array(
+						'mem_id' => $mem_id,
+						'mem_userid' => $v['mem_userid'],
+					);
+					$this->Member_userid_model->insert($useridinsertdata);
+	
+					$this->Member_meta_model->save($mem_id, $metadata);
+					$nickinsert = array(
+						'mem_id' => $mem_id,
+						'mni_nickname' => $v['mem_nickname'],
+						'mni_start_datetime' => cdate('Y-m-d H:i:s'),
+					);
+					$this->Member_nickname_model->insert($nickinsert);
+					$levelhistoryinsert = array(
+						'mem_id' => $mem_id,
+						'mlh_from' => 0,
+						'mlh_to' => $v['mem_level'],
+						'mlh_datetime' => cdate('Y-m-d H:i:s'),
+						'mlh_reason' => '관리자에 의한 회원가입',
+						'mlh_ip' => $this->input->ip_address(),
+					);
+					$this->load->model('Member_level_history_model');
+					$this->Member_level_history_model->insert($levelhistoryinsert);
+	
+					$v['mem_group'] = explode(',', $v['mem_group']);
+					if ($v['mem_group']) {
+						foreach ($v['mem_group'] as $gkey => $gval) {
+							$mginsert = array(
+								'mgr_id' => $gval,
+								'mem_id' => $mem_id,
+								'mgm_datetime' => cdate('Y-m-d H:i:s'),
+							);
+							$this->Member_group_member_model->insert($mginsert);
+						}
+					}
+	
+					$extradata = array();
+					if ($form && is_array($form)) {
+						foreach ($form as $key => $value) {
+							if ( ! element('use', $value)) {
+								continue;
+							}
+							if (element('func', $value) === 'basic') {
+								continue;
+							}
+							$extradata[element('field_name', $value)] = $this->input->post(element('field_name', $value), null, '');
+						}
+						$this->Member_extra_vars_model->save($mem_id, $extradata);
+					}
+	
+					$this->session->set_flashdata(
+						'message',
+						'정상적으로 입력되었습니다'
+					);
+				}
+			}
+			
+		} else {
+			alert('파일이 없습니다.');
+			return false;
+		}
+
+		
+		
 	}
 }
