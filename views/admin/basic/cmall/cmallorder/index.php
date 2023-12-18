@@ -143,17 +143,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </td>
                         <td>
                             <?php 
+
                                 foreach($result['orderdetail'] as $k => $v){
                                     foreach($v['itemdetail'] as $k2 =>$v2){
-
+										$disabled = '';
                                         $ea = '';
 
                                         if($v2['cod_count'] > 1){
                                             $ea = 'X'.$v2['cod_count'];
                                         }
 
+										if($this->session->userdata['mem_admin_flag']!=0){
+											if($this->session->userdata['company_idx'] == $v['item']['company_idx']){
+												$disabled="style='color:gray'";
+											}
+										}
                                         ?>
-                                        <div>
+                                        <div <?php echo $disabled?>>
                                             <?php echo $v['item']['cit_name']; ?>
                                             [옵션 : <?php echo $v2['cde_title']; ?>]
                                             <?php echo $ea; ?>
