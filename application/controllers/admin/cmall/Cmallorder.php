@@ -259,7 +259,7 @@ class Cmallorder extends CB_Controller
 	}
 
 	public function form($cor_id){
-
+		
 		// 이벤트 라이브러리를 로딩합니다
 		$eventname = 'event_admin_cmall_cmallorder_form';
 		$this->load->event($eventname);
@@ -293,7 +293,7 @@ class Cmallorder extends CB_Controller
 			),
 		);
 		$this->form_validation->set_rules($config);
-
+		
 		/**
 		 * 유효성 검사를 하지 않는 경우, 또는 유효성 검사에 실패한 경우입니다.
 		 */
@@ -758,19 +758,27 @@ class Cmallorder extends CB_Controller
 
 		// 이벤트가 존재하면 실행합니다
 		$view['view']['event']['before_layout'] = Events::trigger('before_layout', $eventname);
-
+		
 		if (empty($cor_id) OR $cor_id < 1) {
 			alert('잘못된 접근입니다');
 		}
-
+		
 		$order = $this->{$this->modelname}->get_one($cor_id);
 		if ( ! element('cor_id', $order)) {
 			alert('해당 주문이 존재하지 않습니다.');
 		}
-		if ($this->member->is_admin() === false
-			&& (int) element('mem_id', $order) !== $mem_id) {
-			alert('잘못된 접근입니다');
+
+		if($this->session->userdata['mem_admin_flag']!=0){
+			if($order['company_idx'] != $this->session->userdata['company_idx']){
+				alert('잘못된 접근입니다');	
+			}
 		}
+		
+		// if ($this->member->is_admin() === false
+		// 	&& (int) element('mem_id', $order) !== $mem_id) {
+		// 	alert('잘못된 접근입니다');
+		// }
+
 		$orderdetail = $this->Cmall_order_detail_model->get_by_item($cor_id);
 		if ($orderdetail) {
 			foreach ($orderdetail as $key => $value) {
