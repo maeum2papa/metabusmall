@@ -68,6 +68,7 @@
 						</select>
 					</div>
 					<div class="top_right_box">
+						<a href="/cmall/wishlist">찜하기목록으로 <?=banner('heart_color')?></a>
 						<a href="/cmall/cart">장바구니 <?=banner('cart')?></a>
 						<a href="/cmall/orderlist">구매내역 <?=banner('purchase_history')?></a>
 					</div>
@@ -98,7 +99,21 @@
 								<!-- asmo sh 231205 i 태그, 텍스트 삭제 및 아이콘 추가 -->
 								<li><?=banner('heart')?><?php echo number_format(element('cit_wish_count', $item)); ?></li>
 								<li><?=banner('cart_2')?><?php echo number_format(element('cit_sell_count', $item)); ?></li>
-								<li class="cmall-price pull-right"><?=banner('fruit')?><span><?php echo number_format(element('cit_price', $item)); ?></span>원</li>
+								<li class="cmall-price pull-right">
+								<?php
+											if($item['cit_money_type']=='f'){
+												echo banner('fruit');
+												?>
+												<?php echo number_format(element('fruit_cit_price', $item)); ?>개
+												<?php
+											}else{
+												echo banner('coin');
+												?>
+												<?php echo number_format(element('cit_price', $item)); ?>개
+												<?php
+											}
+										?>
+								</li>
 								<!-- //asmo sh 231205 i 태그, 텍스트 삭제 및 아이콘 추가 -->
 
 							</ul>
