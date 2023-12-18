@@ -35,7 +35,7 @@ td {text-align:center; line-height:40px; font-size:12px; color:#474747; font-fam
 		foreach (element('list', element('data', $view)) as $result) {
 	?>
 			<tr>
-                <td height="30"><?php echo element('cor_id', $result); ?></td>
+                <td height="30" style=mso-number-format:'\@' ><?php echo element('cor_id', $result); ?></td>
                 <td><?php echo element('cor_datetime', $result); ?></td>
 				<?php if($view['data']['mem_admin_flag']==0){?>
                 	<td><?php echo element('company_name', $result); ?></td>
@@ -43,7 +43,7 @@ td {text-align:center; line-height:40px; font-size:12px; color:#474747; font-fam
                 <td><?php echo element('mem_email', $result); ?></td>
                 <td><?php echo element('mem_realname', $result); ?></td>
 
-                <td><?php echo element('mem_phone', $result); ?></td>
+                <td style=mso-number-format:'\@'><?php echo element('mem_phone', $result); ?></td>
 				<?php if($view['data']['mem_admin_flag']==1){?>
                 	<td><?php echo element('cor_address', $result); ?></td>
 				<?php } ?>
