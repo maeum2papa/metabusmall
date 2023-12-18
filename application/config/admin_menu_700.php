@@ -15,10 +15,10 @@ $config['admin_page_menu']['deposit'] =
 	array(
 		'__config'					=> array('예치금관리', 'fa-money'),
 		'menu'						=> array(
-			'depositcfg'			=> array('예치금환경설정', ''),
-			'emailform'				=> array('메일/쪽지발송양식', ''),
-			'pendingbank'			=> array('무통장입금알림', ''),
+			// 'depositcfg'			=> array('예치금환경설정', ''),
+			// 'emailform'				=> array('메일/쪽지발송양식', ''),
+			// 'pendingbank'			=> array('무통장입금알림', ''),
 			'depositlist'			=> array('예치금변동내역', ''),
-			'depositstat'			=> array('예치금통계', ''),
+			// 'depositstat'			=> array('예치금통계', ''),
 		),
 	);
