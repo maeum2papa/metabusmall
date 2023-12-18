@@ -707,3 +707,11 @@ $config['ciboard_check_latest_version'] = 'http://api.ciboard.co.kr/version/chec
 $config['custom']['category']['item'] = 6; //아이템몰
 $config['custom']['category']['basic'] = 1; //공용몰
 $config['custom']['category']['company'] = 2; //자사몰
+
+
+/**
+ * 상품타입명
+ */
+$config['custom']['item']['type']["b"] = "기본";
+$config['custom']['item']['type']["g"] = "기프트";
+$config['custom']['item']['type']["i"] = "아이템";

@@ -144,9 +144,35 @@ class Cmallorder extends CB_Controller
 
 		$where = array();
 
+		/** 상세 검색 start */
+
+		if(!$this->input->get('search_datetime_type')){
+			$search_datetime_type = 'cor_datetime';
+		}else{
+			$search_datetime_type = $this->input->get('search_datetime_type');
+		}
+
+		if(!$this->input->get('search_datetime_start')){
+			$start_date = date("Y-m-d H:i:s",strtotime(date("Y-m-d 00:00:00")." -7day"));
+		}else{
+			$start_date = $this->input->get('search_datetime_start').' 00:00:00';
+		}
+
+		if(!$this->input->get('search_datetime_end')){
+			$end_date = date("Y-m-d 23:59:59");
+		}else{
+			$end_date = $this->input->get('search_datetime_end').' 23:59:59';
+		}	
+
+		$view['view']['search']['search_datetime_type'] = $search_datetime_type;
+		$where[$search_datetime_type.' >='] = $view['view']['search']['search_datetime_start'] = $start_date;
+		$where[$search_datetime_type.' <='] = $view['view']['search']['search_datetime_end'] = $end_date;
+		
 		if ($this->input->get('cor_pay_type')) {
 			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
 		}
+
+		/** 상세 검색 end */
 		
 		$result = $this->{$this->modelname}
 			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
@@ -943,4 +969,164 @@ class Cmallorder extends CB_Controller
 		}
 	}
 
+
+	/**
+	 * 주문내역 엑셀 출력
+	 */
+	public function exportexcel(){
+
+		$where = array();
+		$excel_data = array();
+		$custom_config = config_item('custom');
+		$order_status = get_cmall_key_localize();
+
+		/** 상세 검색 start */
+
+		if(!$this->input->get('search_datetime_type')){
+			$search_datetime_type = 'cor_datetime';
+		}else{
+			$search_datetime_type = $this->input->get('search_datetime_type');
+		}
+
+		if(!$this->input->get('search_datetime_start')){
+			$start_date = date("Y-m-d H:i:s",strtotime(date("Y-m-d 00:00:00")." -7day"));
+		}else{
+			$start_date = $this->input->get('search_datetime_start').' 00:00:00';
+		}
+
+		if(!$this->input->get('search_datetime_end')){
+			$end_date = date("Y-m-d 23:59:59");
+		}else{
+			$end_date = $this->input->get('search_datetime_end').' 23:59:59';
+		}	
+
+		$view['view']['search']['search_datetime_type'] = $search_datetime_type;
+		$where[$search_datetime_type.' >='] = $view['view']['search']['search_datetime_start'] = $start_date;
+		$where[$search_datetime_type.' <='] = $view['view']['search']['search_datetime_end'] = $end_date;
+		
+		if ($this->input->get('cor_pay_type')) {
+			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
+		}
+
+		/** 상세 검색 end */
+		
+		$result = $this->{$this->modelname}
+			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
+		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
+		
+		if (element('list', $result)) {
+			foreach (element('list', $result) as $key => $val) {
+				if($val['company_idx']) $result['list'][$key]['company_name'] = busiNm($val['company_idx']);
+				$result['list'][$key]['display_name'] = display_username(
+					element('mem_userid', $val),
+					element('mem_nickname', $val),
+					element('mem_icon', $val)
+				);
+				$result['list'][$key]['num'] = $list_num--;
+				$result['list'][$key]['pay_method'] = $this->cmalllib->get_paymethodtype(element('cor_pay_type', $val));
+				$result['list'][$key]['order_status'] = cmall_print_stype_names(element('status', $val));
+
+				$orderdetail = $this->Cmall_order_detail_model->get_by_item(element('cor_id', $val));
+
+				if ($orderdetail) {
+					foreach ($orderdetail as $okey => $oval) {
+						$orderdetail[$okey]['item'] = $item
+							= $this->Cmall_item_model->get_one(element('cit_id', $oval));
+						$orderdetail[$okey]['itemdetail'] = $itemdetail
+							= $this->Cmall_order_detail_model->get_detail_by_item(element('cor_id', $val), element('cit_id', $oval));
+
+						$orderdetail[$okey]['item']['possible_download'] = 1;
+
+						if (element('cod_download_days', element(0, $itemdetail))) {
+							$endtimestamp = strtotime(element('cor_approve_datetime', $val))
+								+ 86400 * element('cod_download_days', element(0, $itemdetail));
+							$orderdetail[$okey]['item']['download_end_date'] = $enddate = cdate('Y-m-d', $endtimestamp);
+
+							$orderdetail[$okey]['item']['possible_download'] = ($enddate >= date('Y-m-d')) ? 1 : 0;
+						}
+
+						foreach($itemdetail as $k3=>$v3){
+							$row = array(
+								"cor_id"=>$val['cor_id'],//주문번호
+								"cor_datetime"=>str_replace("-",".",substr($val['cor_datetime'],0,10)),//주문일
+								"company_name"=>$result['list'][$key]['company_name'], //기업명
+								"mem_email"=>$val['mem_email'], //이메일
+								"mem_realname"=>$val['mem_realname'], //회원명
+								"mem_phone"=>$val['mem_phone'], //전화번호
+								"cca_value"=>cmall_item_parent_category_name($oval['cit_id']), //카테고리
+								"cit_item_type"=>$custom_config['item']['type'][$item['cit_item_type']], // 상품구분
+								"cit_name"=>$item['cit_name']."(".$v3['cde_title'].")",// 주문상품
+								"cod_count"=>$v3['cod_count'],// 개수
+								"cod_status"=>$order_status[$v3['cod_status']],// 주문상태
+								"cor_pay_type"=>$this->cmalllib->get_paymethodtype($val['cor_pay_type']),// 결제수단
+								"cod_price"=>($v3['cit_price'] + $v3['cde_price']) * $v3['cod_count'],// 결제금액
+							);
+
+							if($val['cor_ship_zipcode']!=''){
+								$row['cor_address'] = "[".$val['cor_ship_zipcode']."] ".$val['cor_ship_address']." ".$val["cor_ship_address_detail"]; //배송지
+							}else{
+								$row['cor_address'] = "";
+							}
+
+							//사용열매/코인
+							if($val['cor_pay_type']=="f"){
+								$row['cor_fruit_or_coin_amount'] = $v3['cod_fruit'];
+							}else{
+								$row['cor_fruit_or_coin_amount'] = $v3['cit_price'] * $v3["cod_count"];
+							}
+							
+							$excel_data[] = $row;
+						}
+					}
+				}
+				$result['list'][$key]['orderdetail'] = $orderdetail;
+			}
+		}
+
+		$view['view']['data']['list'] = $excel_data;
+		$view['view']['data']['mem_admin_flag'] = $this->session->userdata['mem_admin_flag'];
+
+
+		header('Content-type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment; filename=주문내역_' . cdate('Y_m_d') . '.xls');
+		echo $this->load->view('admin/' . ADMIN_SKIN . '/' . $this->pagedir . '/excel', $view, true);
+
+
+		//super
+		/*
+		주문번호
+		주문일
+		기업명
+		회원이메일
+		회원명
+		전화번호
+		카테고리
+		상품구분
+		주문상품
+		개수
+		주문상태
+		결제수단
+		결제금액
+		*/
+
+		//company
+		/*
+		주문번호
+		주문일
+		회원이메일
+		회원명
+		전화번호
+		배송지
+		카테고리
+		상품구분
+		주문상품
+		개수
+		주문상태
+		결제수단
+		사용열매/코인
+		실결제금액
+		*/
+
+	
+	}
 }

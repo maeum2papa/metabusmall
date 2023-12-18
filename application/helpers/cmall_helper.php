@@ -243,6 +243,32 @@ if ( ! function_exists('cmall_item_parent_category')) {
 
 }
 
+// 상품의 최상위 카테고리명 구하기 ( 아이테몰 / 공통몰 / 자사몰 )
+if ( ! function_exists('cmall_item_parent_category_name')) {
+	/**
+	 * @param int $cit_id 상품PK
+	 * @return int 상품의 최상위 카테고리PK
+	 */
+	function cmall_item_parent_category_name($cit_id){
+
+		$CI =& get_instance();
+		$q = "select 
+					cb_cmall_category.cca_value 
+				from 
+					cb_cmall_category_rel left join cb_cmall_category on cb_cmall_category_rel.cca_id = cb_cmall_category.cca_id
+				where 
+					cb_cmall_category_rel.cit_id = '".$cit_id."' 
+					AND 
+					cb_cmall_category.cca_parent = 0
+					";
+		$r = $CI->db->query($q);
+		$result = (array) $r->row();
+		
+		return $result['cca_value'];
+	}
+
+}
+
 //회원이 소속된 기업 PK
 if ( ! function_exists('camll_company_idx')) {
 	function camll_company_idx($mem_id){

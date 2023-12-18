@@ -30,6 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			ob_start();
 			?>
 				<div class="btn-group pull-right" role="group" aria-label="...">
+					<a class="btn btn-outline btn-success btn-sm" id="export_to_excel">엑셀시트다운로드</a>
 					<a href="<?php echo element('listall_url', $view); ?>" class="btn btn-outline btn-default btn-sm">전체목록</a>
 				</div>
 			<?php
@@ -37,6 +38,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			ob_end_flush();
 			?>
 		</div>
+		<div>
+			<form id="search_form" method="get" enctype="multipart/form-data">
+				<table>
+					<tr>
+						<th>처리일자</th>
+						<td>
+							<select name="search_datetime_type" class="form-control change-status px140">
+								<option value="cor_datetime">주문확인일시</option>
+								<option value="cor_end_datetime">발송완료일시</option>
+								<option value="cor_cancel_datetime">취소일시</option>
+							</select>
+							<input type="date" name="search_datetime_start" value="<?php echo substr($view['search']['search_datetime_start'],0,10);?>" class="form-control px140"> - 
+							<input type="date" name="search_datetime_end" value="<?php echo substr($view['search']['search_datetime_end'],0,10);?>" class="form-control px140">
+						</td>
+					</tr>
+				</table>
+				<div class="mt10">
+					<button class="btn btn-outline btn-default btn-sm" type="submit">검색</button>
+				</div>
+			</form>
+		</div>
+		<hr></hr>
 		<div class="row">
 			
 			<table class="table table-border-none mg0">
@@ -283,5 +306,38 @@ document.querySelector(".btn-status-change").addEventListener('click',function()
 
 });
 
+
+document.getElementById('export_to_excel').addEventListener("click",function(){
+	search_form = document.getElementById('search_form');
+
+	var form = document.createElement('form');
+	form.action = '/admin/cmall/cmallorder/exportexcel'; // 폼의 액션 URL 설정
+    form.method = 'GET'; // 폼의 전송 방식 설정
+	form.enctype = 'multipart/form-data';
+
+	var search_datetime_type = document.createElement('input');
+    search_datetime_type.type = 'hidden';
+    search_datetime_type.name = 'search_datetime_type';
+    search_datetime_type.value = search_form.search_datetime_type.value;
+
+	var search_datetime_start = document.createElement('input');
+    search_datetime_start.type = 'hidden';
+    search_datetime_start.name = 'search_datetime_start';
+    search_datetime_start.value = search_form.search_datetime_start.value;
+
+	var search_datetime_end = document.createElement('input');
+    search_datetime_end.type = 'hidden';
+    search_datetime_end.name = 'search_datetime_end';
+    search_datetime_end.value = search_form.search_datetime_end.value;
+
+	form.appendChild(search_datetime_type);
+	form.appendChild(search_datetime_start);
+	form.appendChild(search_datetime_end);
+
+	document.body.appendChild(form);
+
+	form.submit();
+
+});
 
 </script>
