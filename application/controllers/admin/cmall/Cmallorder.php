@@ -352,6 +352,8 @@ class Cmallorder extends CB_Controller
 
 				if($order['cor_pay_type']=='f'){
 
+					$now = date('Y-m-d H:i:s');
+
 					if ( ! function_exists('fuse')) {
 						$this->load->helper('fruit');
 					}
@@ -392,7 +394,7 @@ class Cmallorder extends CB_Controller
 								$this->Cmall_order_detail_model->pay_init($v2['cod_id']);
 
 								//주문 상품 상태 변경
-								$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id']);
+								$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id'],$now);
 								
 
 								$updatedata = array(
@@ -413,7 +415,7 @@ class Cmallorder extends CB_Controller
 							 */
 							if($v2['cod_status'] == 'order' && $ct_status == 'end'){
 								//cb_cmall_order_detail.cod_status = end;
-								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end',$now);
 							}
 
 							 /**
@@ -421,7 +423,7 @@ class Cmallorder extends CB_Controller
 							 */
 							if($v2['cod_status'] == 'end' && $ct_status == 'order'){
 								//cb_cmall_order_detail.cod_status = end;
-								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order',$now);
 							}
 						}
 						
@@ -443,7 +445,7 @@ class Cmallorder extends CB_Controller
 							 */
 							if($v2['cod_status'] == 'order' && $ct_status == 'end'){
 								//cb_cmall_order_detail.cod_status = end;
-								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end');
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'end',$now);
 							}
 
 							/**
@@ -451,7 +453,7 @@ class Cmallorder extends CB_Controller
 							 */
 							if($v2['cod_status'] == 'end' && $ct_status == 'order'){
 								//cb_cmall_order_detail.cod_status = end;
-								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order');
+								$this->Cmall_order_detail_model->set_status_change($v2['cod_id'],'order',$now);
 							}
 						}
 					}
@@ -879,7 +881,7 @@ class Cmallorder extends CB_Controller
 
 						//cb_cmall_order.status = cancel
 						//cb_cmall_order.cor_status = 0;
-						$this->Cmall_order_model->set_status_cancel($cor_id);
+						$this->Cmall_order_model->set_status_cancel($cor_id,$now);
 
 						foreach($order_detail as $k2=>$v2){
 
@@ -891,7 +893,7 @@ class Cmallorder extends CB_Controller
 								$this->Cmall_order_detail_model->pay_init($v3['cod_id']);
 								
 								//주문 상품 상태 변경
-								$this->Cmall_order_detail_model->set_status_cancel($v3['cod_id']);
+								$this->Cmall_order_detail_model->set_status_cancel($v3['cod_id'],$now);
 							}
 							
 						}
@@ -902,12 +904,12 @@ class Cmallorder extends CB_Controller
 					 */
 					if($order['status'] == 'order' && $change_status == 'end'){
 						//cb_cmall_order.status = end
-						$this->Cmall_order_model->set_status_change($cor_id, 'end');
+						$this->Cmall_order_model->set_status_change($cor_id, 'end', $now);
 
 						foreach($order_detail as $k2=>$v2){
 							foreach($v2['itemdetail'] as $k3=>$v3){
 								//cb_cmall_order_detail.cod_status = end;
-								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end');
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end',$now);
 							}
 						}
 					}
@@ -917,12 +919,12 @@ class Cmallorder extends CB_Controller
 					 */
 					if($order['status'] == 'end' && $change_status == 'order'){
 						//cb_cmall_order.status = order
-						$this->Cmall_order_model->set_status_change($cor_id, 'order');
+						$this->Cmall_order_model->set_status_change($cor_id, 'order',$now);
 
 						//cb_cmall_order_detail.cod_status = order;
 						foreach($order_detail as $k2=>$v2){
 							foreach($v2['itemdetail'] as $k3=>$v3){
-								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'order');
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'order',$now);
 							}
 						}
 					}
@@ -935,12 +937,12 @@ class Cmallorder extends CB_Controller
 					 */
 					if($order['status'] == 'order' && $change_status == 'end'){
 						//cb_cmall_order.status = end
-						$this->Cmall_order_model->set_status_change($cor_id, 'end');
+						$this->Cmall_order_model->set_status_change($cor_id, 'end',$now);
 
 						foreach($order_detail as $k2=>$v2){
 							foreach($v2['itemdetail'] as $k3=>$v3){
 								//cb_cmall_order_detail.cod_status = end;
-								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end');
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'end',$now);
 							}
 						}
 					}
@@ -950,12 +952,12 @@ class Cmallorder extends CB_Controller
 					 */
 					if($order['status'] == 'end' && $change_status == 'order'){
 						//cb_cmall_order.status = order
-						$this->Cmall_order_model->set_status_change($cor_id, 'order');
+						$this->Cmall_order_model->set_status_change($cor_id, 'order',$now);
 
 						//cb_cmall_order_detail.cod_status = order;
 						foreach($order_detail as $k2=>$v2){
 							foreach($v2['itemdetail'] as $k3=>$v3){
-								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'order');
+								$this->Cmall_order_detail_model->set_status_change($v3['cod_id'],'order',$now);
 							}
 						}
 					}

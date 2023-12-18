@@ -187,16 +187,24 @@ class Cmall_order_model extends CB_Model
 	/**
 	 * 주문 상태 취소 처리
 	 */
-	public function set_status_cancel($cor_id){
-		$q = "update cb_cmall_order set status='cancel', cor_status=0 where cor_id='".$cor_id."'";
+	public function set_status_cancel($cor_id,$now){ 
+		$q = "update cb_cmall_order set status='cancel', cor_status=0, cor_cancel_datetime='".$now."' where cor_id='".$cor_id."'";
 		$this->db->query($q);
 	}
 
 	/**
 	 * 주문 상태 변경 처리
 	 */
-	public function set_status_change($cor_id,$status){
+	public function set_status_change($cor_id,$status,$now){
 		$q = "update cb_cmall_order set status='".$status."' where cor_id='".$cor_id."'";
+		$this->db->query($q);
+
+		if($status=='end'){
+			$q = "update cb_cmall_order set cor_end_datetime='".$now."' where cod_id='".$cod_id."'";
+		}else if($status=='cancel'){
+			$q = "update cb_cmall_order set cor_cancel_datetime='".$now."' where cod_id='".$cod_id."'";
+		}
+
 		$this->db->query($q);
 	}
 	

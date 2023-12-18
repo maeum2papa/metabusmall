@@ -2903,7 +2903,7 @@ class Cmall extends CB_Controller
 	 */
 	public function ordercancel(){
 		$cor_id = $this->input->post('cor_id');
-		// $cor_id = 202312150806374762;
+		// $cor_id = 202312182235255403;
 		$now = date('Y-m-d H:i:s');
 
 		//유효성검사
@@ -2993,12 +2993,12 @@ class Cmall extends CB_Controller
 				$this->Cmall_order_detail_model->pay_init($v2['cod_id']);
 
 				//주문 상품 상태 변경
-				$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id']);
+				$this->Cmall_order_detail_model->set_status_cancel($v2['cod_id'],$now);
 			}
 		}
 
 		//주문 상태 변경
-		$this->Cmall_order_model->set_status_cancel($cor_id);
+		$this->Cmall_order_model->set_status_cancel($cor_id,$now);
 		
 		echo 'true';
 	}
