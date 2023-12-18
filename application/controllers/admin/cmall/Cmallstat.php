@@ -77,11 +77,13 @@ class Cmallstat extends CB_Controller
 			OR $this->input->get('method') === 'realtime'
 			OR $this->input->get('method') === 'phone'
 			OR $this->input->get('method') === 'vbank'
-			OR $this->input->get('method') === 'service') {
+			OR $this->input->get('method') === 'service'
+			OR $this->input->get('method') === 'f'
+			OR $this->input->get('method') === 'c') {
 			$where['cor_pay_type'] = $this->input->get('method');
 		}
 		$result = $this->{$this->modelname}->get_graph_count($datetype, $start_date, $end_date, $where);
-
+		
 		$sum_money = 0;
 		$sum_count = 0;
 		$arr = array();

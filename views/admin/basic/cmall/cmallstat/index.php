@@ -13,12 +13,14 @@
 				<input type="hidden" name="method" value="<?php echo html_escape($this->input->get('method')); ?>" />
 				<div class="btn-group" role="group" aria-label="...">
 					<button type="button" class="btn <?php echo ( ! $this->input->get('method')) ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fcharge_submit('');">전체</button>
-					<button type="button" class="btn <?php echo ($this->input->get('method') === 'bank') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('bank');">무통장</button>
+					<button type="button" class="btn <?php echo ($this->input->get('method')=="f") ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('f');">열매</button>
+					<button type="button" class="btn <?php echo ($this->input->get('method')=="c") ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('c');">컬래버코인</button>
+					<!-- <button type="button" class="btn <?php echo ($this->input->get('method') === 'bank') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('bank');">무통장</button>
 					<button type="button" class="btn <?php echo ($this->input->get('method') === 'card') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('card');">카드</button>
 					<button type="button" class="btn <?php echo ($this->input->get('method') === 'realtime') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('realtime');">실시간</button>
 					<button type="button" class="btn <?php echo ($this->input->get('method') === 'vbank') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('vbank');">가상계좌</button>
 					<button type="button" class="btn <?php echo ($this->input->get('method') === 'phone') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('phone');">핸드폰</button>
-					<button type="button" class="btn <?php echo ($this->input->get('method') === 'service') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('service');">서비스</button>
+					<button type="button" class="btn <?php echo ($this->input->get('method') === 'service') ? 'btn-success' : 'btn-default'; ?> btn-sm" onclick="fmethod_submit('service');">서비스</button> -->
 				</div>
 				<div class="box-table-button">
 					<span class="mr10">
