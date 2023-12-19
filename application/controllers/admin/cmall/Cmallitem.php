@@ -201,6 +201,15 @@ class Cmallitem extends CB_Controller
 		$getdata = array();
 		if ($pid) {
 			$getdata = $this->{$this->modelname}->get_one($pid);
+
+			//기업관리자
+			if($this->session->userdata['mem_admin_flag']!=0){
+				if($getdata['company_idx']!=$this->session->userdata['company_idx']){
+					alert("잘못된 접근입니다.");
+					exit;
+				}
+			}
+
 			$cmall_item_meta = $this->Cmall_item_meta_model->get_all_meta(element('cit_id', $getdata));
 			if (is_array($cmall_item_meta)) {
 				$getdata = array_merge($getdata, $cmall_item_meta);

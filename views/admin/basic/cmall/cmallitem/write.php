@@ -1,3 +1,4 @@
+<?php $custom_config = config_item("custom"); ?>
 <div class="box">
 	<div class="box-table">
 		<?php
@@ -20,12 +21,14 @@
 						<label class="radio-inline" for="cit_item_type_b">
 							<input type="radio" name="cit_item_type" id="cit_item_type_b" value="b" checked <?php echo set_radio('cit_item_type', 'b', (element('cit_item_type', element('data', $view)) == 'b' ? true : false)); ?> /> 기본
 						</label>
-						<label class="radio-inline" for="cit_item_type_i">
-							<input type="radio" name="cit_item_type" id="cit_item_type_i" value="i" <?php echo set_radio('cit_item_type', 'i', (element('cit_item_type', element('data', $view)) == 'i' ? true : false)); ?> /> 아이템
-						</label>
-						<label class="radio-inline" for="cit_item_type_g">
-							<input type="radio" name="cit_item_type" id="cit_item_type_g" value="g" <?php echo set_radio('cit_item_type', 'g', (element('cit_item_type', element('data', $view)) == 'g' ? true : false)); ?> /> 기프티콘 
-						</label>
+						<?php if($this->session->userdata['mem_admin_flag']==0){?>
+							<label class="radio-inline" for="cit_item_type_i">
+								<input type="radio" name="cit_item_type" id="cit_item_type_i" value="i" <?php echo set_radio('cit_item_type', 'i', (element('cit_item_type', element('data', $view)) == 'i' ? true : false)); ?> /> 아이템
+							</label>
+							<label class="radio-inline" for="cit_item_type_g">
+								<input type="radio" name="cit_item_type" id="cit_item_type_g" value="g" <?php echo set_radio('cit_item_type', 'g', (element('cit_item_type', element('data', $view)) == 'g' ? true : false)); ?> /> 기프티콘 
+							</label>
+						<?php }?>
 						<script type="text/javascript">
 						//<![CDATA[
 						function display_cmall_category2(check, idname) {
@@ -55,6 +58,15 @@
 						$category = element('all_category', element('data', $view));
 						$item_category = element('category', element('data', $view));
 						if (element(0, $category)) {
+
+							foreach (element(0, $category) as $key => $val) {
+								if($this->session->userdata['mem_admin_flag']!=0){
+									if($val['cca_id'] != $custom_config['category']['company']){
+										unset($category[0][$key]);
+									}
+								}
+							}
+							
 							$i = 0;
 							foreach (element(0, $category) as $key => $val) {
 								$display = (is_array($item_category) && in_array(element('cca_id', $val), $item_category)) ? "block" : 'none';
@@ -71,6 +83,7 @@
 									echo '</div>';
 									$open = false;
 								}
+
 								$i++;
 							}
 							if ($open) {
@@ -464,8 +477,74 @@
 		<?php echo form_close(); ?>
 	</div>
 </div>
-
 <script type="text/javascript">
+
+var custom_config_company_category = <?php echo $custom_config['category']['company'];?>;
+
+
+function chk_company_item_setting(){
+	if(document.querySelector("#cit_money_type").value != "f"){
+		return false;
+	}
+	return true;
+}
+
+var cmall_categorys = document.querySelectorAll("[name='cmall_category[]']");
+var cit_item_types  = document.querySelectorAll("[name='cit_item_type']");
+
+
+//카테고리 변경 이벤트
+cmall_categorys.forEach(element => {
+    element.addEventListener("change", function() {
+		//기업몰 선택
+		if(this.value==custom_config_company_category){
+			if(!chk_company_item_setting()){
+				alert("기업몰은 화폐로 열매만 사용 가능합니다.");
+				this.checked = false;
+			}
+
+			document.querySelectorAll("[name='cit_item_type']:checked").forEach(element => {
+				if(element.value == "i" || element.value == "g"){
+					alert("상품구분 아이템, 기프티콘은 기업몰에서 사용할 수 없습니다.");
+					
+					cmall_categorys.forEach(function(element){
+						if(element.value==custom_config_company_category){
+							element.checked = false;
+						}
+					});
+				}
+			});
+		}
+    });
+});
+
+//화페선택 변경 이벤트
+document.querySelector("#cit_money_type").addEventListener("change",function() {
+	if(this.value == "c"){
+		document.querySelectorAll("[name='cmall_category[]']:checked").forEach(element => {
+			if(element.value == custom_config_company_category){
+				alert("커래버코인은 기업몰 카테고리에서는 사용할 수 없습니다.");
+				document.querySelector("#cit_money_type").value = "f";
+			}
+		});
+	}
+});
+
+//상품구분 변경 이벤트
+cit_item_types.forEach(element => {
+	element.addEventListener("change",function(){
+		if(this.value != "b"){
+			document.querySelectorAll("[name='cmall_category[]']:checked").forEach(element => {
+				if(element.value == custom_config_company_category){
+					alert("상품구분 아이템,기프티콘은 기업몰 카테고리와 함꼐 사용할 수 없습니다.");
+					document.querySelectorAll("[name='cit_item_type']")[0].checked = true;
+				}
+			});
+		}
+	});
+});
+
+
 //<![CDATA[
 jQuery(function($) {
 	$('#fadminwrite').validate({
