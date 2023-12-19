@@ -88,7 +88,12 @@ class Cmallitem extends CB_Controller
 		$offset = ($page - 1) * $per_page;
 
 		//삭제 플래그 y 제외
-		$where[] = "cit_del_flag='n'";
+		$where['cit_del_flag'] = "n";
+
+		//기업관리자
+		if($this->session->userdata['mem_admin_flag']!=0){
+			$where['company_idx'] = $this->session->userdata['company_idx'];
+		}
 		
 		/**
 		 * 게시판 목록에 필요한 정보를 가져옵니다.
@@ -97,8 +102,8 @@ class Cmallitem extends CB_Controller
 		$this->{$this->modelname}->search_field_equal = array('cit_id', 'cit_price'); // 검색중 like 가 아닌 = 검색을 하는 필드
 		$this->{$this->modelname}->allow_order_field = array('cit_id', 'cit_key', 'cit_order', 'cit_name', 'cit_datetime', 'cit_updated_datetime', 'cit_hit', 'cit_sell_count', 'cit_price'); // 정렬이 가능한 필드
 		$result = $this->{$this->modelname}
-			->get_admin_list($per_page, $offset, implode('',$where), '', $findex, $forder, $sfield, $skeyword);
-			
+			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
+		
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {
