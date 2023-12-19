@@ -60,8 +60,12 @@
 						if (element(0, $category)) {
 
 							foreach (element(0, $category) as $key => $val) {
-								if($this->session->userdata['mem_admin_flag']!=0){
+								if($this->session->userdata['mem_admin_flag']!=0){ //기업관리자
 									if($val['cca_id'] != $custom_config['category']['company']){
+										unset($category[0][$key]);
+									}
+								}else{//슈퍼관리자
+									if($val['cca_id'] == $custom_config['category']['company']){
 										unset($category[0][$key]);
 									}
 								}
