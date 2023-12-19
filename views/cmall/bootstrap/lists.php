@@ -83,12 +83,17 @@
 				?>
 					<li class="col-xs-6 col-sm-6 col-md-4 col-lg-4 cmall-list-col">
 						<div class="thumbnail" >
-							<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>" title="<?php echo html_escape(element('cit_name', $item)); ?>">
+							<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+								<a onClick="alert('베타테스트 기간에는 구매가 불가합니다');">
+							<?php }else{ ?>
+								<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>" title="<?php echo html_escape(element('cit_name', $item)); ?>">
+							<?php } ?>
+							
 								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="<?php echo html_escape(element('cit_name', $item)); ?>" title="<?php echo html_escape(element('cit_name', $item)); ?>" />
 
 								<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
 								<div class="soldout_mask">
-									<span>SOLD OUT</span>
+									<span>구매 불가</span>
 								</div>
 								<?php } ?>
 							</a>
