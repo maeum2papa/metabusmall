@@ -16,6 +16,7 @@ class Member_model extends CB_Model
 	 * 테이블명
 	 */
 	public $_table = 'member';
+	public $_table2 = 'member_userid';
 
 	/**
 	 * 사용되는 테이블의 프라이머리키
@@ -141,6 +142,41 @@ class Member_model extends CB_Model
 		$this->db->order_by('mem_register_datetime', $orderby);
 		$qry = $this->db->get($this->_table);
 		$result = $qry->result_array();
+
+		return $result;
+	}
+
+	/**
+	 * 중복아이디체크
+	 */
+	public function getCountRegisterUserId($mem_userid)
+	{
+		if(empty($mem_userid)){
+			return false;
+		}
+		$where = array(
+			'mem_userid' => $mem_userid,
+		);
+		$this->db->select('count(*) as cnt');
+		$this->db->from($this->_table2);
+		$this->db->where($where);
+		$qry = $this->db->get();
+		$result = $qry->result_array();
+
+		return $result[0]['cnt'];
+
+	}
+
+	public function delete_member_userid($mem_id)
+	{
+		if(empty($mem_id)){
+			return false;
+		}
+		$where = array(
+			'mem_id' => $mem_id,
+		);
+		$this->db->where($where);
+		$result = $this->db->delete($this->_table2);
 
 		return $result;
 	}
