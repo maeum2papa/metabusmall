@@ -2354,6 +2354,8 @@ class Cmall extends CB_Controller
 		if ( ! $this->cbconfig->item('use_cmall_product_review_anytime')) {
 			$ordered = $this->cmalllib->is_ordered_item($mem_id, $cit_id);
 			if (empty($ordered)) {
+				echo '<script src="//code.jquery.com/jquery-latest.js"></script>';
+				echo '<script type="text/javascript">$("#review_write", parent.document).hide();</script>';
 				alert_close('주문을 완료하신 후에 상품후기 작성이 가능합니다');
 			}
 
@@ -3063,11 +3065,11 @@ class Cmall extends CB_Controller
 			'layout' => 'layout',
 			'skin' => 'fruit',
 			'layout_dir' => 'bootstrap',
-			'mobile_layout_dir' => 'bootstrap',
+			'mobile_layout_dir' => 'mobile',
 			'use_sidebar' => 0,
 			'use_mobile_sidebar' => 0,
 			'skin_dir' => 'bootstrap',
-			'mobile_skin_dir' => 'bootstrap',
+			'mobile_skin_dir' => 'mobile',
 			'page_title' => "열매 사용 내역",
 			'meta_description' => $meta_description,
 			'meta_keywords' => $meta_keywords,
@@ -3177,5 +3179,113 @@ class Cmall extends CB_Controller
 	function preview(){
 		$video = $this->input->get("video");
 		echo "<video controls src='https://v1.collaborland.kr:8443/".$video."' width='800px'></video>";
+	}
+
+	public function activity()
+	{
+		$mem_id = $this->member->item('mem_id');
+		if(!$mem_id){
+			alert(cmsg("0101"));
+			exit;
+		}
+
+		/**
+		 * 페이지에 숫자가 아닌 문자가 입력되거나 1보다 작은 숫자가 입력되면 에러 페이지를 보여줍니다.
+		 */
+		$param =& $this->querystring;
+		$page = (((int) $this->input->get('page')) > 0) ? ((int) $this->input->get('page')) : 1;
+		
+		$sfield = $this->input->get('sfield', null, '');
+		$skeyword = $this->input->get('skeyword', null, '');
+
+		$per_page = $this->cbconfig->item('list_count') ? (int) $this->cbconfig->item('list_count') : 20;
+		$offset = ($page - 1) * $per_page;
+
+		if ($this->cbconfig->get_device_view_type() === 'mobile') {
+			$per_page = 10;
+		} else {
+			$per_page = 20;
+		}
+		$offset = ($page - 1) * $per_page;
+
+		/**
+		 * 게시판 목록에 필요한 정보를 가져옵니다.
+		 */
+		$where = array();
+		$where['log_memNo'] = $mem_id;
+
+		if($this->input->get('selectDate')){
+			if($this->input->get('selectDate') == '7'){
+				$where['log_regDt >'] = date("Y-m-d", strtotime("-7 Day"));
+			} else if($this->input->get('selectDate') == '30'){
+				$where['log_regDt >'] = date("Y-m-d", strtotime("-30 Day"));
+			} else if($this->input->get('selectDate') == '90'){
+				$where['log_regDt >'] = date("Y-m-d", strtotime("-90 Day"));
+			}
+		}
+
+		if($this->input->get('start-date') && !$this->input->get('end-date')){
+			$where['log_regDt >='] = $this->input->get('start-date').' 00:00:00';
+		} else if(!$this->input->get('start-date') && $this->input->get('end-date')){
+			$where['log_regDt <='] = $this->input->get('end-date').' 23:59:59';
+		} else if($this->input->get('start-date') && $this->input->get('end-date')){
+			$where['log_regDt >='] = $this->input->get('start-date').' 00:00:00';
+			$where['log_regDt <='] = $this->input->get('end-date').' 23:59:59';
+		}
+
+		$this->load->helper('activity');
+		
+		$result = ahistoty($per_page, $offset, $where, "log_sno desc", $sfield, $skeyword);
+		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
+		if (element('list', $result)) {
+			foreach (element('list', $result) as $key => $val) {
+				$result['list'][$key]['num'] = $list_num--;
+			}
+		}
+		$view['view']['data'] = $result;
+
+		/**
+		 * 페이지네이션을 생성합니다
+		 */
+		$config['base_url'] = site_url('cmall/activity?') . $param->replace('page');
+		$config['total_rows'] = $result['total_rows'];
+		$config['per_page'] = $per_page;
+		if ($this->cbconfig->get_device_view_type() === 'mobile') {
+			$config['num_links'] = 3;
+		} else {
+			$config['num_links'] = 5;
+		}
+		$this->pagination->initialize($config);
+		$view['view']['paging'] = $this->pagination->create_links();
+		$view['view']['page'] = $page;
+
+
+
+		/**
+		 * 레이아웃 설정
+		 */
+		$layoutconfig = array(
+			'path' => 'cmall',
+			'layout' => 'layout',
+			'skin' => 'activity',
+			'layout_dir' => 'bootstrap',
+			'mobile_layout_dir' => 'mobile',
+			'use_sidebar' => 0,
+			'use_mobile_sidebar' => 0,
+			'skin_dir' => 'bootstrap',
+			'mobile_skin_dir' => 'mobile',
+			'page_title' => "횔동 내역",
+			'meta_description' => $meta_description,
+			'meta_keywords' => $meta_keywords,
+			'meta_author' => $meta_author,
+			'page_name' => "횔동 내역",
+		);
+		
+		
+		
+		$view['layout'] = $this->managelayout->front($layoutconfig, $this->cbconfig->get_device_view_type());
+		$this->data = $view;
+		$this->layout = element('layout_skin_file', element('layout', $view));
+		$this->view = element('view_skin_file', element('layout', $view));
 	}
 }
