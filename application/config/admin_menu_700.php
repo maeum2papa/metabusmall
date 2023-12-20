@@ -18,7 +18,7 @@ $config['admin_page_menu']['deposit'] =
 			// 'depositcfg'			=> array('예치금환경설정', ''),
 			// 'emailform'				=> array('메일/쪽지발송양식', ''),
 			// 'pendingbank'			=> array('무통장입금알림', ''),
-			'depositlist'			=> array('예치금변동내역', ''),
+			'companydeposit/lists'			=> array('예치금변동내역', ''),
 			// 'depositstat'			=> array('예치금통계', ''),
 		),
 	);

@@ -10,6 +10,104 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 
 /**
+ * 노출 여부 확인
+ */
+if ( ! function_exists('business_exYn')) {
+	function business_exYn($p_sno='',$company_idx=''){ //p_sno 프로젝트의 번호 , $company_idx 우리회사의 회사번호
+		$CI =& get_instance();
+		$q = "select plan_idx from cb_company_info where company_idx = '".$company_idx."'";
+		$r = $CI->db->query($q);
+		$my_plan_idx = (array) $r->row(); //우리 회사의 플랜
+		//프로젝트의 정보
+		$q = "select * from cb_lms_process where p_sno = '".$p_sno."'";
+		$r = $CI->db->query($q);
+		$process = (array) $r->row();
+		
+		//회사가 거부했으면 일단 거부
+		$q = "select exYn from cb_lms_process_company_exposure where p_sno = '".$p_sno."' and company_idx = '".$company_idx."'";
+		$r = $CI->db->query($q);
+		$exYn = (array) $r->row();
+		
+		if($exYn[exYn] == 'y'){ //기업관리자가 비노출 처리함
+			return 'y';
+		}else{ //기업관리자가 비노출 처리한게 아니라면 플랜에 따른 계산
+			return 'n';
+		}
+		
+	}
+}
+//이거 일단 나중에 어케 될지 몰라서 주석처리해둠
+//if ( ! function_exists('business_exYn')) {
+//	function business_exYn($p_sno='',$company_idx=''){ //p_sno 프로젝트의 번호 , $company_idx 우리회사의 회사번호
+//		$CI =& get_instance();
+//		$q = "select plan_idx from cb_company_info where company_idx = '".$company_idx."'";
+//		$r = $CI->db->query($q);
+//		$my_plan_idx = (array) $r->row(); //우리 회사의 플랜
+//		//프로젝트의 정보
+//		$q = "select * from cb_lms_process where p_sno = '".$p_sno."'";
+//		$r = $CI->db->query($q);
+//		$process = (array) $r->row();
+//		
+//		//회사가 거부했으면 일단 거부
+//		$q = "select exYn from cb_lms_process_company_exposure where p_sno = '".$p_sno."' and company_idx = '".$company_idx."'";
+//		$r = $CI->db->query($q);
+//		$exYn = (array) $r->row();
+//		
+//		if($exYn[exYn] == 'y'){ //기업관리자가 비노출 처리함
+//			return 'y';
+//		}else{ //기업관리자가 비노출 처리한게 아니라면 플랜에 따른 계산
+//			if($my_plan_idx[plan_idx] == 3){ //일단 대기
+//			
+//			}else if($my_plan_idx[plan_idx] == 2){ //프리미엄 기업일때
+//				if($process[plan_idx] <= 2){ //과정이 베이직이나 프리미엄이라면
+//					if($process[p_viewYn] == 'y'){ //노출함 설정이라면
+//						return 'n'; //비노출인지를 물어보는거라 노출이면 n 임
+//					}else if($process[p_viewYn] == 'n'){
+//						return 'y'; //비노출인지를 물어보는거라 비노출이면 y
+//					}else{ //특정일 노출이면
+//						$today = date("Ymd");
+//						if($today >= $process[p_sdate] && $today <= $process[p_edate]){ //오늘 날짜가 시작일 종료일 사이면 노출
+//							return 'n'; //비노출인지를 물어보는거라 노출이면 n 임
+//						}else{
+//							return 'y';
+//						}
+//					}
+//				}else{ //과정이 엔터프라이즈라면 일단 대기
+//
+//				}
+//			}else{ //우리 회사 플랜이 베이직이면
+//				if($process[plan_idx] == 1){ //베이직 과정이라면  
+//					if($process[p_viewYn] == 'y'){ //노출함 설정이라면
+//						return 'n'; //비노출인지를 물어보는거라 노출이면 n 임
+//					}else if($process[p_viewYn] == 'n'){
+//						return 'y'; //비노출인지를 물어보는거라 비노출이면 y
+//					}else{ //특정일 노출이면
+//						$today = date("Ymd");
+//						if($today >= $process[p_sdate] && $today <= $process[p_edate]){ //오늘 날짜가 시작일 종료일 사이면 노출
+//							return 'n'; //비노출인지를 물어보는거라 노출이면 n 임
+//						}else{
+//							return 'y';
+//						}
+//					}
+//				}else{ //프리미엄 이상이라면
+//					//추가 기업에 포함되었는지 확인
+//					$q = "select c_sno from cb_lms_process_company where p_sno = '".$p_sno."' and company_idx = '".$company_idx."'";
+//					$r = $CI->db->query($q);
+//					$add_company = (array) $r->row();
+//					if($add_company[c_sno]){ //추가기업에 포함되었으면 노출
+//						return 'n';
+//					}else{ //추가기업에 없으면 비노출
+//						return 'y';
+//					}
+//				}
+//			}
+//		}
+//		
+//	}
+//}
+
+
+/**
  * 뻥카 과정 여부 추가
  */
 if ( ! function_exists('false_process')) {
@@ -33,6 +131,19 @@ if ( ! function_exists('soldoutYn')) {
 		}else{
 			return 'n';
 		}
+	}
+}
+
+/**
+ * 기업 서브도메인 찾기
+ */
+if ( ! function_exists('busiCode')) {
+	function busiCode($company_idx){
+		$CI =& get_instance();
+		$q = "select company_code from cb_company_info where company_idx = '".$company_idx."'";
+		$r = $CI->db->query($q);
+		$company_code = (array) $r->row();
+		return $company_code[company_code];
 	}
 }
 

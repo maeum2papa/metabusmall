@@ -3131,11 +3131,11 @@ class Cmall extends CB_Controller
 			'layout' => 'layout',
 			'skin' => 'point',
 			'layout_dir' => 'bootstrap',
-			'mobile_layout_dir' => 'bootstrap',
+			'mobile_layout_dir' => 'mobile',
 			'use_sidebar' => 0,
 			'use_mobile_sidebar' => 0,
 			'skin_dir' => 'bootstrap',
-			'mobile_skin_dir' => 'bootstrap',
+			'mobile_skin_dir' => 'mobile',
 			'page_title' => "코인 사용 내역",
 			'meta_description' => $meta_description,
 			'meta_keywords' => $meta_keywords,
@@ -3152,29 +3152,29 @@ class Cmall extends CB_Controller
 	}
 
 
+	
+	// function ttt(){
 
-	function ttt(){
-
-		/**
-		 * /cmall/ttt?kind=d&mem_id=40&amount=100000&msg=테스트 예치금 주입 <- 회원의 기업에 예치금
-		 * /cmall/ttt?kind=f&mem_id=40&amount=100000&msg=테스트 열매 주입 <- 회원의 열매
-		 */
+	// 	/**
+	// 	 * /cmall/ttt?kind=d&mem_id=40&amount=100000&msg=테스트 예치금 주입 <- 회원의 기업에 예치금
+	// 	 * /cmall/ttt?kind=f&mem_id=40&amount=100000&msg=테스트 열매 주입 <- 회원의 열매
+	// 	 */
 		
-		$kind = $this->input->get("kind");
-		$mem_id = $this->input->get("mem_id");
-		$amount = $this->input->get("amount");
-		$msg = $this->input->get("msg");
+	// 	$kind = $this->input->get("kind");
+	// 	$mem_id = $this->input->get("mem_id");
+	// 	$amount = $this->input->get("amount");
+	// 	$msg = $this->input->get("msg");
 
-		if($kind == 'd'){
-			company_depoist_use($mem_id, $amount, $msg, date('Y-m-d H:i:s'), "test", "", "테스트");
-			debug("예치금 적용 완료");
-		}else if($kind == 'f'){
-			$this->load->helper('fruit');
-			fuse($mem_id, $amount, $msg, date('Y-m-d H:i:s'), "test", "", "테스트");
-			debug("열매 적용 완료");
-		}
+	// 	if($kind == 'd'){
+	// 		company_depoist_use($mem_id, $amount, $msg, date('Y-m-d H:i:s'), "test", "", "테스트");
+	// 		debug("예치금 적용 완료");
+	// 	}else if($kind == 'f'){
+	// 		$this->load->helper('fruit');
+	// 		fuse($mem_id, $amount, $msg, date('Y-m-d H:i:s'), "test", "", "테스트");
+	// 		debug("열매 적용 완료");
+	// 	}
 
-	}
+	// }
 
 	function preview(){
 		$video = $this->input->get("video");

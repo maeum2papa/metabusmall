@@ -19,6 +19,6 @@ $config['admin_page_menu']['cmall'] =
 			'cmallitem'				=> array('상품관리', ''),
 			'qna'					=> array('상품문의', ''),
 			'review'				=> array('상품사용후기', ''),
-            'depositlist'			=> array('예치금 현황', '')
+            '../deposit/companydeposit/lists'			=> array('예치금변동내역', '')
 		),
 	);
