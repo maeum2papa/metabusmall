@@ -1044,4 +1044,252 @@ class Cmallitem extends CB_Controller
 
 		redirect($redirecturl);
 	}
+
+
+	/**
+	 * 아이템상품 설정 팝업
+	 */
+	public function itemsetting()
+	{
+		
+		/**
+		 * 레이아웃 설정
+		 */
+
+		$layoutconfig = array('layout' => 'layout_popup', 'skin' => 'itemsetting');
+		$view['layout'] = $this->managelayout->admin($layoutconfig, $this->cbconfig->get_device_view_type());
+		$this->data = $view;
+		$this->layout = element('layout_skin_file', element('layout', $view));
+		$this->view = element('view_skin_file', element('layout', $view));
+	}
+
+
+	/**
+	 * 아이템상품 설정 팝업 데이터
+	 */
+	public function itemsettinglist()
+	{
+		/*
+		[item_type] => a
+    [cate_sno] => 8
+    [stxt] => 농부
+    [start_date] => 2023-12-06
+    [end_date] => 2023-12-22
+		*/
+
+		$this->load->model(array('Asset_item_model'));
+
+		$view = array();
+		$view['view'] = array();
+
+		/**
+		 * 페이지에 숫자가 아닌 문자가 입력되거나 1보다 작은 숫자가 입력되면 에러 페이지를 보여줍니다.
+		 */
+		$param =& $this->querystring;
+		$page = (((int) $this->input->get('page')) > 0) ? ((int) $this->input->get('page')) : 1;
+		$view['view']['sort'] = array(
+			'item_sno' => $param->sort('item_sno', 'asc'),
+			'item_kr' => $param->sort('item_kr', 'asc'),
+			'item_type' => $param->sort('item_type', 'asc'),
+			'item_regDt' => $param->sort('item_regDt', 'desc'),
+		);
+		$findex = $this->input->get('findex') ? $this->input->get('findex') : $this->Asset_item_model->primary_key;
+		$forder = $this->input->get('forder', null, 'desc');
+		$sfield = $this->input->get('sfield', null, '');
+		$skeyword = $this->input->get('skeyword', null, '');
+
+		$per_page = admin_listnum();
+		$offset = ($page - 1) * $per_page;
+		$offser = 9999999999999;
+
+		/**
+		 * 게시판 목록에 필요한 정보를 가져옵니다.
+		 */
+		$this->Asset_item_model->allow_search_field = array('item_kr', 'cate_kr', 'item_regDt'); // 검색이 가능한 필드
+		// $this->{$this->modelname}->search_field_equal = array('seum_departmentNm'); // 검색중 like 가 아닌 = 검색을 하는 필드
+		$this->Asset_item_model->allow_order_field = array('item_sno', 'item_kr', 'item_type', 'item_regDt'); // 정렬이 가능한 필드
+		
+		
+		//템플릿 종류 검색 추가
+		$where = array();
+		
+		if ($this->input->get('cate_sno')) {	
+			$where['asset_item.cate_sno'] = $this->input->get('cate_sno');
+		}
+		
+		if($this->input->get('stxt')){
+			$like['asset_item.item_kr'] = $this->input->get('stxt');
+		}
+
+		if($this->input->get('start_date')){
+			$where['asset_item.item_regDt'.">="] = $this->input->get('start_date')." 00:00:00";
+		}
+
+		if($this->input->get('end_date')){
+			$where['asset_item.item_regDt'."<="] = $this->input->get('end_date')." 23:59:59";
+		}
+		
+		$result = $this->Asset_item_model->get_admin_list($per_page, $offset, $where, $like, $findex, $forder, $sfield, $skeyword);
+
+		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
+		if (element('list', $result)) {
+			foreach (element('list', $result) as $key => $val) {
+				$result['list'][$key]['num'] = $list_num--;
+			}
+		}
+
+		$view['view']['data'] = $result;
+		
+		/**
+		 * primary key 정보를 저장합니다
+		 */
+		$view['view']['primary_key'] = $this->Asset_item_model->primary_key;
+
+		/**
+		 * 페이지네이션을 생성합니다
+		 */
+		$config['base_url'] = admin_url($this->pagedir) . '?' . $param->replace('page');
+		$config['total_rows'] = $result['total_rows'];
+		$config['per_page'] = $per_page;
+		$this->pagination->initialize($config);
+		$view['view']['paging'] = $this->pagination->create_links();
+		$view['view']['page'] = $page;
+
+		echo '<table class="table table-hover table-bordered mg0">';
+		echo '<tbody>';
+		echo '<tr>';
+		echo '<th><input type="checkbox" name="all" value=""></th>';
+		echo '<th>번호</th>';
+		echo '<th>이미지</th>';
+		echo '<th>카테고리</th>';
+		echo '<th>이름</th>';
+		echo '<th>등록일</th>';
+		echo '<th>인벤토리노출</th>';
+		echo '</tr>';
+		if(count($result['list'])>0){
+			foreach($result['list'] as $k=>$v){
+				echo '<tr>';
+				echo '<td><input type="checkbox" name="item_sno[]" value="'.$v['item_sno'].'"></td>';
+				echo '<td>'.$v['num'].'</td>';
+				echo '<td><img src="'.$v['item_img_th'].'" width="50px"></td>';
+				echo '<td>'.$v["cate_kr"].'</td>';
+				echo '<td>'.$v['item_kr'].'</td>';
+				echo '<td>'.$v["item_regDt"].'</td>';
+				echo '<td>'.(($v['item_basicYn']=='y')?"노출":"미노출").'</td>';
+				echo '</tr>';
+			}
+		}
+		echo '</tbody>';
+		echo '</table>';
+		// echo '<div class="mt10 mb10">'.$view['view']['paging'].'</div>';
+		/*
+		<table class="table table-hover table-bordered mg0">
+			<tbody>
+				<tr>
+					<th><input type="checkbox"></th>
+					<th>번호</th>
+					<th>카테고리</th>
+					<th>이름</th>
+					<th>등록일</th>
+					<th>인벤토리노출</th>
+				</tr>
+				<?php 
+				if($view['data']['list']){
+					foreach($view['data']['list'] as $k => $v){
+						?>
+						<tr>
+							<td><input type="checkbox" name="item_sno[]" value="<?php echo $v['item_sno']?>"></td>
+							<td><?php echo $v['num'];?></td>
+							<td><?php echo $v['cate_kr'];?></td>
+							<td><?php echo $v['item_kr']?></td>
+							<td><?php echo $v['item_regDt']?></td>
+							<td><?php echo ($v['item_basicYn']=='y')?"노출":"미노출";?></td>
+						</tr>
+						<?php
+					}
+				}
+				?>
+			</tbody>
+		</table>
+		<div><?php echo element('paging', $view); ?></div>
+		*/
+	}
+
+
+	/**
+	 * 선택된 아이템상품 설정 팝업 데이터
+	 */
+	public function itemsettingselectlist(){
+
+		$this->load->model(array('Asset_item_model'));
+
+		$item_snos = explode(",",$this->input->get('item_sno'));
+
+		if($item_snos){
+			foreach($item_snos as $k=>$v){
+				$item_sno[] = $v; 
+			}
+
+			$where = "item_sno in(".implode(",",$item_sno).")";
+		}
+		
+		$result = $this->Asset_item_model->get_admin_list(0, 9999999999999, $where, '', $findex, $forder, $sfield, $skeyword);
+
+		$list_num = $result['total_rows'] - 0 * 9999999999999;
+		if (element('list', $result)) {
+			foreach (element('list', $result) as $key => $val) {
+				$result['list'][$key]['num'] = $list_num--;
+			}
+		}
+		
+		echo '<table class="table table-hover table-bordered mg0">';
+		echo '<tbody>';
+		echo '<tr>';
+		echo '<th><input type="checkbox" name="all" value=""></th>';
+		echo '<th>번호</th>';
+		echo '<th>이미지</th>';
+		echo '<th>카테고리</th>';
+		echo '<th>이름</th>';
+		echo '<th>등록일</th>';
+		echo '<th>인벤토리노출</th>';
+		echo '</tr>';
+		if(count($result['list'])>0){
+			foreach($result['list'] as $k=>$v){
+				echo '<tr class="item_type_'.$v['item_type'].'">';
+				echo '<td><input type="checkbox" name="item_sno[]" value="'.$v['item_sno'].'"></td>';
+				echo '<td>'.$v['num'].'</td>';
+				echo '<td><img src="'.$v['item_img_th'].'" width="50px"></td>';
+				echo '<td>'.$v["cate_kr"].'</td>';
+				echo '<td>'.$v['item_kr'].'</td>';
+				echo '<td>'.$v["item_regDt"].'</td>';
+				echo '<td>'.(($v['item_basicYn']=='y')?"노출":"미노출").'</td>';
+				echo '</tr>';
+			}
+		}
+		echo '</tbody>';
+		echo '</table>';
+
+	}
+
+	/**
+	 * 아이템선택팝업 분류선택 이벤트
+	 */
+	public function catesnolist(){
+		$item_type = $this->input->get('item_type');
+
+		if($item_type == 'l' ){
+			$cate_parent = 7;
+		}else if($item_type == 'a'){
+			$cate_parent = 5;
+		}
+
+		$q = "select * from cb_asset_category where  cate_type = 'i' and cate_parent = ".$cate_parent." order by cate_order";
+		$r = $this->db->query($q);
+		$category = $r->result_array(); 
+
+		foreach($category as $k=>$v){
+			echo '<option value='.$v['cate_sno'].'>'.$v['cate_kr'].'</option>';
+		}
+
+	}
 }

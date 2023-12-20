@@ -1,3 +1,11 @@
+<style>
+	#item-selector .item-selector-header{display: flex; justify-content:space-between;}
+	#select_item_list.is-avata tr.item_type_a{display: table-tr;}
+	#select_item_list.is-avata tr.item_type_l{display: none;}
+	#select_item_list.is-land tr.item_type_l{display: table-tr;}
+	#select_item_list.is-land tr.item_type_a{display: none;}
+	#item-selector.dn{display:none;}
+</style>
 <?php $custom_config = config_item("custom"); ?>
 <div class="box">
 	<div class="box-table">
@@ -344,8 +352,8 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label">아이템번호</label>
 					<div class="col-sm-10 form-inline">
-						<input type="text" class="form-control" name="cit_item_arr" value="<?php echo set_value('cit_item_arr', element('cit_item_arr', element('data', $view))); ?>" />
-						<div class="help-inline" >번호가 여러개인 경우 구분자 , 를 넣어주세요 ex : 12,15</div>
+						<input type="text" class="form-control" name="cit_item_arr" value="<?php echo set_value('cit_item_arr', element('cit_item_arr', element('data', $view))); ?>" readonly/>
+						<div class="help-inline" ><a href="#item-selector">아이템선택</a>에서 설정해 주세요.</div>
 					</div>
 				</div>
 				<div class="form-group" style="display: none">
@@ -474,7 +482,58 @@
 					</div>
 				</div>
 			</div>
-			<div class="btn-group pull-right" role="group" aria-label="...">
+
+
+			<div id="item-selector" class="dn">
+				<div class="box-table-header">
+					<h4><a data-toggle="collapse" href="#cmalltab7" aria-expanded="true" aria-controls="cmalltab7">아이템선택</a></h4>
+					<a data-toggle="collapse" href="#cmalltab7" aria-expanded="true" aria-controls="cmalltab7"><i class="fa fa-chevron-up pull-right"></i></a>
+				</div>
+				<div>
+					
+					<div class="item-selector-header mb10">
+						<div>
+							<div class="btn-group" role="group">
+								<button type="button" class="btn btn-success btn-sm btn-item-selector-avata">아바타</button>
+								<button type="button" class="btn btn-default btn-sm btn-item-selector-land">랜드</button>
+							</div>	
+						</div>
+						<div class="text-right">
+							<button type="button" class="btn btn-danger btn-sm btn-item-selector-delete">선택삭제</button>
+							<button type="button" class="btn btn-default btn-sm btn-item-setting-popup">아이템설정</button>
+						</div>
+					</div>
+
+					<div class="table-responsive is-avata" id="select_item_list">
+						<table class="table table-hover table-striped table-bordered">
+							<thead>
+								<tr>
+									<th><input type="checkbox" ></th>
+									<th>번호</th>
+									<th>이미지</th>
+									<th>카테고리</th>
+									<th>이름</th>
+									<th>등록일</th>
+									<th>인벤토리노출</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><input type="checkbox" ></td>
+									<td class="form-inline"></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="btn-group pull-right mt10" role="group" aria-label="...">
 				<button type="button" class="btn btn-default btn-sm btn-history-back" >목록으로</button>
 				<button type="submit" class="btn btn-success btn-sm">저장하기</button>
 			</div>
@@ -545,7 +604,17 @@ cit_item_types.forEach(element => {
 				}
 			});
 		}
+
+		if(this.value == 'i'){
+			document.querySelector('#item-selector').classList.remove('dn');
+		}else{
+			document.querySelector('#item-selector').classList.add('dn');
+		}
 	});
+});
+
+document.querySelector(".btn-item-setting-popup").addEventListener("click",function(){
+	ewWindow = window.open('/admin/cmall/cmallitem/itemsetting?item_sno_data='+document.querySelector('[name="cit_item_arr"]').value, 'item-setting-popup', 'width=1200px, height=630px, menubar=no, toolbar=no, location=no, status=no, scrollbars=no');
 });
 
 
@@ -633,6 +702,103 @@ function view_type(arg) {
 		$("#view_type_n").css("display","none");
 	}
 }
+
+
+//아이템선택 팝업 완료 처리 이벤트
+async function update_cit_item_arr(data){
+	document.querySelector("[name='cit_item_arr']").value = data;
+	await get_item_selector();
+}
+
+//아이템선택 데이터 가져오기
+async function get_item_selector(){
+	try {
+
+		const response = await fetch('/admin/cmall/cmallitem/itemsettingselectlist?item_sno='+document.querySelector("[name='cit_item_arr']").value);
+
+		if (!response.ok) {
+			throw new Error('Network response was not ok');
+		}
+
+		const data = await response.text();
+
+		document.querySelector('#select_item_list').textContent = '';
+		document.querySelector('#select_item_list').innerHTML = data;
+
+	} catch (error) {
+		console.error('Error during fetch operation:', error);
+	}
+}
+
+async function page_load(){
+
+	await get_item_selector();
+
+	if(document.querySelector('[name="cit_item_type"]:checked').value=='i'){
+		document.querySelector('#item-selector').classList.remove('dn');
+	}
+	
+	//아이템선택 아바타 클릭 이벤트
+	document.querySelector('.btn-item-selector-avata').addEventListener("click",function(){
+		this.classList.remove("btn-default");
+		this.classList.add("btn-success");
+
+		document.querySelector('.btn-item-selector-land').classList.add("btn-default");
+		document.querySelector('.btn-item-selector-land').classList.remove("btn-success");
+
+		document.querySelector('#select_item_list').classList.add('is-avata');
+		document.querySelector('#select_item_list').classList.remove('is-land');
+
+		document.querySelectorAll('[name="item_sno[]"]').forEach(element=>{
+			element.checked = false;
+		});
+
+	});
+
+
+	//아이템선택 랜드 클릭 이벤트
+	document.querySelector('.btn-item-selector-land').addEventListener("click",function(){
+
+		this.classList.remove("btn-default");
+		this.classList.add("btn-success");
+		
+		document.querySelector('.btn-item-selector-avata').classList.add("btn-default");
+		document.querySelector('.btn-item-selector-avata').classList.remove("btn-success");
+
+		document.querySelector('#select_item_list').classList.remove('is-avata');
+		document.querySelector('#select_item_list').classList.add('is-land');
+
+		document.querySelectorAll('[name="item_sno[]"]').forEach(element=>{
+			element.checked = false;
+		});
+	});
+
+	//아이템선택 선택삭제 클릭 이벤트
+	document.querySelector('.btn-item-selector-delete').addEventListener("click",function(){
+
+		if(document.querySelectorAll('[name="item_sno[]"]:checked').length==0){
+			alert("선택된 데이터가 없습니다.");
+			return false;
+		}
+
+		document.querySelectorAll('[name="item_sno[]"]:checked').forEach(element=>{
+			element.parentNode.parentNode.remove();
+		});
+
+		var item_sno_datas = Array();
+		document.querySelectorAll('[name="item_sno[]"]').forEach(element=>{
+			item_sno_datas.push(element.value);
+		});
+
+		document.querySelector('[name="cit_item_arr"]').value = item_sno_datas.join(",");
+
+	});
+
+}
+
+page_load();
+
+
 <?php if(element('cit_view_type', element('data', $view))){?>
 var stock_view_arg = '<?=element('cit_view_type', element('data', $view))?>';
 <?php }else{?>
