@@ -178,7 +178,7 @@ if ( ! function_exists('fhistoty')) {
 
 if ( ! function_exists('fuse')) {
     /**
-     * 열매 사용
+     * 열매 사용/충전
      * @param int $mem_id 대상회원PK
      * @param int $amount 열매사용량
      * @param string $message 메시지
@@ -189,6 +189,18 @@ if ( ! function_exists('fuse')) {
      */
     function fuse($mem_id, $amount, $message, $cor_datetime, $type, $related_id, $action){
         $CI =& get_instance();
+
+		//현재 열매
+		$q = "select 
+					mem_cur_fruit
+				from
+					cb_member 
+				where
+					mem_id = '".$mem_id."'
+		";
+		$r = $CI->db->query($q);
+		$mem = (array) $r->row();
+		$mem_cur_fruit = $mem['mem_cur_fruit'];
         
         //로그 기록
 		$q = "insert into 
@@ -200,7 +212,8 @@ if ( ! function_exists('fuse')) {
                     fru_fruit = '".$amount."',
                     fur_type = '".$type."',
                     fru_related_id = '".$related_id."',
-                    fru_action = '".$action."'
+                    fru_action = '".$action."',
+					fru_now_fruit = '".($mem_cur_fruit + ($amount))."'
                 ";
         $CI->db->query($q);
 

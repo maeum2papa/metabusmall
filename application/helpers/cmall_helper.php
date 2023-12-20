@@ -311,6 +311,13 @@ if ( ! function_exists('company_depoist_use')) {
 
 		$company_idx = $member['company_idx'];
 
+		//현재 예치금
+		$q = "select company_deposit from cb_company_info where company_idx='".$company_idx."'";
+		$r = $CI->db->query($q);
+		$company = (array) $r->row();
+		$company_deposit = $company['company_deposit'];
+
+
 		//cb_company_deposit에 기록
 		$q = "insert into 
 					cb_company_deposit 
@@ -322,7 +329,8 @@ if ( ! function_exists('company_depoist_use')) {
                     ccd_deposit = '".$amount."',
                     ccd_type = '".$type."',
                     ccd_related_id = '".$related_id."',
-                    ccd_action = '".$action."'
+                    ccd_action = '".$action."',
+					ccd_now_deposit = '".($company_deposit + ($amount))."'
                 ";
         $CI->db->query($q);
 		

@@ -77,6 +77,8 @@ class Point extends CI_Controller
 			}
 		}
 
+		$member = $this->CI->Member_model->get_one($mem_id);
+
 		$insertdata = array(
 			'mem_id' => $mem_id,
 			'poi_datetime' => cdate('Y-m-d H:i:s'),
@@ -85,6 +87,7 @@ class Point extends CI_Controller
 			'poi_type' => $poi_type,
 			'poi_related_id' => $poi_related_id,
 			'poi_action' => $poi_action,
+			'poi_now_point' => ( $member['mem_point'] + ($point)),
 		);
 		$this->CI->Point_model->insert($insertdata);
 
