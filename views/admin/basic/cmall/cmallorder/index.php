@@ -32,7 +32,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			ob_start();
 			?>
 				<div class="btn-group pull-right" role="group" aria-label="...">
-					<a class="btn btn-outline btn-success btn-sm" id="export_to_excel">엑셀시트다운로드</a>
+					<a class="btn btn-outline btn-success btn-sm export_to_excel" >엑셀시트다운로드</a>
 					<a href="<?php echo element('listall_url', $view); ?>" class="btn btn-outline btn-default btn-sm">전체목록</a>
 				</div>
 			<?php
@@ -343,7 +343,7 @@ document.querySelector(".btn-status-change").addEventListener('click',function()
 });
 
 
-document.getElementById('export_to_excel').addEventListener("click",function(){
+function export_to_excel(){
 	search_form = document.getElementById('search_form');
 
 	var form = document.createElement('form');
@@ -406,7 +406,11 @@ document.getElementById('export_to_excel').addEventListener("click",function(){
 	document.body.appendChild(form);
 
 	form.submit();
+}
 
+document.querySelectorAll('.export_to_excel').forEach(element=>{
+	element.addEventListener("click",function(){
+		export_to_excel();
+	});
 });
-
 </script>
