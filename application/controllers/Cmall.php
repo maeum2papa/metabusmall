@@ -183,15 +183,20 @@ class Cmall extends CB_Controller
 		$where = array();
 		$where['cit_status'] = 1;
 		$where['cit_del_flag'] = 'n';
-
+		
 		//자사몰 필터링
 		$cconfig['custom'] = config_item('custom');
 		if($cconfig['custom']['category']['company'] == $category_id){
 			$where['company_idx'] = $this->member->item('company_idx');
 		}
 
+		if(!$category_id){
+			$where["((cit_item_type = 'b' AND company_idx='".$this->member->item('company_idx')."') OR cit_item_type !='b')"] = null;
+		}
+
 		$result = $this->Cmall_item_model
 			->get_item_list($per_page, $offset, $where, $category_id, $findex, $sfield, $skeyword);
+			
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {
@@ -2356,6 +2361,7 @@ class Cmall extends CB_Controller
 			if (empty($ordered)) {
 				echo '<script src="//code.jquery.com/jquery-latest.js"></script>';
 				echo '<script type="text/javascript">$("#review_write", parent.document).hide();</script>';
+				
 				alert_close('주문을 완료하신 후에 상품후기 작성이 가능합니다');
 			}
 
@@ -2488,6 +2494,9 @@ class Cmall extends CB_Controller
 				$jresult = json_decode($cntresult, true);
 				$cnt = element('cit_review_count', $jresult);
 				echo '<script type="text/javascript">window.opener.view_cmall_review("viewitemreview", ' . $cit_id . ', ' . $page . ');window.opener.cmall_review_count_update(' . $cnt . ');</script>';
+
+				echo '<script src="//code.jquery.com/jquery-latest.js"></script>';
+				echo '<script type="text/javascript">$("#review_write", parent.document).hide();</script>';
 				alert_close('정상적으로 수정되었습니다.');
 			} else {
 
@@ -2514,9 +2523,16 @@ class Cmall extends CB_Controller
 				$cnt = element('cit_review_count', $jresult);
 				if ($this->cbconfig->item('use_cmall_product_review_approve')) {
 					echo '<script type="text/javascript">window.opener.view_cmall_review("viewitemreview", ' . $cit_id . ', ' . $page . ');window.opener.cmall_review_count_update(' . $cnt . ');</script>';
+
+					echo '<script src="//code.jquery.com/jquery-latest.js"></script>';
+					echo '<script type="text/javascript">$("#review_write", parent.document).hide();</script>';
 					alert_close('정상적으로 입력되었습니다. 관리자의 승인 후 출력됩니다');
 				} else {
 					echo '<script type="text/javascript">window.opener.view_cmall_review("viewitemreview", ' . $cit_id . ', ' . $page . ');window.opener.cmall_review_count_update(' . $cnt . ');</script>';
+
+					echo '<script src="//code.jquery.com/jquery-latest.js"></script>';
+					echo '<script type="text/javascript">$("#review_write", parent.document).hide();</script>';
+					
 					alert_close('정상적으로 입력되었습니다.');
 				}
 			}
@@ -2878,6 +2894,9 @@ class Cmall extends CB_Controller
 				$jresult = json_decode($cntresult, true);
 				$cnt = element('cit_qna_count', $jresult);
 				echo '<script type="text/javascript">window.opener.view_cmall_qna("viewitemqna", ' . $cit_id . ', ' . $page . ');window.opener.cmall_qna_count_update(' . $cnt . ');</script>';
+
+				echo '<script src="//code.jquery.com/jquery-latest.js"></script>';
+				echo '<script type="text/javascript">$("#qna_write", parent.document).hide();</script>';
 				alert_close('정상적으로 수정되었습니다.');
 			} else {
 				/**
@@ -2895,6 +2914,9 @@ class Cmall extends CB_Controller
 				$jresult = json_decode($cntresult, true);
 				$cnt = element('cit_qna_count', $jresult);
 				echo '<script type="text/javascript">window.opener.view_cmall_qna("viewitemqna", ' . $cit_id . ', ' . $page . ');window.opener.cmall_qna_count_update(' . $cnt . ');</script>';
+
+				echo '<script src="//code.jquery.com/jquery-latest.js"></script>';
+				echo '<script type="text/javascript">$("#qna_write", parent.document).hide();</script>';
 				alert_close('정상적으로 입력되었습니다.');
 			}
 		}
