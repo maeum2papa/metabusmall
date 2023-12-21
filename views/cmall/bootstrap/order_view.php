@@ -7,8 +7,8 @@ $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css
 
 <!-- asmo sh 231215 shop div#order-result 감싸는 div#asmo_cmall 생성  -->
 
-<div id="asmo_cmall">
-	<div id="order-result">
+<div class="asmo_cmall">
+	<div id="order-view">
 
 		<!-- asmo sh 231215 디자인 상 장바구니, 구매내역 버튼 필요하여 div.cmall_orderlist_top_box 생성  -->
 		<div class="cmall_orderlist_top_box">
@@ -72,21 +72,6 @@ $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css
 									?>
 										<li>
 											<i class="fa fa-angle-right" aria-hidden="true"></i>
-											<?php
-											if (element('cor_status', element('data', $view)) === '1') {
-												if (element('possible_download', element('item', $result))) {
-											?>
-												<!-- <a href="<?php echo site_url('cmallact/download/' . element('cor_id', element('data', $view)) . '/' . element('cde_id', $detail));?>" type="button" name="download" class="btn btn-xs btn-info"><i class="fa fa-download" aria-hidden="true"></i> 다운로드</a> -->
-											<?php } else { ?>
-												<button type="button" class="btn btn-xs btn-default disabled ">다운로드 기간 완료</button>
-											<?php
-												}
-											} else {
-											?>
-												<button type="button" class="btn btn-xs btn-warning">입금확인중</button>
-											<?php
-											}
-											?>
 											<?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cod_count', $detail);?>개 (+<?php
 											if($view['data']['cor_pay_type'] == 'f'){
 												echo number_format(element('cde_price', $detail) / $view['data']['company_coin_value']);
