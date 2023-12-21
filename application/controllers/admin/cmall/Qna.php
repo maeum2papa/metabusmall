@@ -82,6 +82,10 @@ class Qna extends CB_Controller
 		$per_page = admin_listnum();
 		$offset = ($page - 1) * $per_page;
 
+		if($this->session->userdata['mem_admin_flag'] != 0){
+			$where['cmall_item.company_idx'] = $this->session->userdata['company_idx'];
+		}
+		
 		/**
 		 * 게시판 목록에 필요한 정보를 가져옵니다.
 		 */
@@ -89,8 +93,8 @@ class Qna extends CB_Controller
 		$this->{$this->modelname}->search_field_equal = array('cqa_id', 'cit_id', 'cmall_qna.mem_id', 'cqa_reply_mem_id'); // 검색중 like 가 아닌 = 검색을 하는 필드
 		$this->{$this->modelname}->allow_order_field = array('cqa_id', 'cit_id', 'cqa_title', 'cit_name', 'cit_key'); // 정렬이 가능한 필드
 		$result = $this->{$this->modelname}
-			->get_admin_list($per_page, $offset, '', '', $findex, $forder, $sfield, $skeyword);
-
+			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
+		
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {
