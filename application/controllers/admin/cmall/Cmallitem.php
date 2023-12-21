@@ -1147,13 +1147,6 @@ class Cmallitem extends CB_Controller
 	 */
 	public function itemsettinglist()
 	{
-		/*
-		[item_type] => a
-    [cate_sno] => 8
-    [stxt] => 농부
-    [start_date] => 2023-12-06
-    [end_date] => 2023-12-22
-		*/
 
 		$this->load->model(array('Asset_item_model'));
 
@@ -1177,8 +1170,9 @@ class Cmallitem extends CB_Controller
 		$skeyword = $this->input->get('skeyword', null, '');
 
 		$per_page = admin_listnum();
+		$per_page = 0;
 		$offset = ($page - 1) * $per_page;
-		$offser = 9999999999999;
+		$offset = 9999999999999;
 
 		/**
 		 * 게시판 목록에 필요한 정보를 가져옵니다.
@@ -1208,7 +1202,7 @@ class Cmallitem extends CB_Controller
 		}
 		
 		$result = $this->Asset_item_model->get_admin_list($per_page, $offset, $where, $like, $findex, $forder, $sfield, $skeyword);
-
+		
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {
@@ -1305,14 +1299,18 @@ class Cmallitem extends CB_Controller
 
 		if($item_snos){
 			foreach($item_snos as $k=>$v){
-				$item_sno[] = $v; 
+				if($v!='') $item_sno[] = $v; 
 			}
 
-			$where = "item_sno in(".implode(",",$item_sno).")";
+			if(count($item_sno)>0){
+				$where = "item_sno in(".implode(",",$item_sno).")";
+			}else{
+				$where = "item_sno in(0)";
+			}
 		}
 		
 		$result = $this->Asset_item_model->get_admin_list(0, 9999999999999, $where, '', $findex, $forder, $sfield, $skeyword);
-
+		
 		$list_num = $result['total_rows'] - 0 * 9999999999999;
 		if (element('list', $result)) {
 			foreach (element('list', $result) as $key => $val) {

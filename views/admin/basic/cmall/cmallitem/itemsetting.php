@@ -294,6 +294,9 @@
             window.close();
         });
         
+
+        document.querySelector("[name='item_type']:nth-child(1)").click();
+        await list_load();
     }
 
     async function list_load() {
@@ -379,6 +382,8 @@
 
 
     page_load();
+
+    
 
 
 </script>
