@@ -12,11 +12,8 @@
 		<div class="box-table-header">
 			<div class="btn-group btn-group-sm" role="group">
 				<a href="<?php echo admin_url('cmall/orderlist'); ?>" class="btn btn-sm <?php echo ( ! $this->input->get('cor_pay_type')) ? 'btn-success' : 'btn-default';?>">전체내역</a>
-				<a href="<?php echo admin_url('cmall/orderlist'); ?>?cor_pay_type=bank" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'bank') ? 'btn-info' : 'btn-default';?>">무통장</a>
-				<a href="<?php echo admin_url('cmall/orderlist'); ?>?cor_pay_type=card" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'card') ? 'btn-info' : 'btn-default';?>">카드</a>
-				<a href="<?php echo admin_url('cmall/orderlist'); ?>?cor_pay_type=realtime" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'realtime') ? 'btn-info' : 'btn-default';?>">실시간</a>
-				<a href="<?php echo admin_url('cmall/orderlist'); ?>?cor_pay_type=vbank" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'vbank') ? 'btn-info' : 'btn-default';?>">가상계좌</a>
-				<a href="<?php echo admin_url('cmall/orderlist'); ?>?cor_pay_type=phone" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'phone') ? 'btn-info' : 'btn-default';?>">핸드폰</a>
+				<a href="<?php echo admin_url('cmall/orderlist'); ?>?cor_pay_type=f" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'f') ? 'btn-info' : 'btn-default';?>">열매</a>
+				<a href="<?php echo admin_url('cmall/orderlist'); ?>?cor_pay_type=c" class="btn btn-sm <?php echo ($this->input->get('cor_pay_type') === 'c') ? 'btn-info' : 'btn-default';?>">컬래버코인</a>
 			</div>
 			<?php
 			ob_start();
@@ -45,6 +42,8 @@
 				</thead>
 				<tbody>
 				<?php
+				$custom_config = config_item("custom");
+				
 				if (element('list', element('data', $view))) {
 					foreach (element('list', element('data', $view)) as $result) {
 				?>
@@ -57,9 +56,21 @@
 						<td><a href="?sfield=deposit.mem_id&amp;skeyword=<?php echo element('mem_id', $result); ?>"><?php echo html_escape(element('mem_userid', $result)); ?></a></td>
 						<td><?php echo element('display_name', $result); ?> / <?php echo html_escape(element('mem_realname', $result)); ?></td>
 						<td><?php echo display_datetime(element('cor_datetime', $result), 'full'); ?></td>
-						<td><?php echo element('cor_pay_type', $result); ?></td>
+						<td>
+							<?php echo ($result['cor_pay_type']=="f")?"열매":"컬래버코인"; ?>
+						</td>
 						<td><?php echo nl2br(html_escape(element('cor_content', $result))); ?></td>
-						<td class="text-right"><?php echo number_format(element('cor_total_money', $result)) . '원'; ?></td>
+						<td class="text-right">
+							<?php echo number_format(element('cor_total_money', $result)); ?>
+							<?php
+								if($result['cor_pay_type']=="c"){
+									echo "개";
+								}else{
+									echo "원";
+								}
+							?>
+
+						</td>
 					</tr>
 					<?php
 					if (element('orderdetail', $result)) {
@@ -72,12 +83,9 @@
 											<tr class="success">
 												<th>이미지</th>
 												<th>상품명</th>
-												<th class="text-right">다운로드</th>
 												<th class="text-center">총수량</th>
 												<th>판매가</th>
 												<th>소계</th>
-												<th>다운로드기간</th>
-												<th>기간변경</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -87,26 +95,31 @@
 										?>
 											<tr>
 												<td><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>"><img src="<?php echo thumb_url('cmallitem', element('cit_file_1', element('item', $row)), 60, 60); ?>" class="thumbnail" style="margin:0;width:60px;height:60px;" alt="<?php echo html_escape(element('cit_name', element('item', $row))); ?>" title="<?php echo html_escape(element('cit_name', element('item', $row))); ?>" /></a></td>
-												<td colspan="2"><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>"><?php echo html_escape(element('cit_name', element('item', $row))); ?></a>
+												<td><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>"><?php echo html_escape(element('cit_name', element('item', $row))); ?></a>
 													<ul class="cmall-options">
 														<?php
 														$total_num = 0;
 														$total_price = 0;
 														foreach (element('itemdetail', $row) as $detail) {
 														?>
-															<li><?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cod_count', $detail);?>개 (+<?php echo number_format(element('cde_price', $detail)); ?>원)
-														<?php
-															if (element('cor_status', $result) === '1') {
-																if (element('possible_download', element('item', $row))) {
-														?>
-																	<button type="button" class="btn btn-xs btn-success pull-right">다운로드가능</button>
-														<?php } else { ?>
-																	<button type="button" class="btn btn-xs btn-danger pull-right">다운로드 기간 완료</button>
-														<?php } } else { ?>
-																	<button type="button" class="btn btn-xs btn-danger pull-right">입금확인중</button>
-														<?php
-															}
-														?>
+															<li><?php echo html_escape(element('cde_title', $detail)) . ' ' . element('cod_count', $detail);?>개 
+															<?php 
+																if(element('cde_price', $detail)!=0){
+															?>
+															(+<?php echo number_format(element('cde_price', $detail)); ?>
+																	
+																	<?php
+																		if($result['cor_pay_type']=="c"){
+																			echo "개";
+																		}else{
+																			echo "원";
+																		}
+																	?>
+															
+															)
+															<?php
+																}
+															?>
 															</li>
 														<?php
 														$total_num += element('cod_count', $detail);
@@ -119,28 +132,6 @@
 												<td class="text-center"><?php echo number_format($total_num); ?></td>
 												<td><?php echo number_format(element('cit_price', element('item', $row))); ?></td>
 												<td><?php echo number_format($total_price); ?><input type="hidden" name="total_price[<?php echo element('cit_id', element('item', $row)); ?>]" value="<?php echo $total_price; ?>"></td>
-												<td>
-													<?php
-													if (element('cod_download_days', $detail)) {
-														echo '구매후 ' . element('cod_download_days', $detail) . '일간 ( ~ ' . element('download_end_date', element('item', $row)) . ' 까지)';
-													} else {
-														echo '기간제한없음';
-													}
-													?>
-													<div class="cor-id-cit-id-<?php echo element('cor_id', $result); ?>-<?php echo element('cit_id', element('item', $row)); ?>" style="display:none;">
-														<?php
-														$attributes = array('class' => 'form-inline', 'name' => 'forderlist');
-														echo form_open(current_full_url(), $attributes);
-														?>
-															<input type="hidden" name="cor_id" value="<?php echo element('cor_id', $result); ?>" />
-															<input type="hidden" name="mem_id" value="<?php echo element('mem_id', $result); ?>" />
-															<input type="hidden" name="cit_id" value="<?php echo element('cit_id', element('item', $row)); ?>" />
-															<input type="number" name="cod_download_days" class="form-control" value="<?php echo element('cod_download_days', $detail); ?>" />
-															<button class="btn btn-xs btn-primary" type="submit" >저장</button>
-														<?php echo form_close(); ?>
-													</div>
-												</td>
-												<td><button class="btn btn-xs btn-primary btn-download-days-modify" data-cor-id-cit-id="<?php echo element('cor_id', $result); ?>-<?php echo element('cit_id', element('item', $row)); ?>">다운로드 기간변경</button></td>
 											</tr>
 										<?php
 										}
