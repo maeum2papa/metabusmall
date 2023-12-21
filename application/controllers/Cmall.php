@@ -1748,13 +1748,20 @@ class Cmall extends CB_Controller
 		// 이벤트가 존재하면 실행합니다
 		Events::trigger('step2', $eventname);
 
+		//아이템만 포함된 주문이면 연락처 무시 처리를 위함
+		if($this->input->post('mem_phone')=="010-4321-4321"){
+			$mem_phone = "";
+		}else{
+			$mem_phone = $this->input->post('mem_phone', null, '');
+		}
+		
 		// 정보 입력
 		$cor_id = $this->session->userdata('unique_id');
 		$insertdata['cor_id'] = $cor_id;
 		$insertdata['mem_id'] = $mem_id;
 		$insertdata['mem_nickname'] = $this->member->item('mem_nickname');
 		$insertdata['mem_email'] = $this->input->post('mem_email', null, '');
-		$insertdata['mem_phone'] = $this->input->post('mem_phone', null, '');
+		$insertdata['mem_phone'] = $mem_phone;
 		$insertdata['cor_pay_type'] = $this->input->post('pay_type', null, '');
 		$insertdata['cor_content'] = $this->input->post('cor_content', null, '');
 		$insertdata['cor_ip'] = $this->input->ip_address();

@@ -143,10 +143,12 @@ $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css
 							<span class="customer_info_title">주문자명</span>
 							<span class="customer_info_content"><?php echo html_escape(element('mem_realname', element('data', $view))); ?></span>
 						</div>
+						<?php if($view['data']['mem_phone']!=''){?>
 						<div class="customer_info">
 							<span class="customer_info_title">휴대폰번호</span>
 							<span class="customer_info_content"><?php echo html_escape(element('mem_phone', element('data', $view))); ?></span>
 						</div>
+						<?php } ?>
 						<div class="customer_info">
 							<span class="customer_info_title">이메일</span>
 							<span class="customer_info_content"><?php echo html_escape(element('mem_email', element('data', $view))); ?></span>

@@ -32,8 +32,12 @@
 
 		<?php
 		$total_price_sum = 0;
+		$item_item_count = 0;
 		if (element('data', $view)) {
 			foreach (element('data', $view) as $result) {
+				if($result['cit_item_type'] == "i"){
+					$item_item_count++;
+				}
 		?>
 			<li>
 	
@@ -146,10 +150,21 @@
 					<label class="control-label">이메일</label>
 					<input type="email" name="mem_email" class="form-control" value="<?php echo $this->member->item('mem_email'); ?>" />
 				</div>
-				<div class="form-group">
-					<label class="control-label">휴대폰</label>
-					<input type="text" name="mem_phone" class="form-control" value="<?php echo $this->member->item('mem_phone'); ?>" />
-				</div>
+				<?php
+					if($item_item_count == count($view['data'])){
+						?>
+						<input type="hidden" name="mem_phone" class="form-control" value="010-4321-4321" />
+						<?php
+					}else{
+						?>
+						<div class="form-group">
+							<label class="control-label">휴대폰</label>
+							<input type="text" name="mem_phone" class="form-control" value="<?php echo $this->member->item('mem_phone'); ?>" />
+						</div>
+						<?php
+					}
+				?>
+				
 				<?php
 				if(element('input_address', $view)=='y'){
 				?>
@@ -319,7 +334,7 @@
 					</div>
 					<?php
 					if ($this->cbconfig->item('use_payment_pg')) {
-	
+						
 						if(element('cor_pay_type',$view)=='f'){
 							if(($total_price_sum / element('company_coin_value',$view)) > $this->member->item('mem_cur_fruit')){
 								?><h5><?php echo cmsg("2103");?></h5><?php
