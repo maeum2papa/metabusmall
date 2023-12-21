@@ -70,21 +70,21 @@
 							</ul>
 							<div class="col-xs-12 col-md-4 prd-price">
 								<div><span>수량 :</span> <?php echo number_format($total_num); ?> 개</div>
-								<div><span>판매가 : </span>
+								<div><span>상품단가 : </span>
 									<?php
 										if(element('fruit_cit_price', $result)){
-											echo number_format(element('fruit_cit_price', $result));
+											echo "열매 ".number_format(element('fruit_cit_price', $result));
 										}else{
-											echo number_format(element('cit_price', $result));
+											echo "코인 ".number_format(element('cit_price', $result));
 										}
 									?>
 								개</div>
-								<div class="prd-total"><span>소계 : </span> <strong>
+								<div class="prd-total"><span>합계 : </span> <strong>
 									<?php
 									if(element('cor_pay_type',$view) == 'f'){
-										echo number_format($total_price/element('company_coin_value', $result));
+										echo "열매 ".number_format($total_price/element('company_coin_value', $result));
 									}else{
-										echo number_format($total_price);
+										echo "코인 ".number_format($total_price);
 									}
 									?>
 								<input type="hidden" name="total_price[<?php echo element('cit_id', $result); ?>]" value="<?php echo $total_price; ?>" /></strong> 개</div>

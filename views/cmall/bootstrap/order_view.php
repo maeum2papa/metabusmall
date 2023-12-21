@@ -105,18 +105,18 @@ $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css
 
 								<div class="col-xs-12 col-md-3 prd-price">
 									<div><span>수량 :</span> <?php echo number_format($total_num); ?> 개</div>
-									<div><span>판매가 :</span> <?php
+									<div><span>상품단가 :</span> <?php
 										if($view['data']['cor_pay_type'] == 'f'){
-											echo number_format(element('cit_price', $detail) / $view['data']['company_coin_value']);
+											echo "열매 ".number_format(element('cit_price', $detail) / $view['data']['company_coin_value']);
 										}else if($view['data']['cor_pay_type'] == 'c'){
-											echo number_format(element('cit_price', $detail));
+											echo "코인 ".number_format(element('cit_price', $detail));
 										}
 									?> 개</div>
-									<div class="prd-total"><span>소계 :</span> <strong><?php
+									<div class="prd-total"><span>합계 :</span> <strong><?php
 										if($view['data']['cor_pay_type'] == 'f'){
-											echo number_format($total_price / $view['data']['company_coin_value']);
+											echo "열매 ".number_format($total_price / $view['data']['company_coin_value']);
 										}else if($view['data']['cor_pay_type'] == 'c'){
-											echo number_format($total_price);
+											echo "코인 ".number_format($total_price);
 										}
 									?><input type="hidden" name="total_price[<?php echo element('cit_id', element('item', $result)); ?>]" value="<?php echo $total_price; ?>" /></strong> 개</div>
 									
