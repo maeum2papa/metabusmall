@@ -194,7 +194,7 @@
 									<span>
 										( 최대
 										<?php
-										$max_f = min((int) $this->member->item('mem_cur_fruit'), $total_price_sum);
+										$max_f = min((int) $this->member->item('mem_cur_fruit') * element('company_coin_value',$view), $total_price_sum);
 										echo number_format($max_f / element('company_coin_value',$view));
 										?>
 										개 까지 사용 가능 )
@@ -239,7 +239,7 @@
 								<?php
 									if($total_price_sum <= $this->member->item('mem_point')){
 										?>
-										<span class="info-tit">사용 코인 </span> <input type="text" name="order_coin" id="order_coin" class="form-control px100" value="<?php echo $max_c; ?>"  readonly/> 원
+										<span class="info-tit">사용 코인 </span> <input type="text" name="order_coin" id="order_coin" class="form-control px100" value="<?php echo $max_c; ?>"  readonly/> 개
 										<?php
 									}
 								?>
@@ -316,10 +316,6 @@
 							<input type="radio" name="pay_type" value="c" id="pay_type_c" /> 코인
 						</label>
 	
-					</div>
-					<div class="alert alert-success bank-info">
-						<div><strong>계좌안내</strong></div>
-						<div><?php echo nl2br($this->cbconfig->item('payment_bank_info')); ?> </div>
 					</div>
 					<?php
 					if ($this->cbconfig->item('use_payment_pg')) {
