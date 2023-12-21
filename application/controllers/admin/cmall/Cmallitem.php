@@ -88,21 +88,91 @@ class Cmallitem extends CB_Controller
 		$offset = ($page - 1) * $per_page;
 
 		//삭제 플래그 y 제외
-		$where['cit_del_flag'] = "n";
+		$where['cb_cmall_item.cit_del_flag'] = "n";
 
 		//기업관리자
 		if($this->session->userdata['mem_admin_flag']!=0){
 			$where['company_idx'] = $this->session->userdata['company_idx'];
 		}
+
+		if($this->input->get('search_datetime_start')){
+			$where['cit_datetime >='] = $this->input->get('search_datetime_start').' 00:00:00';
+		}
+
+		if($this->input->get('search_datetime_end')){
+			$where['cit_datetime <='] = $this->input->get('search_datetime_end').' 23:59:59';
+		}	
 		
+		if($this->input->get("cit_type1")){
+			if($this->input->get("cit_type1") == 1){
+				$where["cb_cmall_item.cit_type1"] = 1;
+			}else if($this->input->get("cit_type1") == 2){
+				$where["cb_cmall_item.cit_type1"] = 0;
+			}	
+		}
+
+		if($this->input->get("cit_status")){
+			if($this->input->get("cit_status") == 1){
+				$where["cb_cmall_item.cit_status"] = 1;
+			}else if($this->input->get("cit_status") == 2){
+				$where["cb_cmall_item.cit_status"] = 0;
+			}	
+		}
+
+		if($this->input->get("cit_item_type")){
+			$cit_item_types = array();
+			foreach($this->input->get("cit_item_type") as $k=>$v){
+				$cit_item_types[] = $v;
+			}			
+
+			$where["cit_item_type in('".implode("','",$cit_item_types)."')"] = null;
+			// SQL : cit_item_type in('i')
+		}
+
+		if($this->input->get("cmall_category")){
+			$cmall_categorys = array();
+			foreach($this->input->get("cmall_category") as $k=>$v){
+				$cmall_categorys[] = $v;
+			}			
+
+			$where["tmptable.min_cca_id in('".implode("','",$cmall_categorys)."')"] = null;
+			// SQL : cit_item_type in('i')
+		}
+
+		if($this->input->get("search_item_value")!=""){
+			$search_item_value = $this->input->get("search_item_value");
+			$like["cb_cmall_item.".$this->input->get("search_item_key")] = $search_item_value;
+		}
+
+		if($this->input->get("company_idx")){
+			$company_idxs = array();
+			foreach($this->input->get("company_idx") as $k=>$v){
+				$company_idxs[] = $v;
+			}
+			$where["cb_cmall_item.company_idx in('".implode("','",$company_idxs)."')"] = null;
+		}
+
 		/**
 		 * 게시판 목록에 필요한 정보를 가져옵니다.
 		 */
 		$this->{$this->modelname}->allow_search_field = array('cit_id', 'cit_key', 'cit_name', 'cit_datetime', 'cit_updated_datetime', 'cit_content', 'cit_mobile_content', 'cit_price'); // 검색이 가능한 필드
 		$this->{$this->modelname}->search_field_equal = array('cit_id', 'cit_price'); // 검색중 like 가 아닌 = 검색을 하는 필드
 		$this->{$this->modelname}->allow_order_field = array('cit_id', 'cit_key', 'cit_order', 'cit_name', 'cit_datetime', 'cit_updated_datetime', 'cit_hit', 'cit_sell_count', 'cit_price'); // 정렬이 가능한 필드
+		// $result = $this->{$this->modelname}
+		// 	->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
+		
+		$join = array(
+			"table"=>"(
+				SELECT `cit_id`, MIN(`cca_id`) AS min_cca_id
+				FROM `cb_cmall_category_rel`
+				GROUP BY `cit_id`
+			) AS tmptable",
+			"on"=>"cb_cmall_item.cit_id = tmptable.cit_id",
+			"type"=>"left"
+		);
+		
 		$result = $this->{$this->modelname}
-			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
+			->_get_list_common('cb_cmall_item.*', $join, $per_page, $offset, $where, $like, $findex, $forder, $sfield, $skeyword);
 		
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		if (element('list', $result)) {
@@ -134,6 +204,14 @@ class Cmallitem extends CB_Controller
 		}
 
 		$view['view']['data'] = $result;
+
+		if($this->session->userdata['mem_admin_flag']==0){
+			$this->load->model("Company_info_model");
+			$forder = "company_name asc";
+			$where = array();
+			$companys =$this->Company_info_model->get_admin_list(0, 9999999999999, $where, '', null, $forder, null, null);
+			$view['view']['data']['companys'] = $companys['list'];
+		}
 
 		/**
 		 * primary key 정보를 저장합니다

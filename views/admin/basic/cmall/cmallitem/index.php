@@ -1,10 +1,11 @@
+<style type="text/css">
+#search_form th{padding:10px;}
+#search_form td{padding:10px;}
+</style>
+
 <div class="box">
 	<div class="box-table">
-		<?php
-		echo show_alert_message($this->session->flashdata('message'), '<div class="alert alert-auto-close alert-dismissible alert-info"><button type="button" class="close alertclose" >&times;</button>', '</div>');
-		$attributes = array('class' => 'form-inline', 'name' => 'flist', 'id' => 'flist');
-		echo form_open(current_full_url(), $attributes);
-		?>
+		
 			<div class="box-table-header">
 				<?php
 				ob_start();
@@ -20,6 +21,121 @@
 				ob_end_flush();
 				?>
 			</div>
+			
+			<div>
+			<form id="search_form" method="get" enctype="multipart/form-data">
+				<table>
+					<tr>
+						<th>등록일자</th>
+						<td>
+							<input type="date" name="search_datetime_start" value="<?php echo substr($this->input->get('search_datetime_start'),0,10);?>" class="form-control px140"> - 
+							<input type="date" name="search_datetime_end" value="<?php echo substr($this->input->get('search_datetime_end'),0,10);?>" class="form-control px140">
+						</td>
+					</tr>
+					<tr>
+						<th>추천상품</th>
+						<td>
+							<div class="radio-inline">
+								<input type="radio" name="cit_type1" value="" id="cit_type1_null" <?php echo ($this->input->get("cit_type1") == "" || !$this->input->get("cit_type1"))?"checked":"";?>> <label for="cit_type1_null">전체</label>
+							</div>
+							<div class="radio-inline">
+								<input type="radio" name="cit_type1" value="1" id="cit_type1_1" <?php echo ($this->input->get("cit_type1") == 1)?"checked":"";?>> <label for="cit_type1_1">사용</label>
+							</div>
+							<div class="radio-inline">
+								<input type="radio" name="cit_type1" value="2" id="cit_type1_2" <?php echo ($this->input->get("cit_type1") == 2)?"checked":"";?>> <label for="cit_type1_2">미사용</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>판매여부</th>
+						<td>
+						<div class="radio-inline">
+								<input type="radio" name="cit_status" value="" id="cit_status_null" <?php echo ($this->input->get("cit_status") == "" || !$this->input->get("cit_type1"))?"checked":"";?>> <label for="cit_status_null">전체</label>
+							</div>
+							<div class="radio-inline">
+								<input type="radio" name="cit_status" value="1" id="cit_status_1" <?php echo ($this->input->get("cit_status") == 1)?"checked":"";?>> <label for="cit_status_1">판매중</label>
+							</div>
+							<div class="radio-inline">
+								<input type="radio" name="cit_status" value="2" id="cit_status_2" <?php echo ($this->input->get("cit_status") == 2)?"checked":"";?>> <label for="cit_status_2">미판매중</label>
+							</div>
+						</td>
+					</tr>
+					<?php 
+					if($this->session->userdata["mem_admin_flag"]==0){
+					?>
+					<tr>
+						<th>상품구분</th>
+						<td>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cit_item_type[]" value="b" id="cit_item_type_b" <?php echo (in_array("b",$this->input->get("cit_item_type")))?"checked":"";?>> <label for="cit_item_type_b">기본</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cit_item_type[]" value="i" id="cit_item_type_i" <?php echo (in_array("i",$this->input->get("cit_item_type")))?"checked":"";?>> <label for="cit_item_type_i">아이템</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cit_item_type[]" value="g" id="cit_item_type_g" <?php echo (in_array("g",$this->input->get("cit_item_type")))?"checked":"";?>> <label for="cit_item_type_g">기프티콘</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>카테고리</th>
+						<td>
+							<?php
+								$config_item = config_item("custom");
+							?>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cmall_category[]" value="<?php echo $config_item['category']['basic'];?>" id="cmall_category_0" <?php echo (in_array($config_item['category']['basic'],$this->input->get("cmall_category")))?"checked":"";?>> <label for="cmall_category_0">공용몰</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cmall_category[]" value="<?php echo $config_item['category']['item'];?>" id="cmall_category_1" <?php echo (in_array($config_item['category']['item'],$this->input->get("cmall_category")))?"checked":"";?>> <label for="cmall_category_1">아이템몰</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cmall_category[]" value="<?php echo $config_item['category']['company'];?>" id="cmall_category_2" <?php echo (in_array($config_item['category']['company'],$this->input->get("cmall_category")))?"checked":"";?>> <label for="cmall_category_2">기업몰</label>
+							</div>
+						</td>
+					</tr>
+					<?php }?>
+					<tr>
+						<th>상품정보</th>
+						<td>
+							<select class="form-control px140" name="search_item_key">
+								<option value="cit_name" >상품명</option>
+								<option value="cit_key" <?php echo ($this->input->get("search_item_key")=="cit_key")?"selected":"";?>>상품코드</option>
+							</select>
+							<input type="text" name="search_item_value" value="<?php echo $this->input->get("search_item_value");?>" class="form-control px300">
+						</td>
+					</tr>
+					<?php 
+					if($this->session->userdata["mem_admin_flag"]==0){
+					?>
+					<tr>
+						<th>기업</th>
+						<td>
+							<?php
+								foreach($view['data']['companys'] as $k=>$v){
+									?>
+									<div class="checkbox-inline">
+										<input type="checkbox" name="company_idx[]" value="<?php echo $v['company_idx'];?>" id="company_idx_<?php echo $k+1;?>" <?php echo (in_array($v['company_idx'],$this->input->get("company_idx")))?"checked":"";?>> <label for="company_idx_<?php echo $k+1;?>"><?php echo $v['company_name'];?></label>
+									</div>
+									<?php
+								}
+							?>
+						</td>
+					</tr>
+					<?php }?>
+				</table>
+				<div class="mt10">
+					<button class="btn btn-outline btn-default btn-sm" type="submit">검색</button>
+				</div>
+			</form>
+			</div>
+			<hr></hr>
+
+		<?php
+		echo show_alert_message($this->session->flashdata('message'), '<div class="alert alert-auto-close alert-dismissible alert-info"><button type="button" class="close alertclose" >&times;</button>', '</div>');
+		$attributes = array('class' => 'form-inline', 'name' => 'flist', 'id' => 'flist');
+		echo form_open(current_full_url(), $attributes);
+		?>
 			<div class="row">전체 : <?php echo element('total_rows', element('data', $view), 0); ?>건</div>
 			<div class="table-responsive">
 				<table class="table table-hover table-striped table-bordered">
@@ -141,21 +257,4 @@
 			</div>
 		<?php echo form_close(); ?>
 	</div>
-	<form name="fsearch" id="fsearch" action="<?php echo current_full_url(); ?>" method="get">
-		<div class="box-search">
-			<div class="row">
-				<div class="col-md-6 col-md-offset-3">
-					<select class="form-control" name="sfield" >
-						<?php echo element('search_option', $view); ?>
-					</select>
-					<div class="input-group">
-						<input type="text" class="form-control" name="skeyword" value="<?php echo html_escape(element('skeyword', $view)); ?>" placeholder="Search for..." />
-						<span class="input-group-btn">
-							<button class="btn btn-default btn-sm" name="search_submit" type="submit">검색!</button>
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
-	</form>
 </div>
