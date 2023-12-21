@@ -252,12 +252,13 @@ class Cmallorder extends CB_Controller
 		}
 		$view['view']['data'] = $result;
 		
-
+		if($this->session->userdata['mem_admin_flag']==0){
 		$this->load->model("Company_info_model");
 		$forder = "company_name asc";
 		$where = array();
 		$companys =$this->Company_info_model->get_admin_list(0, 9999999999999, $where, '', null, $forder, null, null);
 		$view['view']['data']['companys'] = $companys['list'];
+		}
 
 		/**
 		 * primary key 정보를 저장합니다

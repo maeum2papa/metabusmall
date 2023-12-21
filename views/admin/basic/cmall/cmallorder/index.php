@@ -84,6 +84,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						<th>주문번호</th>
 						<td><input type="text" name="cor_id" value="<?php echo $this->input->get("cor_id");?>" class="form-control"></td>
 					</tr>
+					<?php if($this->session->userdata['mem_admin_flag']==0){?>
 					<tr>
 						<th>기업</th>
 						<td>
@@ -98,6 +99,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							?>
 						</td>
 					</tr>
+					<?php }?>
 				</table>
 				<div class="mt10">
 					<button class="btn btn-outline btn-default btn-sm" type="submit">검색</button>
