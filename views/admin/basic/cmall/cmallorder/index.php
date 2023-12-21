@@ -7,6 +7,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 .table.table-border-none td{border:0;}
 .status-options {display:flex; align-items: center; justify-content: flex-end;}
 .status-options button{border-radius:3px;}
+#search_form th{padding:10px;}
+#search_form td{padding:10px;}
 </style>
 
 <div class="box">
@@ -51,6 +53,49 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							</select>
 							<input type="date" name="search_datetime_start" value="<?php echo substr($view['search']['search_datetime_start'],0,10);?>" class="form-control px140"> - 
 							<input type="date" name="search_datetime_end" value="<?php echo substr($view['search']['search_datetime_end'],0,10);?>" class="form-control px140">
+						</td>
+					</tr>
+					<tr>
+						<th>주문상태</th>
+						<td>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="status[]" value="order" id="status_order" <?php echo (in_array("order",$this->input->get("status")))?"checked":"";?>> <label for="status_order">주문확인</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="status[]" value="end" id="status_end" <?php echo (in_array("end",$this->input->get("status")))?"checked":"";?>> <label for="status_end">발송완료</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="status[]" value="cancel" id="status_cancel" <?php echo (in_array("cancel",$this->input->get("status")))?"checked":"";?>> <label for="status_cancel">주문취소</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>주문자정보</th>
+						<td>
+							<select class="form-control px140" name="search_order_key">
+								<option value="mem_phone" >주문자 연락처</option>
+								<option value="mem_email" <?php echo ($this->input->get("search_order_key")=="mem_email")?"selected":"";?>>주문자 이메일</option>
+								<option value="mem_realname" <?php echo ($this->input->get("search_order_key")=="mem_realname")?"selected":"";?>>주문자 이름</option>
+							</select>
+							<input type="text" name="search_order_value" value="<?php echo $this->input->get("search_order_value");?>" class="form-control px300">
+						</td>
+					</tr>
+					<tr>
+						<th>주문번호</th>
+						<td><input type="text" name="cor_id" value="<?php echo $this->input->get("cor_id");?>" class="form-control"></td>
+					</tr>
+					<tr>
+						<th>기업</th>
+						<td>
+							<?php
+								foreach($view['data']['companys'] as $k=>$v){
+									?>
+									<div class="checkbox-inline">
+										<input type="checkbox" name="company_idx[]" value="<?php echo $v['company_idx'];?>" id="company_idx_<?php echo $k+1;?>" <?php echo (in_array($v['company_idx'],$this->input->get("company_idx")))?"checked":"";?>> <label for="company_idx_<?php echo $k+1;?>"><?php echo $v['company_name'];?></label>
+									</div>
+									<?php
+								}
+							?>
 						</td>
 					</tr>
 				</table>
@@ -224,7 +269,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					if ( ! element('list', element('data', $view))) {
 					?>
 						<tr>
-							<td colspan="10" class="nopost">자료가 없습니다</td>
+							<td colspan="13" class="nopost">자료가 없습니다</td>
 						</tr>
 					<?php
 					}
@@ -308,20 +353,53 @@ document.getElementById('export_to_excel').addEventListener("click",function(){
     search_datetime_type.type = 'hidden';
     search_datetime_type.name = 'search_datetime_type';
     search_datetime_type.value = search_form.search_datetime_type.value;
+	form.appendChild(search_datetime_type);
 
 	var search_datetime_start = document.createElement('input');
     search_datetime_start.type = 'hidden';
     search_datetime_start.name = 'search_datetime_start';
     search_datetime_start.value = search_form.search_datetime_start.value;
+	form.appendChild(search_datetime_start);
 
 	var search_datetime_end = document.createElement('input');
     search_datetime_end.type = 'hidden';
     search_datetime_end.name = 'search_datetime_end';
     search_datetime_end.value = search_form.search_datetime_end.value;
-
-	form.appendChild(search_datetime_type);
-	form.appendChild(search_datetime_start);
 	form.appendChild(search_datetime_end);
+
+	document.querySelectorAll("[name='status[]']:checked").forEach(element=>{
+		var search_status = document.createElement('input');
+		search_status.type = 'hidden';
+		search_status.name = 'status[]';
+		search_status.value = element.value;
+		form.appendChild(search_status);
+	});
+
+	var search_order_key = document.createElement('input');
+    search_order_key.type = 'hidden';
+    search_order_key.name = 'search_order_key';
+    search_order_key.value = search_form.search_order_key.value;
+	form.appendChild(search_order_key);
+
+	var search_order_value = document.createElement('input');
+    search_order_value.type = 'hidden';
+    search_order_value.name = 'search_order_value';
+    search_order_value.value = search_form.search_order_value.value;
+	form.appendChild(search_order_value);
+
+	var cor_id = document.createElement('input');
+    cor_id.type = 'hidden';
+    cor_id.name = 'cor_id';
+    cor_id.value = search_form.cor_id.value;
+	form.appendChild(cor_id);
+
+	document.querySelectorAll("[name='company_idx[]']:checked").forEach(element=>{
+		var company_idx = document.createElement('input');
+		company_idx.type = 'hidden';
+		company_idx.name = 'company_idx[]';
+		company_idx.value = element.value;
+		form.appendChild(company_idx);
+	});
 
 	document.body.appendChild(form);
 

@@ -167,6 +167,8 @@ class Cmallorder extends CB_Controller
 		$view['view']['search']['search_datetime_type'] = $search_datetime_type;
 		$where[$search_datetime_type.' >='] = $view['view']['search']['search_datetime_start'] = $start_date;
 		$where[$search_datetime_type.' <='] = $view['view']['search']['search_datetime_end'] = $end_date;
+		// SQL : cor_datetime = <= '2023-12-19'
+
 		
 		if ($this->input->get('cor_pay_type')) {
 			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
@@ -177,10 +179,40 @@ class Cmallorder extends CB_Controller
 			$where['cb_cmall_order.company_idx'] = $this->session->userdata['company_idx'];
 		}
 
-		/** 상세 검색 end */
 		
+		if($this->input->get("status")){
+			$statuss = array();
+			foreach($this->input->get("status") as $k=>$v){
+				$statuss[] = $v;
+			}			
+
+			$where["status in('".implode("','",$statuss)."')"] = null;
+			// SQL : status in('order')
+		}
+
+		if($this->input->get("search_order_value")!=""){
+			$search_order_value = $this->input->get("search_order_value");
+			if($this->input->get("search_order_key")=="mem_phone"){
+				$search_order_value = str_replace("-","",$this->input->get("search_order_value"));
+			}
+			$like["cb_cmall_order.".$this->input->get("search_order_key")] = $search_order_value;
+		}
+
+		if($this->input->get("cor_id")!=""){
+			$where["cor_id"] = $this->input->get("cor_id");
+		}
+
+		if($this->input->get("company_idx")){
+			$company_idxs = array();
+			foreach($this->input->get("company_idx") as $k=>$v){
+				$company_idxs[] = $v;
+			}
+			$where["cb_cmall_order.company_idx in('".implode("','",$company_idxs)."')"] = null;
+		}
+		
+		/** 상세 검색 end */
 		$result = $this->{$this->modelname}
-			->get_admin_list($per_page, $offset, $where, '', $findex, $forder, $sfield, $skeyword);
+			->get_admin_list($per_page, $offset, $where, $like, $findex, $forder, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		// debug($result);
 		if (element('list', $result)) {
@@ -219,7 +251,13 @@ class Cmallorder extends CB_Controller
 			}
 		}
 		$view['view']['data'] = $result;
+		
 
+		$this->load->model("Company_info_model");
+		$forder = "company_name asc";
+		$where = array();
+		$companys =$this->Company_info_model->get_admin_list(0, 9999999999999, $where, '', null, $forder, null, null);
+		$view['view']['data']['companys'] = $companys['list'];
 
 		/**
 		 * primary key 정보를 저장합니다
@@ -1032,9 +1070,39 @@ class Cmallorder extends CB_Controller
 			$where['cb_cmall_order.company_idx'] = $this->session->userdata['company_idx'];
 		}
 
+		if($this->input->get("status")){
+			$statuss = array();
+			foreach($this->input->get("status") as $k=>$v){
+				$statuss[] = $v;
+			}			
+
+			$where["status in('".implode("','",$statuss)."')"] = null;
+			// SQL : status in('order')
+		}
+
+		if($this->input->get("search_order_value")!=""){
+			$search_order_value = $this->input->get("search_order_value");
+			if($this->input->get("search_order_key")=="mem_phone"){
+				$search_order_value = str_replace("-","",$this->input->get("search_order_value"));
+			}
+			$like["cb_cmall_order.".$this->input->get("search_order_key")] = $search_order_value;
+		}
+
+		if($this->input->get("cor_id")!=""){
+			$where["cor_id"] = $this->input->get("cor_id");
+		}
+
+		if($this->input->get("company_idx")){
+			$company_idxs = array();
+			foreach($this->input->get("company_idx") as $k=>$v){
+				$company_idxs[] = $v;
+			}
+			$where["cb_cmall_order.company_idx in('".implode("','",$company_idxs)."')"] = null;
+		}
+
 		/** 상세 검색 end */
 		$result = $this->{$this->modelname}
-			->get_admin_list(0, 9999999999999, $where, '', $findex, $forder, $sfield, $skeyword);
+			->get_admin_list(0, 9999999999999, $where, $like, $findex, $forder, $sfield, $skeyword);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		
 		if (element('list', $result)) {
