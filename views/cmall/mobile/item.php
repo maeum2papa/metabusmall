@@ -1,6 +1,19 @@
 <?php $this->managelayout->add_css(element('view_skin_url', $layout) . '/css/style.css'); ?>
 <?php $this->managelayout->add_js(base_url('assets/js/cmallitem.js')); ?>
 
+<style>
+/* 주문 테스트를 위한 임시 스타일로 모바일 퍼블리싱 시 삭제해도 됨 20231222*/
+@media(max-width:375px){
+	#asmo_item_detail_wrap .market .product-box{
+		display:block;
+	}
+
+	#asmo_item_detail_wrap .product-right{
+		width:auto;
+	}
+}
+</style>
+
 <div class="market" id="asmo_item_detail_wrap">
 	
 	<!-- 몰 상단 공통 요소  -->
