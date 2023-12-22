@@ -932,7 +932,7 @@ class Cmallorder extends CB_Controller
 						}
 					}
 
-					if($v2['item']['cit_stock_type'] == 'i'){
+					if($v2['item']['cit_item_type'] == 'i'){
 						alert("아이템 상품이 포함되어 상태를 변경할 수 없습니다. 상태 변경을 중지 합니다.(주문번호 : ".$cor_id.")");
 						exit;
 					}
