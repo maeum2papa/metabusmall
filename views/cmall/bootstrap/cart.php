@@ -27,7 +27,7 @@
 		
 			<!-- asmo sh 231214 체크박스 및 선택삭제 버튼 감싸는 .all-chk_box 생성 -->
 				<div class="all-chk_box">
-					<div class="all-chk"><input type="checkbox" name="chkallf" id="chkallf" checked="checked" /> <label for="chkallf">열매상품 전체선택</label></div>
+					<div class="all-chk"><input type="checkbox" name="chkallf" id="chkallf"/> <label for="chkallf">열매상품 전체선택</label></div>
 					<button type="button" class="btn btn-outline btn-default btn-sm btn-list-delete btn-list-selected" data-list-delete-url = "<?php echo element('list_delete_url', $view); ?>" >선택상품 삭제</button>
 				</div>
 
@@ -46,13 +46,13 @@
 							<div class="cart_chk_name_box">
 								<?php if(soldoutYn($result['cit_id'])=='y'){?>
 									<div class="prd-chk">
-										<input type="checkbox" name="chk[]" class="list-chkbox" id="<?php echo element('cit_id', $result); ?>" value="<?php echo element('cit_id', $result); ?>" checked="checked" disabled/>
+										<input type="checkbox" name="chk[]" class="list-chkbox" id="<?php echo element('cit_id', $result); ?>" value="<?php echo element('cit_id', $result); ?>" disabled/>
 										<label for="<?php echo element('cit_id', $result); ?>"></label>
 									</div>
 									<!-- <div><h1>품절</h1></div> -->
 								<?php }else{ ?>
 									<div class="prd-chk">
-										<input type="checkbox" name="chk[]" class="list-chkbox" id="<?php echo element('cit_id', $result); ?>" value="<?php echo element('cit_id', $result); ?>" checked="checked"/>
+										<input type="checkbox" name="chk[]" class="list-chkbox" id="<?php echo element('cit_id', $result); ?>" value="<?php echo element('cit_id', $result); ?>"/>
 										<label for="<?php echo element('cit_id', $result); ?>"></label>
 									</div>
 								<?php } ?>
@@ -189,7 +189,7 @@
 			<div class="cart_fixed_box_wrap">
 				<div class="cart_fixed_box">
 					<div class="well well-sm">
-						<div class="total_price">총 결제액 <strong><span class="checked_price"><?php echo number_format($total_price_sum); ?></span> 개</strong></div>
+						<div class="total_price">총 결제액 <strong><span class="checked_price">0</span> 개</strong></div>
 					</div>
 					<button type="button" class="btn btn-black btn-list-selected pull-right btn-order" >주문하기</button>
 				</div>
@@ -216,23 +216,8 @@ $(document).ready(function() {
 
 
 //<![CDATA[
-
 jQuery(function($) {
 	var close_btn_idx;
-
-	function item_sum(){
-		var sum = 0;
-		$('.list-chkbox:checked').each(function () {
-			sum += parseInt($("input[name='total_price[" + $(this).val() + "]']").val());
-		});
-		$('.checked_price').text(number_format(sum.toString()));
-	}
-
-	$(document).on('change', '.list-chkbox', function() {
-		item_sum();
-	});
-
-	item_sum();
 
 	// 선택사항수정
 	$(document).on('click', '.change_option', function() {
@@ -267,45 +252,6 @@ jQuery(function($) {
 	});
 
 
-	$('#chkallf').on('click',function(){
-
-		if ($(this).is(':checked')) {
-			$('.f-area input[name="chk[]"]').attr('checked', true);
-			$('.c-area input[name="chk[]"]').attr('checked', false);
-			$('#chkallc').attr('checked',false);
-		} else {
-			$('.f-area input[name="chk[]"]').attr('checked', false);
-		}
-
-	});
-
-
-	$('#chkallc').on('click',function(){
-
-		if ($(this).is(':checked')) {
-			$('.c-area input[name="chk[]"]').attr('checked', true);
-			$('.f-area input[name="chk[]"]').attr('checked', false);
-			$('#chkallf').attr('checked',false);
-		} else {
-			$('.c-area input[name="chk[]"]').attr('checked', false);
-		}
-		
-	});
-
-
-	$('.f-area input[name="chk[]"]').click(function(){
-		if ($(this).is(':checked')) {
-			$('.c-area input[name="chk[]"]').attr('checked', false);
-		}
-	});
-
-	$('.c-area input[name="chk[]"]').click(function(){
-		if ($(this).is(':checked')) {
-			$('.f-area input[name="chk[]"]').attr('checked', false);
-		}
-	});
-
-
 	$(".btn-order").click(function(){
 
 		fcount = $('.f-area input[name="chk[]"]:checked').length;
@@ -336,4 +282,120 @@ jQuery(function($) {
 	});
 });
 //]]>
+
+
+
+
+
+
+function page_load(){
+
+	if(document.querySelector("#chkallf").checked){
+		f_input_checked(true);
+	}else if(document.querySelector("#chkallc").checked){
+		c_input_checked(true);
+  	}else{
+		document.querySelectorAll(".list-chkbox:checked").forEach(element => {
+			element.checked = false;
+		});
+
+		document.querySelectorAll(".f-area [name='chk[]']:not(:disabled)").forEach(element => {
+			element.checked = false;
+		});
+
+		document.querySelectorAll(".c-area [name='chk[]']:not(:disabled)").forEach(element => {
+			element.checked = false;
+		});
+	}
+
+	function item_sum(){
+		var sum = 0;
+		document.querySelectorAll(".list-chkbox:checked").forEach(element => {
+			sum += parseInt(document.querySelector("[name='total_price["+element.value+"]']").value);
+		});
+		
+		document.querySelector(".checked_price").innerHTML = number_format(sum.toString());
+	}
+
+	function f_input_checked(data){
+		document.querySelectorAll(".f-area [name='chk[]']:not(:disabled)").forEach(element => {
+			element.checked = data;
+		});
+
+		if(data == false){
+			document.querySelector("#chkallf").checked = false;
+		}
+
+		item_sum();
+	}
+
+	function c_input_checked(data){
+		document.querySelectorAll(".c-area [name='chk[]']:not(:disabled)").forEach(element => {
+			element.checked = data;
+		});
+
+		if(data == false){
+			document.querySelector("#chkallc").checked = false;
+		}
+
+		item_sum();
+	}
+
+	function fc_input_checked_update(){
+
+		if(document.querySelectorAll(".f-area [name='chk[]']:not(:disabled)").length == 
+		document.querySelectorAll(".f-area [name='chk[]']:checked").length){
+			document.querySelector("#chkallf").checked = true;
+		}else{
+			document.querySelector("#chkallf").checked = false;
+		}
+
+		if(document.querySelectorAll(".c-area [name='chk[]']:not(:disabled)").length == 
+		document.querySelectorAll(".c-area [name='chk[]']:checked").length){
+			document.querySelector("#chkallc").checked = true;
+		}else{
+			document.querySelector("#chkallc").checked = false;
+		}
+
+		item_sum();
+	}
+
+
+	document.querySelector("#chkallf").addEventListener("change",function(){
+		if(this.checked){
+			f_input_checked(true);
+			c_input_checked(false);
+		}else{
+			f_input_checked(false);
+		}
+	});
+
+	document.querySelector("#chkallc").addEventListener("change",function(){
+		if(this.checked){
+			c_input_checked(true);
+			f_input_checked(false);
+		}else{
+			c_input_checked(false);
+		}
+	});
+
+	document.querySelectorAll(".f-area [name='chk[]']").forEach(element => {
+		element.addEventListener("change",function(){
+			fc_input_checked_update();
+		});
+	});
+
+	document.querySelectorAll(".c-area [name='chk[]']").forEach(element => {
+		element.addEventListener("change",function(){
+			fc_input_checked_update();
+		});
+	});
+}
+
+
+
+// setTimeout();
+// page_load();
+setTimeout(page_load, 60);
+
 </script>
