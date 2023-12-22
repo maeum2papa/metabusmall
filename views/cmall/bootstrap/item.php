@@ -308,10 +308,18 @@
 							</div>
 							<div>
 								<span class="span-qty">
+									<?php 
+										$button_disabled = "";
+										$button_readonly = "";
+										if($view['data']['cit_one_sale'] == "y"){
+											$button_disabled = "disabled";
+											$button_readonly = "readonly";
+										}
+									?>
 									<div class="btn-group" role="group" aria-label="...">
-										<button type="button" class="btn btn-default btn-xs btn-change-qty" data-change-type="minus">-</button>
-										<input type="text" name="detail_qty[<?php echo element('cde_id', $detail); ?>]" class="btn btn-default btn-xs detail_qty" value="1" />
-										<button type="button" class="btn btn-default btn-xs btn-change-qty" data-change-type="plus">+</button>
+										<button type="button" class="btn btn-default btn-xs btn-change-qty" data-change-type="minus" <?php echo $button_disabled;?>>-</button>
+										<input type="text" name="detail_qty[<?php echo element('cde_id', $detail); ?>]" class="btn btn-default btn-xs detail_qty" value="1" <?php echo $button_readonly;?>/>
+										<button type="button" class="btn btn-default btn-xs btn-change-qty" data-change-type="plus" <?php echo $button_disabled;?>>+</button>
 									</div>
 								</span>
 								<span class="detail_price">
