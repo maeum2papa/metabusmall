@@ -494,7 +494,7 @@ class Cmall extends CB_Controller
 
 		// 이벤트가 존재하면 실행합니다
 		$view['view']['event']['before'] = Events::trigger('before', $eventname);
-
+		
 		$cit_id = (int) $this->input->post('cit_id');
 		if (empty($cit_id) OR $cit_id < 1) {
 			show_404();
@@ -526,6 +526,12 @@ class Cmall extends CB_Controller
 
 		$view['view']['item'] = $item;
 		$view['view']['detail'] = $detail;
+
+		if($item['cit_money_type']=="f"){
+			$this->load->model("Company_info_model");
+			$company = $this->Company_info_model->get_one($this->member->item("company_idx"));
+			$view['view']['company_coin_value'] = $company['coin_value'];
+		}
 
 		// 이벤트가 존재하면 실행합니다
 		$view['view']['event']['before_layout'] = Events::trigger('before_layout', $eventname);

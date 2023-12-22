@@ -2,6 +2,7 @@
 <?php
 $attributes = array('class' => 'form-inline', 'name' => 'foption', 'id' => 'foption', 'onsubmit' => 'return fcart_submit(this)');
 echo form_open(site_url('cmallact/optionupdate'), $attributes);
+// debug($view['item']['cit_money_type']); cit_price company_idx
 ?>
 	<input type="hidden" name="cit_id" value="<?php echo element('cit_id', element('item', $view)); ?>" />
 	<div class="popup popup-cart">
@@ -12,9 +13,17 @@ echo form_open(site_url('cmallact/optionupdate'), $attributes);
 				<ul>
 				
 					<?php
+					$company_coin_value = 0;
+					if($view['company_coin_value'] && $view['item']['cit_money_type']=="f"){
+						$company_coin_value = $view['company_coin_value'];
+					}
 					if (element('detail', $view)) {
 						foreach (element('detail', $view) as $key => $value) {
 							$price = element('cit_price', element('item', $view)) + element('cde_price', $value);
+
+							if($view['company_coin_value'] && $view['item']['cit_money_type']=="f"){
+								$price = ($price / $company_coin_value);
+							}
 					?>
 						<li>
 							 <div class="opt-name">
@@ -31,7 +40,14 @@ echo form_open(site_url('cmallact/optionupdate'), $attributes);
 								</span>
 								<span class="detail_price">
 									<input type="hidden" name="item_price[<?php echo element('cde_id', $value); ?>]" value="<?php echo $price; ?>" />
-									<strong><?php echo number_format($price); ?></strong> 원
+									<strong>
+										<?php 
+											if($view['item']['cit_money_type'] == "f"){
+
+											}
+											echo number_format($price); 
+										?>
+									</strong> 개
 								</span>
 							</div>
 						</li>
@@ -42,7 +58,7 @@ echo form_open(site_url('cmallact/optionupdate'), $attributes);
 				</ul>
 			</div>
 			<div class="cart_total_price">
-				총 구매금액 <span class="product-title"><span id="total_order_price">0</span>원</span>
+				총 구매금액 <span class="product-title"><span id="total_order_price">0</span>개</span>
 			</div>
 		</div>
 		<div class="pop-btn ">
