@@ -173,7 +173,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						
 						$input_chk_flag = "";
 						foreach($order_detail as $k=>$v){
-							if($v['item']['cit_stock_type'] == 'i'){
+							if($v['item']['cit_item_type'] == 'i'){
 								$input_chk_flag = "disabled";
 								continue;
 							}else{
