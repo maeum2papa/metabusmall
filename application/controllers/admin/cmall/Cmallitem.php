@@ -862,6 +862,7 @@ class Cmallitem extends CB_Controller
 				'cit_startDt' => $cit_startDt,
 				'cit_endDt' => $cit_endDt,
 				'cit_item_arr' => $this->input->post('cit_item_arr', null, ''),
+				'cit_one_sale' => $this->input->post('cit_one_sale', null, ''),
 			);
 
 			for ($k = 1; $k <= 10; $k++) {

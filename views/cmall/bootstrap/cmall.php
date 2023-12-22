@@ -172,7 +172,9 @@
 			?>
 				<div class="reco_cont">
 						<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
-							<a onClick="alert('베타테스트 기간에는 구매가 불가합니다');">
+							<a onClick="alert('<?php echo cmsg("1103");?>');">
+						<?php }else if(cmall_item_one_sale_order($this->member->item('mem_id'),$item['cit_id'])){ ?>
+							<a onClick="alert('<?php echo cmsg("1102")?>');">
 						<?php }else{ ?>
 							<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 						<?php } ?>
@@ -180,7 +182,7 @@
 						<div class="cont_img">
 							<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
 
-							<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+							<?php if(soldoutYn(element('cit_id', $item)) == 'y' || cmall_item_one_sale_order($this->member->item('mem_id'),$item['cit_id'])){?>
 							<div class="soldout_mask">
 								<span>구매 불가</span>
 							</div>
@@ -246,14 +248,16 @@
 					?>
 					<div class="reco_cont">
 						<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
-							<a onClick="alert('베타테스트 기간에는 구매가 불가합니다');">
+							<a onClick="alert('<?php echo cmsg("1103");?>');">
+						<?php }else if(cmall_item_one_sale_order($this->member->item('mem_id'),$item['cit_id'])){ ?>
+							<a onClick="alert('<?php echo cmsg("1102")?>');">
 						<?php }else{ ?>
 							<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 						<?php } ?>
 							<div class="cont_img">
 								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
 								
-								<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+								<?php if(soldoutYn(element('cit_id', $item)) == 'y' || cmall_item_one_sale_order($this->member->item('mem_id'),$item['cit_id'])){?>
 								<div class="soldout_mask">
 									<span>구매 불가</span>
 								</div>
@@ -317,14 +321,16 @@
 					?>
 					<div class="reco_cont">
 						<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
-							<a onClick="alert('베타테스트 기간에는 구매가 불가합니다');">
+							<a onClick="alert('<?php echo cmsg("1103");?>');">
+						<?php }else if(cmall_item_one_sale_order($this->member->item('mem_id'),$item['cit_id'])){ ?>
+							<a onClick="alert('<?php echo cmsg("1102")?>');">
 						<?php }else{ ?>
 							<a href="<?php echo cmall_item_url(element('cit_key', $item)); ?>">
 						<?php } ?>
 							<div class="cont_img">
 								<img src="<?php echo thumb_url('cmallitem', element('cit_file_1', $item), 420, 300); ?>" alt="">
 
-								<?php if(soldoutYn(element('cit_id', $item)) == 'y'){?>
+								<?php if(soldoutYn(element('cit_id', $item)) == 'y' || cmall_item_one_sale_order($this->member->item('mem_id'),$item['cit_id'])){?>
 								<div class="soldout_mask">
 									<span>구매 불가</span>
 								</div>

@@ -2,14 +2,14 @@
 <?php $this->managelayout->add_js(base_url('assets/js/cmallitem.js')); ?>
 
 <!-- asmo sh 231205 shop div#item 감싸는 div#asmo_cmall 생성 -->
-<div id="asmo_cmall">
+<div class="asmo_cmall">
 	<div class="market" id="item">
 
 		<!-- 디자인 상 장바구니, 구매내역 버튼 필요하여 div.cmall_item_top_box 생성  -->
 		<div class="cmall_item_top_box">
 			
 
-				<a href="">찜하기목록으로 <?=banner('heart_color')?></a>
+				<a href="/cmall/wishlist">찜하기목록으로 <?=banner('heart_color')?></a>
 				<!-- asmo sh 231205 디자인 상 관리자일 때 노출되는 버튼 div.cmall_item_top_box 으로 재배치 -->
 				<?php if ($this->member->is_admin()) { ?>
 					<a href="<?php echo admin_url('cmall/cmallitem/write/' . element('cit_id', element('data', $view))); ?>" target="_blank" class="btn-sm btn btn-danger pull-right btn-edit">상품내용수정</a>
@@ -294,8 +294,17 @@
 					?>
 						<li>
 							<div class="opt-name">
-								<span class="span-chk"><input type="checkbox" name="chk_detail[]" value="<?php echo element('cde_id', $detail); ?>" /></span>
-								<?php echo html_escape(element('cde_title', $detail)); ?>
+								<span class="span-chk">
+
+									<!-- asmo sh 231214 디자인 상 체크박스 커스텀 위해 input에 id 추가 및 label 생성 -->
+									<input type="checkbox" name="chk_detail[]" id="<?php echo element('cde_id', $detail); ?>" value="<?php echo element('cde_id', $detail); ?>" />
+									<label for="<?php echo element('cde_id', $detail); ?>"></label>
+
+									
+								</span>
+
+								<!-- asmo sh 231219 디자인 상 최종 가격에 옵션가격이 들어가는 것이 아닌 상품 제목 옆에 옵션가격 추가 -->
+								<?php echo html_escape(element('cde_title', $detail)); ?> (+<?php echo (int) element('cde_price', $detail); ?>개)
 							</div>
 							<div>
 								<span class="span-qty">
@@ -307,7 +316,7 @@
 								</span>
 								<span class="detail_price">
 									<input type="hidden" name="item_price[<?php echo element('cde_id', $detail); ?>]" value="<?php echo $price; ?>" />
-									<span><?php echo number_format($price); ?></span>개
+									<span><?php echo number_format($price - element('cde_price', $detail)); ?> </span>개
 								</span>
 							</div>
 						</li>
@@ -328,14 +337,38 @@
 					?>
 						<!-- asmo sh 231207 구매하기, 장바구니 버튼 클릭 시 팝업 레이어 생성하는 버튼으로 변경 -->
 						<a href="javascript:;" id="order_layer_open_btn" class="btn btn-order">구매하기</a>
-						<a href="javascript:;" id="cart_layer_open_btn" class="btn btn-cart btn-border">장바구니</a>
+						
+						<?php
+							if($view['data']['cit_one_sale']=="y"){
+								?>
+								<a href="javascript:void(0);" class="btn btn-cart btn-border" disabled>장바구니</a>
+								<?php
+							}else{
+								?>
+								<a href="javascript:;" id="cart_layer_open_btn" class="btn btn-cart btn-border">장바구니</a>
+								<?php
+							}
+						?>
+						
 					<?php
 						}
 					?>
 
-					<button type="submit" onClick="$('#stype').val('wish');" class="btn btn-wish btn-border">찜하기</button>
+					<?php
+						if($view['data']['cit_one_sale']=="y"){
+							?>
+							<button type="button" class="btn btn-wish btn-border" disabled>찜하기</button>
+							<?php
+						}else{
+							?>
+							<button type="submit" onClick="$('#stype').val('wish');" class="btn btn-wish btn-border">찜하기</button>
+							<?php
+						}
+					?>
 
-					<a href="#">목록가기</a>
+
+					<!-- 디자인 상 목록가기 버튼 생성 -->
+					<a href="javascript:;" class="btn-history-back">목록가기</a>
 
 
 				</div>
@@ -393,7 +426,25 @@
 <script type="text/javascript" src="<?php echo base_url('assets/js/bxslider/jquery.bxslider.min.js'); ?>"></script>
 <script type="text/javascript">
 
+			
+	
+	
 	$(document).ready(function() {
+		
+		// $('#asmo_cmall #item .product_fixed_box > form .product-option li .opt-name .span-chk input[type="checkbox"]').click(function() {
+			// 	$(this).prop('checked',true);
+			// });
+			
+			if ($('.asmo_cmall #item .product_fixed_box > form .product-option li').length === 1) {
+				
+				setTimeout(() => {
+					
+					$('.asmo_cmall #item .product_fixed_box > form .product-option li .opt-name input[type=checkbox]').trigger('click');
+				}, 10);
+			
+			
+			$('.asmo_cmall #item .product_fixed_box > form .product-option li .opt-name .span-chk label').addClass('dn');
+		}
 
 		$('#order_layer_open_btn').click(function() {
 			$('#order_layer').css('display', 'flex');
@@ -425,9 +476,9 @@
 			$('#qna_write').css('display', 'block');
 		});
 
-		$("iframe").load(function() {
-			let dimCloseBtn = $("iframe").contents().find(".btn-default");
-			let dimSubmitBtn = $("iframe").contents().find(".btn-primary");
+		$("#review_write iframe, #qna_write iframe").load(function() {
+			let dimCloseBtn = $("#review_write iframe, #qna_write iframe").contents().find(".btn-default");
+			let dimSubmitBtn = $("#review_write iframe, #qna_write iframe").contents().find(".btn-primary");
 			
 			dimCloseBtn.click(function() {
 				$('#review_write').css('display', 'none');
@@ -472,8 +523,8 @@ jQuery(function($){
 		// nextText: '<img src="<?php echo element('view_skin_url', $layout); ?>/images/btn_next.png" alt="다음" title="다음" />',
 		// prevText: '<img src="<?php echo element('view_skin_url', $layout); ?>/images/btn_prev.png" alt="이전" title="이전" />'
 
-		nextText: '<img src="<?php echo element('layout_skin_url', $layout); ?>/seum_img/cmall/arrowR_icon.svg" alt="다음" title="다음" />',
-		prevText: '<img src="<?php echo element('layout_skin_url', $layout); ?>/seum_img/cmall/arrowL_icon.svg" alt="이전" title="이전" />'
+		nextText: '<img src="<?php echo element('layout_skin_url', $layout); ?>/seum_img/cmall/shop_arrow_R.svg" alt="다음" title="다음" />',
+		prevText: '<img src="<?php echo element('layout_skin_url', $layout); ?>/seum_img/cmall/shop_arrow_L.svg" alt="이전" title="이전" />'
 	});
 
 	$(document).ready(function($) {

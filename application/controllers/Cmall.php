@@ -292,6 +292,14 @@ class Cmall extends CB_Controller
 			'cit_key' => $cit_key,
 		);
 		$data = $this->Cmall_item_model->get_one('', '', $where);
+
+		//한번만 구매 상품인 경우 구매 조회
+		if($data['cit_one_sale']=="y"){
+			if(cmall_item_one_sale_order($this->member->item("mem_id"),$data['cit_id'])){
+				alert(cmsg("1102"));
+				exit;
+			}
+		}
 		
 		//삭제 상품(플래그) 상품 접근 차단
 		if($data['cit_del_flag']=='y'){

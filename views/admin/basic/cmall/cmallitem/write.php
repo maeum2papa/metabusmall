@@ -292,6 +292,15 @@
 						<div class="help-inline" >체크를 해제하시면 상품 리스트에서 사라지며, 구매할 수 없습니다. </div>
 					</div>
 				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">한번만 구매</label>
+					<div class="col-sm-10">
+						<label for="cit_one_sale" class="checkbox-inline">
+							<input type="checkbox" name="cit_one_sale" id="cit_one_sale" value="y" <?php echo ($view['data']['cit_one_sale']=="y")?"checked":""; ?> /> 사용
+						</label>
+						<div class="help-inline" >회원당 1개의 상품을 한번만 구매할 수 있습니다.</div>
+					</div>
+				</div>
 				
 				<div class="form-group">
 					<label class="col-sm-2 control-label">판매재고</label>

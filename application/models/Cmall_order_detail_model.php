@@ -67,6 +67,35 @@ class Cmall_order_detail_model extends CB_Model
 		return $result;
 	}
 
+	/**
+	 * 회원이 구매한 상품 조회 (한번만 구매 가능한 상품을 구매 했는지 확인하기 위함)
+	 */
+	public function get_detail_by_item2($mem_id = 0, $cit_id = 0){
+
+		$cit_id = preg_replace('/[^0-9]/', '', $cit_id);
+		if (empty($cit_id) OR $cit_id < 1) {
+			return;
+		}
+
+		$this->db->select('cmall_order_detail.*');
+		$this->db->from('cmall_order_detail');
+		$this->db->where('cmall_order_detail.mem_id', $mem_id);
+		$this->db->where('cmall_order_detail.cit_id', $cit_id);
+		
+		$this->db->group_start();
+			$this->db->or_where('cmall_order_detail.cod_status', 'order');
+			$this->db->or_where('cmall_order_detail.cod_status', 'end');
+		$this->db->group_end();
+		// (a='a' OR a='b')
+
+		$qry = $this->db->get();
+		$result = $qry->result_array();
+
+
+		return $result;
+
+	}
+
 
 	/**
 	 * 결제 초기화

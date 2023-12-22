@@ -385,3 +385,31 @@ if ( ! function_exists('cmall_item_stock_change')) {
 
 	}
 }
+
+
+//한번만 구매한 상품을 주문 했는지 확인
+if ( ! function_exists('cmall_item_one_sale_order')) {
+	/**
+	 * @param int $mem_id 회원PK
+	 * @param int $cit_id 상품PK
+	 * @return boolean (true = 구매한적 있음)
+	 */
+	function cmall_item_one_sale_order($mem_id,$cit_id){
+
+		$result = false;
+		
+		$CI =& get_instance();
+
+		$CI->load->model(array("Cmall_item_model","Cmall_order_detail_model"));
+		$item = $CI->Cmall_item_model->get_one($cit_id);
+
+		if($item['cit_one_sale']=='y'){
+			$data = $CI->Cmall_order_detail_model->get_detail_by_item2($mem_id,$cit_id);
+			if(count($data) > 0){
+				$result = true;
+			}
+		}
+		
+		return $result;
+	}
+}
