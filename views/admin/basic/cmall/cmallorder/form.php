@@ -8,6 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<ul class="prd-list">
 
 		<?php
+		$custom_config = config_item("custom");
 		$result = element('data', $view);
 		if (element('orderdetail', $view)) {
 
@@ -72,6 +73,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							<input type="checkbox" name="chkall" id="chkall" <?php echo $all_checkbox_disabled;?>>
 						</th>
 						<th>이미지</th>
+						<th>카테고리</th>
 						<th>상품명</th>
 						<th class="text-center">상태</th>
 						<th class="text-center">총수량</th>
@@ -93,6 +95,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 						<input type="hidden" name="cit_id[]" value="<?php echo element('cit_id', element('item', $row)); ?>">
 						</td>
 						<td><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>" target="_blank"><img src="<?php echo thumb_url('cmallitem', element('cit_file_1', element('item', $row)), 60, 60); ?>" class="thumbnail" style="margin:0;width:60px;height:60px;" alt="<?php echo html_escape(element('cit_name', element('item', $row))); ?>" title="<?php echo html_escape(element('cit_name', element('item', $row))); ?>" /></a></td>
+						<td>
+							<?php 
+							$cca_id = cmall_item_parent_category($row['cit_id']);
+							if($custom_config['category']['basic'] == $cca_id){
+								echo "공용몰";
+							}else if($custom_config['category']['item'] == $cca_id){
+								echo "아이템몰";
+							}else if($custom_config['category']['company'] == $cca_id){
+								echo "기업몰";
+							} 
+							?>
+						</td>
 						<td><a href="<?php echo cmall_item_url(element('cit_key', element('item', $row))); ?>" target="_blank"><?php echo html_escape(element('cit_name', element('item', $row))); ?></a>
 							<ul class="cmall-options">
 								<?php

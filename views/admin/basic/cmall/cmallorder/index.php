@@ -9,6 +9,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 .status-options button{border-radius:3px;}
 #search_form th{padding:10px;}
 #search_form td{padding:10px;}
+.order_item_detail{ padding:10px; border-top:1px dashed gray;}
+.order_item_detail:nth-child(1){border-top:0;}
 </style>
 
 <div class="box">
@@ -66,6 +68,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 							</div>
 							<div class="checkbox-inline">
 								<input type="checkbox" name="status[]" value="cancel" id="status_cancel" <?php echo (in_array("cancel",$this->input->get("status")))?"checked":"";?>> <label for="status_cancel">주문취소</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>카테고리</th>
+						<td>
+							<?php
+								$config_item = config_item("custom");
+							?>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cmall_category[]" value="<?php echo $config_item['category']['basic'];?>" id="cmall_category_0" <?php echo (in_array($config_item['category']['basic'],$this->input->get("cmall_category")))?"checked":"";?>> <label for="cmall_category_0">공용몰</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cmall_category[]" value="<?php echo $config_item['category']['item'];?>" id="cmall_category_1" <?php echo (in_array($config_item['category']['item'],$this->input->get("cmall_category")))?"checked":"";?>> <label for="cmall_category_1">아이템몰</label>
+							</div>
+							<div class="checkbox-inline">
+								<input type="checkbox" name="cmall_category[]" value="<?php echo $config_item['category']['company'];?>" id="cmall_category_2" <?php echo (in_array($config_item['category']['company'],$this->input->get("cmall_category")))?"checked":"";?>> <label for="cmall_category_2">기업몰</label>
 							</div>
 						</td>
 					</tr>
@@ -205,8 +224,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 												$disabled="style='color:gray'";
 											}
 										}
+										$cca_id = cmall_item_parent_category($v['cit_id']);
                                         ?>
-                                        <div <?php echo $disabled?>>
+                                        <div <?php echo $disabled?> class="order_item_detail">
+
+											[
+											<?php 
+												if($config_item['category']['basic'] == $cca_id){
+													echo "공용몰";
+												}else if($config_item['category']['item'] == $cca_id){
+													echo "아이템몰";
+												}else if($config_item['category']['company'] == $cca_id){
+													echo "기업몰";
+												}
+											?>
+											]
+
                                             <?php echo $v['item']['cit_name']; ?>
                                             [옵션 : <?php echo $v2['cde_title']; ?>]
                                             <?php echo $ea; ?>
@@ -402,6 +435,15 @@ function export_to_excel(){
 		company_idx.value = element.value;
 		form.appendChild(company_idx);
 	});
+
+	document.querySelectorAll("[name='cmall_category[]']:checked").forEach(element=>{
+		var cmall_categorys = document.createElement('input');
+		cmall_categorys.type = 'hidden';
+		cmall_categorys.name = 'cmall_category[]';
+		cmall_categorys.value = element.value;
+		form.appendChild(cmall_categorys);
+	});
+	
 
 	document.body.appendChild(form);
 

@@ -165,13 +165,13 @@ class Cmallorder extends CB_Controller
 		}	
 
 		$view['view']['search']['search_datetime_type'] = $search_datetime_type;
-		$where[$search_datetime_type.' >='] = $view['view']['search']['search_datetime_start'] = $start_date;
-		$where[$search_datetime_type.' <='] = $view['view']['search']['search_datetime_end'] = $end_date;
+		$where["cb_cmall_order.".$search_datetime_type.' >='] = $view['view']['search']['search_datetime_start'] = $start_date;
+		$where["cb_cmall_order.".$search_datetime_type.' <='] = $view['view']['search']['search_datetime_end'] = $end_date;
 		// SQL : cor_datetime = <= '2023-12-19'
 
 		
 		if ($this->input->get('cor_pay_type')) {
-			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
+			$where['cb_cmall_order.cor_pay_type'] = $this->input->get('cor_pay_type');
 		}
 
 		//기업관리자에게 데이터 제한
@@ -186,7 +186,7 @@ class Cmallorder extends CB_Controller
 				$statuss[] = $v;
 			}			
 
-			$where["status in('".implode("','",$statuss)."')"] = null;
+			$where["cb_cmall_order.status in('".implode("','",$statuss)."')"] = null;
 			// SQL : status in('order')
 		}
 
@@ -199,7 +199,7 @@ class Cmallorder extends CB_Controller
 		}
 
 		if($this->input->get("cor_id")!=""){
-			$where["cor_id"] = $this->input->get("cor_id");
+			$where["cb_cmall_order.cor_id"] = $this->input->get("cor_id");
 		}
 
 		if($this->input->get("company_idx")){
@@ -209,10 +209,50 @@ class Cmallorder extends CB_Controller
 			}
 			$where["cb_cmall_order.company_idx in('".implode("','",$company_idxs)."')"] = null;
 		}
+
+		if($this->input->get("cmall_category")){
+			$cmall_categorys = array();
+			foreach($this->input->get("cmall_category") as $k=>$v){
+				$cmall_categorys[] = $v;
+				$or_where[] = "(FIND_IN_SET(".$v.", tmp_cb_cmall_order_detail.cca_id) > 0)";
+			}
+
+			$or = "(".implode(" OR ",$or_where).")";
+			
+			$where[$or] = null;
+		}
 		
 		/** 상세 검색 end */
+		// $result = $this->{$this->modelname}
+		// 	->get_admin_list($per_page, $offset, $where, $like, $findex, $forder, $sfield, $skeyword);
+		$join  = array(
+			"table" => "
+			(
+				SELECT cb_cmall_order_detail.cor_id, tmp_cb_cmall_category_rel.cit_id, CONCAT(GROUP_CONCAT(tmp_cb_cmall_category_rel.cca_id SEPARATOR ', ')) AS cca_id
+				FROM cb_cmall_order_detail
+				INNER JOIN
+					(
+						SELECT DISTINCT tmp_cb_cmall_category_rel.*
+						FROM cb_cmall_category_rel 
+						INNER JOIN 
+							(
+								SELECT cb_cmall_category_rel.cit_id, cb_cmall_category.cca_id, cb_cmall_category.cca_parent
+								FROM cb_cmall_category 
+								INNER JOIN cb_cmall_category_rel 
+								ON cb_cmall_category_rel.cca_id = cb_cmall_category.cca_id
+								WHERE cb_cmall_category.cca_parent = 0
+							) AS tmp_cb_cmall_category_rel
+						ON cb_cmall_category_rel.cit_id = tmp_cb_cmall_category_rel.cit_id
+					) AS tmp_cb_cmall_category_rel
+				ON cb_cmall_order_detail.cit_id = tmp_cb_cmall_category_rel.cit_id
+				GROUP BY cb_cmall_order_detail.cor_id
+			) AS tmp_cb_cmall_order_detail
+			",
+			"on"=>"ON cb_cmall_order.cor_id = tmp_cb_cmall_order_detail.cor_id"
+		);
 		$result = $this->{$this->modelname}
-			->get_admin_list($per_page, $offset, $where, $like, $findex, $forder, $sfield, $skeyword);
+			->_get_list_common("cb_cmall_order.*",$join,$per_page, $offset, $where, $like, $findex, $forder, $sfield, $skeyword);
+
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		// debug($result);
 		if (element('list', $result)) {
@@ -251,7 +291,7 @@ class Cmallorder extends CB_Controller
 			}
 		}
 		$view['view']['data'] = $result;
-		
+
 		if($this->session->userdata['mem_admin_flag']==0){
 			$this->load->model("Company_info_model");
 			$forder = "company_name asc";
@@ -1060,11 +1100,11 @@ class Cmallorder extends CB_Controller
 		}	
 
 		$view['view']['search']['search_datetime_type'] = $search_datetime_type;
-		$where[$search_datetime_type.' >='] = $view['view']['search']['search_datetime_start'] = $start_date;
-		$where[$search_datetime_type.' <='] = $view['view']['search']['search_datetime_end'] = $end_date;
+		$where["cb_cmall_order.".$search_datetime_type.' >='] = $view['view']['search']['search_datetime_start'] = $start_date;
+		$where["cb_cmall_order.".$search_datetime_type.' <='] = $view['view']['search']['search_datetime_end'] = $end_date;
 		
 		if ($this->input->get('cor_pay_type')) {
-			$where['cor_pay_type'] = $this->input->get('cor_pay_type');
+			$where['cb_cmall_order.cor_pay_type'] = $this->input->get('cor_pay_type');
 		}
 
 		if($this->session->userdata['mem_admin_flag']!=0){
@@ -1077,7 +1117,7 @@ class Cmallorder extends CB_Controller
 				$statuss[] = $v;
 			}			
 
-			$where["status in('".implode("','",$statuss)."')"] = null;
+			$where["cb_cmall_order.status in('".implode("','",$statuss)."')"] = null;
 			// SQL : status in('order')
 		}
 
@@ -1090,7 +1130,7 @@ class Cmallorder extends CB_Controller
 		}
 
 		if($this->input->get("cor_id")!=""){
-			$where["cor_id"] = $this->input->get("cor_id");
+			$where["cb_cmall_order.cor_id"] = $this->input->get("cor_id");
 		}
 
 		if($this->input->get("company_idx")){
@@ -1101,9 +1141,49 @@ class Cmallorder extends CB_Controller
 			$where["cb_cmall_order.company_idx in('".implode("','",$company_idxs)."')"] = null;
 		}
 
+		if($this->input->get("cmall_category")){
+			$cmall_categorys = array();
+			foreach($this->input->get("cmall_category") as $k=>$v){
+				$cmall_categorys[] = $v;
+				$or_where[] = "(FIND_IN_SET(".$v.", tmp_cb_cmall_order_detail.cca_id) > 0)";
+			}
+
+			$or = "(".implode(" OR ",$or_where).")";
+			
+			$where[$or] = null;
+		}
+
 		/** 상세 검색 end */
+		// $result = $this->{$this->modelname}
+		// 	->get_admin_list(0, 9999999999999, $where, $like, $findex, $forder, $sfield, $skeyword);
+		$join  = array(
+			"table" => "
+			(
+				SELECT cb_cmall_order_detail.cor_id, tmp_cb_cmall_category_rel.cit_id, CONCAT(GROUP_CONCAT(tmp_cb_cmall_category_rel.cca_id SEPARATOR ', ')) AS cca_id
+				FROM cb_cmall_order_detail
+				INNER JOIN
+					(
+						SELECT DISTINCT tmp_cb_cmall_category_rel.*
+						FROM cb_cmall_category_rel 
+						INNER JOIN 
+							(
+								SELECT cb_cmall_category_rel.cit_id, cb_cmall_category.cca_id, cb_cmall_category.cca_parent
+								FROM cb_cmall_category 
+								INNER JOIN cb_cmall_category_rel 
+								ON cb_cmall_category_rel.cca_id = cb_cmall_category.cca_id
+								WHERE cb_cmall_category.cca_parent = 0
+							) AS tmp_cb_cmall_category_rel
+						ON cb_cmall_category_rel.cit_id = tmp_cb_cmall_category_rel.cit_id
+					) AS tmp_cb_cmall_category_rel
+				ON cb_cmall_order_detail.cit_id = tmp_cb_cmall_category_rel.cit_id
+				GROUP BY cb_cmall_order_detail.cor_id
+			) AS tmp_cb_cmall_order_detail
+			",
+			"on"=>"ON cb_cmall_order.cor_id = tmp_cb_cmall_order_detail.cor_id"
+		);
 		$result = $this->{$this->modelname}
-			->get_admin_list(0, 9999999999999, $where, $like, $findex, $forder, $sfield, $skeyword);
+			->_get_list_common("cb_cmall_order.*",$join,0,9999999999999, $where, $like, $findex, $forder, $sfield, $skeyword);
+		
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
 		
 		if (element('list', $result)) {
@@ -1180,7 +1260,7 @@ class Cmallorder extends CB_Controller
 				$result['list'][$key]['orderdetail'] = $orderdetail;
 			}
 		}
-
+		
 		$view['view']['data']['list'] = $excel_data;
 		$view['view']['data']['mem_admin_flag'] = $this->session->userdata['mem_admin_flag'];
 		

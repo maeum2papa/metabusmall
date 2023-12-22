@@ -114,12 +114,12 @@
 	</ul>
 </div> -->
 
-<div id="asmo_cmall">
+<div class="asmo_cmall">
 	<div class="asmo_cmall_index">
 		<div class="cmall_top_wrap">
 			<div class="top_left_box">
 
-				<div class="status_box" id="status_popup_open">
+				<div class="status_box status_box_wrap" id="fruit_popup_open">
 					<div class="status_icon">
 						<?=banner('fruit')?>
 					</div>
@@ -128,7 +128,7 @@
 					</div>
 				</div>
 
-				<div class="status_box" id="status_popup_open">
+				<div class="coin_box status_box_wrap" id="coin_popup_open">
 					<div class="status_icon">
 						<?=banner('coin')?>
 					</div>
@@ -147,21 +147,9 @@
 		<div class="swiper-wrap">
 			<div class="cmall_index_slide swiper mySwiper">
 				<div class="swiper-wrapper">
-					<div class="swiper-slide">
-						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-					</div>
-					<div class="swiper-slide">
-						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-					</div>
-					<div class="swiper-slide">
-						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-					</div>
-					<div class="swiper-slide">
-						<div class="slide_img"><?=banner('shop_slide_banner_2')?></div>
-					</div>
-					<div class="swiper-slide">
-						<div class="slide_img"><?=banner('shop_slide_banner')?></div>
-					</div>
+					
+						<?=banner('shop_slide_banner','','','<li class="swiper-slide">','</li>')?>
+						
 				</div>
 				
 			</div>
@@ -427,6 +415,7 @@
 		speed: 500,
 		// effect: 'fade',
 		slidesPerView : 2,
+		spaceBetween: 16,
 		loop: true,
 		pagination: {
 			el: '.swiper-pagination',
