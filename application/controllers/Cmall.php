@@ -1973,6 +1973,14 @@ class Cmall extends CB_Controller
 		$where = array();
 		$where['mem_id'] = $this->member->item('mem_id');
 
+		if($this->input->get("start-date")){
+			$where["cb_cmall_order.cor_datetime >= "] = $this->input->get("start-date")." 00:00:00";
+		}
+
+		if($this->input->get("end-date")){
+			$where["cb_cmall_order.cor_datetime <= "] = $this->input->get("end-date")." 23:59:59";
+		}
+
 		$result = $this->Cmall_order_model
 			->get_list($per_page, $offset, $where, '', $findex, $forder);
 		$list_num = $result['total_rows'] - ($page - 1) * $per_page;
